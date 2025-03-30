@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthProvider";
+import SidebarMenu from "@/components/SidebarMenu";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +19,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <AuthProvider>
-        <body className={`${inter.className} antialiased`}>{children}</body>
+        <body className={`${inter.className} antialiased`}>
+          <div className="flex">
+            <SidebarMenu />
+
+            <div className="flex flex-col min-h-screen">{children}</div>
+          </div>
+        </body>
       </AuthProvider>
     </html>
   );
