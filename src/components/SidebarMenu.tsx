@@ -29,7 +29,7 @@ const menuItems = [
   { title: "Experiments", icon: Microscope, url: "/experiments" },
   { title: "Trainings", icon: Brain, url: "/trainings" },
   { title: "Participants", icon: Users, url: "/participants" },
-  { title: "Reports", icon: FileChartColumn, url: "/media" },
+  { title: "Reports", icon: FileChartColumn, url: "/reports" },
   { title: "Settings", icon: Settings, url: "/settings" },
 ];
 
@@ -61,12 +61,17 @@ function MenuItem({
 
   if (onClick) {
     return (
-      <button onClick={onClick} className={baseClass + " cursor-pointer"}>
+      <button
+        onClick={onClick}
+        className={baseClass + ` cursor-pointer ${!collapsed && "w-full"}`}
+      >
         <div className="flex w-5">
           <Icon size={20} />
         </div>
         <span
-          className={`flex-1 transition-all ${collapsed ? "w-0" : "w-full"}`}
+          className={`flex-1 transition-all text-left ${
+            collapsed ? "w-0" : "w-full"
+          }`}
         >
           {title}
         </span>
