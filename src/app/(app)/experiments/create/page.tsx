@@ -64,7 +64,7 @@ const CreateExperiments = () => {
       >
         <div className="button">
           <Link
-            className="cursor-pointer bg-[#EBEFFF]0 text-white rounded-lg px-4 py-3 hover:bg-blue-600 transition duration-200"
+            className="cursor-pointer text-white rounded-lg px-4 py-3 hover:bg-blue-600 transition duration-200"
             href={"/experiments/create"}
           >
             Create Experiment

@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import TimelineHeader from "./components/TimelineHeader";
 import { useExperimentStore } from "@/stores/experimentStore";
 import TimelineEditor from "./components/TimelineEditor";
+import TimelineSidebar from "./components/TimelineSidebar";
 
 type TimelineViewProps = {
   id: string;
@@ -10,6 +11,11 @@ type TimelineViewProps = {
 const TimelineView: React.FC<TimelineViewProps> = ({ id }) => {
   const { experimentData, loading, error, getExperimentById } =
     useExperimentStore();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const toggleSiderbarOpen = () => {
+    setSidebarOpen((prev) => !prev);
+  };
 
   useEffect(() => {
     if (id) {
@@ -30,9 +36,13 @@ const TimelineView: React.FC<TimelineViewProps> = ({ id }) => {
       <TimelineHeader
         title={experimentData.name}
         key={experimentData.id}
-        onAddStep={() => console.log("modal")}
+        onAddStep={toggleSiderbarOpen}
       />
       <TimelineEditor />
+      <TimelineSidebar
+        sidebarOpen={sidebarOpen}
+        toggleSiderbarOpen={toggleSiderbarOpen}
+      />
     </div>
   );
 };

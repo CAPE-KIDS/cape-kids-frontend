@@ -23,7 +23,9 @@ export default function RootLayout({
           <div className="flex">
             <SidebarMenu />
 
-            <div className="flex flex-1 flex-col min-h-screen">{children}</div>
+            <div className="flex flex-1 flex-col h-screen overflow-auto">
+              {children}
+            </div>
           </div>
         </body>
       </AuthProvider>

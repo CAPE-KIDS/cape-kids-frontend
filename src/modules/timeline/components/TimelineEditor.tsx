@@ -7,103 +7,17 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
-  Node,
-  Edge,
-  Position,
-  MarkerType,
-  EdgeMarkerType,
   Connection,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Plus } from "lucide-react";
 import CustomNode from "./CustomNode";
+import CustomEdge from "./CustomEdge";
+import { useExperimentStore } from "@/stores/experimentStore";
 
 import "../../../../tailwind.config";
-import CustomEdge from "./CustomEdge";
 
-const nodeTypes = {
-  custom: CustomNode,
-};
-
-const defaultNodeStyle = {
-  borderRadius: 8,
-};
-
-const nodeTypeConfig = "custom";
-// ---- Nodes de exemplo ----
-const initialNodes: Node[] = [
-  {
-    id: "1",
-    type: nodeTypeConfig,
-    position: { x: 0, y: 0 },
-    data: { label: "Introduction", step: 1, type: "start" },
-    style: {
-      background: "#1f1f1f",
-      color: "white",
-      ...defaultNodeStyle,
-    },
-  },
-  {
-    id: "2",
-    type: nodeTypeConfig,
-    position: { x: 0, y: 150 },
-    data: { label: "Flanker task v1", step: 2, type: "task" },
-    style: {
-      background: "#3B82F6",
-      color: "white",
-      ...defaultNodeStyle,
-    },
-  },
-  {
-    id: "3",
-    type: nodeTypeConfig,
-    position: { x: 0, y: 300 },
-    data: { label: "Message", step: 3, type: "custom_block" },
-    style: {
-      background: "#F97316",
-      color: "white",
-      ...defaultNodeStyle,
-    },
-  },
-  {
-    id: "4",
-    type: nodeTypeConfig,
-    position: { x: 0, y: 450 },
-    data: { label: "Last screen", step: 4, type: "end" },
-    style: {
-      background: "#EF4444",
-      color: "white",
-      ...defaultNodeStyle,
-    },
-  },
-];
-
-const defaultEdgeStyle = {
-  type: "custom",
-  style: {
-    stroke: "#000",
-    strokeWidth: 2,
-  },
-  markerEnd: {
-    type: MarkerType.ArrowClosed,
-    width: 20,
-    height: 20,
-    color: "#000",
-  } as EdgeMarkerType,
-};
-const initialEdges: Edge[] = [
-  {
-    id: "e1-2",
-    source: "1",
-    target: "2",
-    ...defaultEdgeStyle,
-  },
-  { id: "e2-3", source: "2", target: "3", ...defaultEdgeStyle },
-  { id: "e3-4", source: "3", target: "4", ...defaultEdgeStyle },
-];
-
-// ---- Componente Timeline Editor ----
 const TimelineEditor = () => {
+  const { nodes: initialNodes, edges: initialEdges } = useExperimentStore();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
@@ -112,9 +26,44 @@ const TimelineEditor = () => {
       const filtered = eds.filter(
         (e) => e.source !== params.source && e.target !== params.target
       );
-      return addEdge({ ...params, ...defaultEdgeStyle }, filtered);
+      return addEdge({ ...params, type: "custom" }, filtered);
     });
   };
+
+  useEffect(() => {
+    const visited: Record<string, number> = {};
+    let count = 1;
+
+    const startNode = nodes.find(
+      (node) => !edges.some((e) => e.target === node.id)
+    );
+    if (!startNode) return;
+
+    const assignStepOrder = (nodeId: string) => {
+      const node = nodes.find((n) => n.id === nodeId);
+
+      // Handle conditional nodes here if needed, it will accept two connections
+      // if (node?.data.type === "conditional") {
+      // }
+
+      if (!node || visited[nodeId]) return;
+      visited[nodeId] = count++;
+      const nextEdge = edges.find((e) => e.source === nodeId);
+      if (nextEdge) assignStepOrder(nextEdge.target);
+    };
+
+    assignStepOrder(startNode.id);
+
+    setNodes((nds) =>
+      nds.map((n) => ({
+        ...n,
+        data: {
+          ...n.data,
+          step: visited[n.id] || "",
+        },
+      }))
+    );
+  }, [edges]);
 
   const onNodeDrag = useCallback(() => {
     const buttons = document.querySelectorAll(".edge-remove-btn");
@@ -129,36 +78,6 @@ const TimelineEditor = () => {
       button.classList.remove("opacity-0");
     });
   }, []);
-
-  useEffect(() => {
-    const visited: Record<string, number> = {};
-    let count = 1;
-
-    function dfs(nodeId: string) {
-      const node = nodes.find((n) => n.id === nodeId);
-
-      // Handle conditional nodes here if needed, it will accept two connections
-      // if (node?.data.type === "conditional") {
-      // }
-
-      if (!node || visited[nodeId]) return;
-      visited[nodeId] = count++;
-      const nextEdge = edges.find((e) => e.source === nodeId);
-      if (nextEdge) dfs(nextEdge.target);
-    }
-
-    dfs("1");
-
-    setNodes((nds) =>
-      nds.map((n) => ({
-        ...n,
-        data: {
-          ...n.data,
-          step: visited[n.id] || "",
-        },
-      }))
-    );
-  }, [edges]);
 
   return (
     <div className="w-full h-[600px] rounded-md border">
