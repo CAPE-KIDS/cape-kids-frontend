@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import { AuthProvider } from "@/context/AuthProvider";
 import SidebarMenu from "@/components/SidebarMenu";
 
@@ -21,6 +21,8 @@ export default function RootLayout({
       <AuthProvider>
         <body className={`${inter.className} antialiased`}>
           <div className="flex">
+            <SidebarMenu />
+
             <div className="flex flex-1 flex-col h-screen overflow-auto">
               {children}
             </div>

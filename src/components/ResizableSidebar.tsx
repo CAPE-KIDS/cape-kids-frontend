@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { X } from "lucide-react";
 
 interface ResizableSidebarProps {
@@ -15,18 +15,42 @@ const ResizableSidebar: React.FC<ResizableSidebarProps> = ({
   onClose,
   minWidth = window.innerWidth / 3,
   maxWidth = window.innerWidth - 208,
-  initialWidth = window.innerWidth / 2,
+  initialWidth = window.innerWidth - 208,
   children,
 }) => {
-  const [width, setWidth] = useState(initialWidth);
   const isResizing = useRef(false);
+  const [width, setWidth] = useState(() =>
+    Math.min(Math.max(initialWidth, minWidth), maxWidth)
+  );
 
+  // Atualiza width automaticamente quando a janela for redimensionada
+  const handleResize = useCallback(() => {
+    const newMaxWidth = window.innerWidth - 208;
+    const newMinWidth = window.innerWidth / 3;
+
+    setWidth((prevWidth) => {
+      if (prevWidth < newMinWidth) return newMinWidth;
+      if (prevWidth > newMaxWidth) return newMaxWidth;
+      return prevWidth;
+    });
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [handleResize]);
+
+  // Resize com mouse
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing.current) return;
+
       requestAnimationFrame(() => {
+        const newMaxWidth = window.innerWidth - 208;
+        const newMinWidth = window.innerWidth / 3;
         const newWidth = window.innerWidth - e.clientX;
-        if (newWidth >= minWidth && newWidth <= maxWidth) {
+
+        if (newWidth >= newMinWidth && newWidth <= newMaxWidth) {
           setWidth(newWidth);
         }
       });
@@ -43,7 +67,7 @@ const ResizableSidebar: React.FC<ResizableSidebarProps> = ({
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [minWidth, maxWidth]);
+  }, []);
 
   return (
     <div

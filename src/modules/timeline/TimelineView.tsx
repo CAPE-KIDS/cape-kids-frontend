@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import TimelineHeader from "./components/TimelineHeader";
-import { useExperimentStore } from "@/stores/experimentStore";
+import { useExperimentStore } from "@/stores/experiment/experimentStore";
 import TimelineEditor from "./components/TimelineEditor";
 import TimelineSidebar from "./components/TimelineSidebar";
 

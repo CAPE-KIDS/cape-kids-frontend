@@ -12,7 +12,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import CustomNode from "./CustomNode";
 import CustomEdge from "./CustomEdge";
-import { useExperimentStore } from "@/stores/experimentStore";
+import { useExperimentStore } from "@/stores/experiment/experimentStore";
 
 import "../../../../tailwind.config";
 

@@ -1,0 +1,26 @@
+import { useEditorStore } from "@/stores/editor/useEditorStore";
+import { Type } from "lucide-react";
+import React from "react";
+import { TextTool } from "../tools/TextTool";
+
+const TextMedia = () => {
+  const { currentTool, setTool } = useEditorStore();
+
+  return (
+    <button
+      onClick={() => {
+        setTool(TextTool);
+      }}
+      className={`w-8 h-8 border flex items-center justify-center bg-[#E8EBFB] cursor-pointer ${
+        currentTool?.type === TextTool.type
+          ? "border-blue-500 border-2 border-dashed bg-blue-100"
+          : ""
+      }
+      `}
+    >
+      <Type size={20} />
+    </button>
+  );
+};
+
+export default TextMedia;
