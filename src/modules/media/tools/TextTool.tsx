@@ -40,4 +40,8 @@ export const TextTool: Tool = {
     addBlock(block);
     draft = null;
   },
+
+  onClick: (e, { setTool }) => {
+    setTool(TextTool);
+  },
 };

@@ -1,10 +1,12 @@
 import { MouseEvent } from "react";
 import { MediaType, MediaBlock } from "./media.types";
+import { LexicalEditor } from "lexical";
 
 export interface EditorContext {
   addBlock: (block: MediaBlock) => void;
   getRelativePosition: (e: MouseEvent) => { x: number; y: number };
   setTool: (tool: Tool) => Tool | null;
+  editor?: LexicalEditor;
 }
 
 export interface ToolUIContext {
@@ -12,6 +14,7 @@ export interface ToolUIContext {
   setTool: (tool: Tool) => Tool | null;
   addBlock: (block: MediaBlock) => void;
   resetTool: () => void;
+  editor?: LexicalEditor;
 }
 
 export interface Tool {

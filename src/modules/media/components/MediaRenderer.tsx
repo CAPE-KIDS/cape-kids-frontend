@@ -2,14 +2,33 @@
 
 import { MediaBlock } from "@/types/media.types";
 import { Rnd } from "react-rnd";
+import { TextEditor } from "./TextEditor/TextEditor";
+import { Move } from "lucide-react";
 
 export const MediaRenderer: React.FC<{ block: MediaBlock }> = ({ block }) => {
   switch (block.type) {
     case "text":
       return (
-        <div className="border border-dashed p-2 rounded-sm text-sm text-black">
-          {block.data.text}
-        </div>
+        <Rnd
+          default={{
+            x: block.position ? block.position.x : 0,
+            y: block.position ? block.position.y : 0,
+            width: block.size ? block.size.width : 300,
+            height: block.size ? block.size.height : 200,
+          }}
+          className="border border-dashed rounded-sm relative"
+          bounds="parent"
+          // lockAspectRatio
+          dragHandleClassName="drag-handle"
+          resizeHandleStyles={{
+            bottomRight: { cursor: "nwse-resize" },
+          }}
+        >
+          <div className="absolute -top-1 -right-[30px] cursor-move bg-white p-1 rounded-sm shadow-md drag-handle">
+            <Move size={20} />
+          </div>
+          <TextEditor onChange={(value) => {}} />
+        </Rnd>
       );
     case "image":
       return (
