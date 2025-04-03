@@ -12,24 +12,24 @@ const getRelativePosition = (e: MouseEvent) => {
 };
 
 export const useEvents = () => {
-  const { currentTool, addBlock } = useEditorStore();
+  const { currentTool, addBlock, setTool } = useEditorStore();
 
   // MouseDown
   const handleMouseDown = (e: MouseEvent) => {
     if (!currentTool) return;
-    currentTool.onMouseDown?.(e, { addBlock, getRelativePosition });
+    currentTool.onMouseDown?.(e, { addBlock, getRelativePosition, setTool });
   };
 
   // MouseMove
   const handleMouseMove = (e: MouseEvent) => {
     if (!currentTool) return;
-    currentTool.onMouseMove?.(e, { addBlock, getRelativePosition });
+    currentTool.onMouseMove?.(e, { addBlock, getRelativePosition, setTool });
   };
 
   // MouseUp
   const handleMouseUp = (e: MouseEvent) => {
     if (!currentTool) return;
-    currentTool.onMouseUp?.(e, { addBlock, getRelativePosition });
+    currentTool.onMouseUp?.(e, { addBlock, getRelativePosition, setTool });
   };
 
   const events = {
@@ -39,6 +39,9 @@ export const useEvents = () => {
   };
 
   return {
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
     events,
   };
 };
