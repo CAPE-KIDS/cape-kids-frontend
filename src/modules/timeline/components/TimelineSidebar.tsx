@@ -15,7 +15,7 @@ import {
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import CustomSelect from "@/components/CustomSelect";
+import CustomSelect, { Option } from "@/components/CustomSelect";
 import { ScreenEditor } from "@/components/ScreenEditor/ScreenEditor";
 import { MediaTypeBlocks } from "@/modules/media/MediaTypeBlocks";
 
@@ -43,6 +43,24 @@ const timelineStepSchema = z.object({
   orderIndex: z.number().optional(),
 });
 type TimelineStepFormData = z.infer<typeof timelineStepSchema>;
+
+const options: Option[] = [
+  { value: "start", label: "Start", color: "#1E1E1E" },
+  { value: "task", label: "Task", color: "#3B82F6" },
+  { value: "custom_block", label: "Custom block", color: "#F97316" },
+  { value: "conditional", label: "Conditional", color: "#34C759" },
+  {
+    value: "sequential_stimuli",
+    label: "Sequential Stimuli",
+    color: "#8F1D99",
+  },
+  {
+    value: "simultaneous_stimuli",
+    label: "Simultaneous Stimuli",
+    color: "#1D8499",
+  },
+  { value: "end", label: "End", color: "#EF4444" },
+];
 
 const TimelineSidebar = ({
   sidebarOpen,
@@ -98,6 +116,7 @@ const TimelineSidebar = ({
               <CustomSelect
                 value={watch("type") || null}
                 onChange={(val) => setValue("type", val)}
+                options={options}
               />
               {errors.type && (
                 <span className="text-red-500 text-xs">

@@ -1,16 +1,37 @@
 // components/TextEditor/TextToolbar.tsx
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND } from "lexical";
+import {
+  $getSelection,
+  $isRangeSelection,
+  FORMAT_TEXT_COMMAND,
+  FORMAT_ELEMENT_COMMAND,
+} from "lexical";
 import { $patchStyleText } from "@lexical/selection";
 import {
   FORMAT_TEXT_STYLE_COMMAND,
   StringStyle,
 } from "./plugins/TextStylePlugin";
-import { Bold, ChevronRight, Italic, Underline } from "lucide-react";
+import {
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Bold,
+  ChevronRight,
+  Italic,
+  Underline,
+} from "lucide-react";
 import { useState } from "react";
+import CustomSelect from "@/components/CustomSelect";
+
+const AlignOptions = [
+  { value: "left", label: <AlignLeft size={16} /> },
+  { value: "center", label: <AlignCenter size={16} /> },
+  { value: "right", label: <AlignRight size={16} /> },
+];
 
 export const TextToolbar = () => {
-  const [showToobar, setShowToolbar] = useState(false);
+  const [showToobar, setShowToolbar] = useState(true);
   const [editor] = useLexicalComposerContext();
 
   const applyStyle = (style: Partial<CSSStyleDeclaration | StringStyle>) => {
@@ -119,13 +140,26 @@ export const TextToolbar = () => {
             })
           }
         >
-          <Underline size={18} />
+          <Underline size={16} />
         </button>
 
-        {/* Bold - Using default method */}
-        {/* <button onClick={() => toggleFormat("bold")}>
-          <b>B</b>
-        </button> */}
+        <CustomSelect
+          onChange={(e) => {
+            editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, e);
+          }}
+          config={{
+            wrapperStyle: "",
+            selectorStyle:
+              "bg-gray-200 rounded-sm p-1 cursor-pointer hover:bg-gray-300",
+            showToggle: false,
+            dropdownStyle:
+              "absolute z-10 bg-white border w-fit mt-1 rounded-b-sm shadow-sm max-h-60 overflow-y-auto flex gap-2",
+            optionsStyle:
+              "flex items-center p-1 cursor-pointer hover:bg-gray-300",
+          }}
+          value={AlignOptions[0].value}
+          options={AlignOptions}
+        />
       </div>
     </div>
   );
