@@ -1,6 +1,7 @@
 // components/MediaRenderer.tsx
 
-import { MediaBlock } from "@/stores/editor/useEditorStore";
+import { MediaBlock } from "@/types/media.types";
+import { Rnd } from "react-rnd";
 
 export const MediaRenderer: React.FC<{ block: MediaBlock }> = ({ block }) => {
   switch (block.type) {
@@ -12,11 +13,26 @@ export const MediaRenderer: React.FC<{ block: MediaBlock }> = ({ block }) => {
       );
     case "image":
       return (
-        <img
-          src={block.data.src}
-          alt={block.data.alt || ""}
-          className="max-w-full rounded"
-        />
+        <Rnd
+          default={{
+            x: 100,
+            y: 100,
+            width: 300,
+            height: 200,
+          }}
+          className="border border-dashed rounded-sm"
+          bounds="parent"
+          // lockAspectRatio
+          resizeHandleStyles={{
+            bottomRight: { cursor: "nwse-resize" },
+          }}
+        >
+          <img
+            src={block.data.src}
+            alt=""
+            className="w-full h-full object-contain pointer-events-none"
+          />
+        </Rnd>
       );
     case "video":
       return (

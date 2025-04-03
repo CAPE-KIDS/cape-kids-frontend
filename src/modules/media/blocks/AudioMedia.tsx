@@ -1,22 +1,23 @@
 import { useEditorStore } from "@/stores/editor/useEditorStore";
-import { Headphones } from "lucide-react";
+import { Type } from "lucide-react";
 import React from "react";
+import { AudioTool } from "../tools/AudioTool";
 
 const AudioMedia = () => {
-  const { editorMode, setEditorMode } = useEditorStore();
+  const { currentTool, setTool } = useEditorStore();
 
   return (
     <button
       onClick={() => {
-        setEditorMode({ type: "audio" });
+        setTool(AudioTool);
       }}
       className={`w-8 h-8 border flex items-center justify-center bg-[#E8EBFB] cursor-pointer ${
-        editorMode?.type === "audio"
+        currentTool?.type === AudioTool.type
           ? "border-blue-500 border-2 border-dashed bg-blue-100"
           : ""
       }`}
     >
-      <Headphones size={20} />
+      {AudioTool.icon}
     </button>
   );
 };

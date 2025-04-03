@@ -15,10 +15,9 @@ const TextMedia = () => {
         currentTool?.type === TextTool.type
           ? "border-blue-500 border-2 border-dashed bg-blue-100"
           : ""
-      }
-      `}
+      }`}
     >
-      <Type size={20} />
+      {TextTool.icon}
     </button>
   );
 };

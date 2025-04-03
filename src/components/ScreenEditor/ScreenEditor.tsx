@@ -12,7 +12,7 @@ export const ScreenEditor = () => {
       {...events}
       className={`rounded-md p-4 h-[360px] border-2 flex flex-col gap-2 relative overflow-hidden ${
         currentTool ? "border-dashed border-blue-500" : "border-transparent"
-      } ${"cursor-" + currentTool?.cursor}
+      } ${currentTool?.editorStyles}
       bg-[#E8EBFB]`}
     >
       {blocks.map((block) => (

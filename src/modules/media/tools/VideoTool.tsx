@@ -1,19 +1,19 @@
 // modules/media/tools/TextTool.ts
 import { ScreenUtils, Tool } from "@/types/editor.types";
-import { Type } from "lucide-react";
+import { Video } from "lucide-react";
 import { MouseEvent } from "react";
 
-export const TextTool: Tool = {
-  type: "text",
+export const VideoTool: Tool = {
+  type: "video",
   editorStyles: "cursor-crosshair",
-  icon: <Type size={20} />,
+  icon: <Video size={20} />,
   onMouseDown: (e: MouseEvent, utils: ScreenUtils) => {
-    console.log("TextTool onmousedown", e, utils);
+    console.log("VideoTool onmousedown", e, utils);
   },
   onMouseMove: (e, utils) => {
-    console.log("TextTool onmousemove");
+    console.log("VideoTool onmousemove", e, utils);
   },
   onMouseUp: (e, utils) => {
-    console.log("TextTool onmouseup");
+    console.log("VideoTool onmouseup");
   },
 };

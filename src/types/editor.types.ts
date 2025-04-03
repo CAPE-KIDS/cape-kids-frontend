@@ -9,14 +9,7 @@ export interface ScreenUtils {
 
 export interface Tool {
   type: MediaType;
-  cursor:
-    | "crosshair"
-    | "default"
-    | "pointer"
-    | "text"
-    | "cell"
-    | "move"
-    | "none";
+  editorStyles?: string;
   icon: React.ReactNode;
   onMouseDown?: (e: MouseEvent, utils: ScreenUtils) => void;
   onMouseMove?: (e: MouseEvent, utils: ScreenUtils) => void;
@@ -25,7 +18,8 @@ export interface Tool {
 
 export interface EditorState {
   currentTool: Tool | null;
-  setTool: (tool: Tool) => void;
+  setTool: (tool: Tool) => Tool | null;
+  resetTool: () => void;
   blocks: MediaBlock[];
   addBlock: (block: MediaBlock) => void;
 }

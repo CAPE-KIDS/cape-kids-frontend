@@ -8,9 +8,15 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const currentTool = get().currentTool;
     if (currentTool?.type === tool?.type) {
       set({ currentTool: null });
-      return;
+      return null;
     }
     set({ currentTool: tool });
+
+    return tool;
+  },
+  resetTool: () => {
+    console.log("remove tool");
+    set({ currentTool: null });
   },
   blocks: [],
   addBlock: (block) =>
