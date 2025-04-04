@@ -7,13 +7,15 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { TextStylePlugin } from "./plugins/TextStylePlugin";
 import { TextToolbar } from "./TextToolbar";
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { useEffect } from "react";
+import InitialDataPlugin from "./plugins/InitialDataPlugin";
+import { TextBlockData } from "@/types/media.types";
 
 export const TextEditor = ({
   onChange,
+  data,
 }: {
   onChange?: (value: string) => void;
+  data: TextBlockData;
 }) => {
   const editorConfig = {
     namespace: "TextEditor",
@@ -36,6 +38,7 @@ export const TextEditor = ({
             placeholder={null}
           />
           <HistoryPlugin />
+          <InitialDataPlugin data={data} />
           <TextStylePlugin />
           <OnChangePlugin
             onChange={(editorState) => {

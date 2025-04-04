@@ -1,44 +1,74 @@
 // modules/media/tools/TextTool.ts
-import { ScreenUtils, Tool } from "@/types/editor.types";
+import { Tool } from "@/types/editor.types";
+import { TextBlockData } from "@/types/media.types";
 import { Type } from "lucide-react";
 import { MouseEvent } from "react";
 
 let draft: {
   start: { x: number; y: number };
-  width: number;
-  height: number;
+  current: { x: number; y: number };
 } | null = null;
 
 export const TextTool: Tool = {
   type: "text",
   editorStyles: "cursor-crosshair",
   icon: <Type size={20} />,
+
   onMouseDown: (e: MouseEvent, { getRelativePosition }) => {
-    const pos = getRelativePosition(e);
-    draft = { start: pos, width: 0, height: 0 };
+    const { x, y } = getRelativePosition(e);
+    draft = {
+      start: { x, y },
+      current: { x, y },
+    };
   },
+
   onMouseMove: (e, { getRelativePosition }) => {
     if (!draft) return;
-    const pos = getRelativePosition(e);
-    draft.width = pos.x - draft.start.x;
-    draft.height = pos.y - draft.start.y;
+    const { x, y } = getRelativePosition(e);
+    draft.current = { x, y };
   },
-  onMouseUp: (e, { addBlock, getRelativePosition }) => {
+
+  onMouseUp: (e, { addBlock, getRelativeSize, screen }) => {
     if (!draft) return;
+
+    const start = draft.start;
+    const end = draft.current;
+
+    const x = Math.min(start.x, end.x);
+    const y = Math.min(start.y, end.y);
+    const width = Math.abs(end.x - start.x);
+    const height = Math.abs(end.y - start.y);
+
+    if (width < 1 || height < 1) {
+      draft = null;
+      return;
+    }
+
+    if (!screen.width || !screen.height) return;
 
     const block = {
       id: crypto.randomUUID(),
       type: TextTool.type,
       position: {
-        x: draft.start.x,
-        y: draft.start.y,
+        x: getRelativeSize(x, screen.width),
+        y: getRelativeSize(y, screen.height),
       },
-      size: { width: draft.width, height: draft.height },
-      data: { text: "New Text" },
+      size: {
+        width: getRelativeSize(width, screen.width),
+        height: getRelativeSize(height, screen.height),
+      },
+      data: { text: "" } as TextBlockData,
     };
+
+    console.log("block", block);
 
     addBlock(block);
     draft = null;
+  },
+
+  onDragEnd: (e, { getRelativePosition, getRelativeSize, getAbsoluteSize }) => {
+    const pos = getRelativePosition(e);
+    console.log("drag ended at", pos);
   },
 
   onClick: (e, { setTool }) => {
