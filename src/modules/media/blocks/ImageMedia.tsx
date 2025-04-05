@@ -3,10 +3,18 @@ import { Type } from "lucide-react";
 import React, { useCallback, useEffect, useRef } from "react";
 import { ImageTool } from "../tools/ImageTool";
 import { MediaBlock } from "@/types/media.types";
-import { EditorContext } from "@/types/editor.types";
+import { EditorContext, ToolUIContext } from "@/types/editor.types";
 
 const ImageMedia = () => {
-  const { currentTool, setTool, addBlock, resetTool } = useEditorStore();
+  const {
+    screen,
+    currentTool,
+    setTool,
+    addBlock,
+    resetTool,
+    getAbsoluteSize,
+    getRelativeSize,
+  } = useEditorStore();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -18,11 +26,14 @@ const ImageMedia = () => {
   }, [inputRef.current]);
 
   const UIContext = {
+    screen,
     inputRef,
     setTool,
     addBlock,
     resetTool,
-  };
+    getAbsoluteSize,
+    getRelativeSize,
+  } as ToolUIContext;
 
   return (
     <>

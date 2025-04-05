@@ -5,34 +5,14 @@ import { Rnd } from "react-rnd";
 import { TextEditor } from "../TextEditor/TextEditor";
 import { Move } from "lucide-react";
 import TextRenderer from "./TextRenderer";
+import ImageRenderer from "./ImageRenderer";
 
 export const MediaRenderer: React.FC<{ block: MediaBlock }> = ({ block }) => {
   switch (block.type) {
     case "text":
       return <TextRenderer block={block} />;
     case "image":
-      return (
-        <Rnd
-          default={{
-            x: 100,
-            y: 100,
-            width: 300,
-            height: 200,
-          }}
-          className="border border-dashed rounded-sm"
-          bounds="parent"
-          // lockAspectRatio
-          resizeHandleStyles={{
-            bottomRight: { cursor: "nwse-resize" },
-          }}
-        >
-          <img
-            src={block.data.src}
-            alt=""
-            className="w-full h-full object-contain pointer-events-none"
-          />
-        </Rnd>
-      );
+      return <ImageRenderer block={block} />;
     case "video":
       return (
         <video controls className="max-w-full rounded">
