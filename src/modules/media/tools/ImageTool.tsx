@@ -1,9 +1,10 @@
 // modules/media/tools/TextTool.ts
 import { useEditorStore } from "@/stores/editor/useEditorStore";
 import { EditorContext, Tool } from "@/types/editor.types";
-import { MediaBlock } from "@/types/media.types";
+import { MediaBlock } from "@/modules/media/types";
 import { Image } from "lucide-react";
 import { MouseEvent } from "react";
+import { text } from "stream/consumers";
 
 export const ImageTool: Tool = {
   type: "image",
@@ -24,13 +25,15 @@ export const ImageTool: Tool = {
 
     inputRef?.current && inputRef.current.click();
   },
-  onChange: (e, { addBlock, screen, getRelativeSize }) => {
+  onChange: (e, { addBlock, screen, getRelativeSize, resetTool }) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const file = files[0];
       const reader = new FileReader();
       reader.onload = (event) => {
         const imageSrc = event.target?.result as string;
+        const imageName = file.name.split(".").slice(0, -1).join(".");
+        const imageExtension = file.name.split(".").pop();
 
         if (!screen.width || !screen.height) return;
 
@@ -51,12 +54,14 @@ export const ImageTool: Tool = {
             height: getRelativeSize(initialHeight, screen.height),
           },
           data: {
+            text: `${imageName}.${imageExtension}`,
             src: imageSrc,
             alt: file.name,
           },
         } as MediaBlock;
 
         addBlock(block);
+        resetTool();
       };
       reader.readAsDataURL(file);
     }

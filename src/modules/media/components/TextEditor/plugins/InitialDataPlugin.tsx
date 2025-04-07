@@ -1,13 +1,16 @@
-import { TextBlockData } from "@/types/media.types";
+import { TextBlockData } from "@/modules/media/types";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getSelection } from "lexical";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
-const InitialDataPlugin = ({ data }: { data: TextBlockData }) => {
+const InitialTextPlugin = ({ data }: { data: TextBlockData }) => {
   const [editor] = useLexicalComposerContext();
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
-    if (!data) return;
+    if (!data || hasInitialized.current) return;
+
+    hasInitialized.current = true;
     editor.update(() => {
       const selection = $getSelection();
       if (selection) {
@@ -19,4 +22,4 @@ const InitialDataPlugin = ({ data }: { data: TextBlockData }) => {
   return null;
 };
 
-export default InitialDataPlugin;
+export default InitialTextPlugin;

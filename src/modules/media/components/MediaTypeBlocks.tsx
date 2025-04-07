@@ -1,7 +1,7 @@
-import TextMedia from "./blocks/TextMedia";
-import VideoMedia from "./blocks/VideoMedia";
-import AudioMedia from "./blocks/AudioMedia";
-import ImageMedia from "./blocks/ImageMedia";
+import TextMedia from "../blocks/TextMedia";
+import VideoMedia from "../blocks/VideoMedia";
+import AudioMedia from "../blocks/AudioMedia";
+import ImageMedia from "../blocks/ImageMedia";
 
 export const MediaTypeBlocks = () => {
   return (

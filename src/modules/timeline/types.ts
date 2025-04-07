@@ -1,3 +1,6 @@
+import { MediaBlock } from "../media/types";
+import { Trigger } from "../triggers/types";
+
 export type StepType =
   | "start"
   | "task"
@@ -45,9 +48,8 @@ export const StepColors: Record<
 } as const;
 
 export interface TimelineStepMetadata {
-  name: string;
-  positionX: number;
-  positionY: number;
+  blocks: MediaBlock[] | null;
+  triggers: Trigger[] | null;
 }
 
 export interface TimelineStep {

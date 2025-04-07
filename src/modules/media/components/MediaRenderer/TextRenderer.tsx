@@ -1,13 +1,15 @@
-import React, { useEffect, useRef } from "react";
-import { MediaBlock } from "@/types/media.types";
+import React, { useEffect, useMemo, useRef } from "react";
+import { MediaBlock } from "@/modules/media/types";
 import { DraggableData, Rnd, RndDragEvent, RndResizeCallback } from "react-rnd";
 import { Move } from "lucide-react";
 import { TextEditor } from "../TextEditor/TextEditor";
 import { useEditorStore } from "@/stores/editor/useEditorStore";
+import { debounce } from "lodash";
 
 const TextRenderer: React.FC<{ block: MediaBlock }> = ({ block }) => {
   const { getAbsoluteSize, getRelativeSize, screen, updateBlock } =
     useEditorStore();
+  const lastTextRef = useRef(block.data.text);
 
   const handleDrag = (e: RndDragEvent, { x, y }: DraggableData) => {
     if (!screen?.width || !screen.height) return;
@@ -52,6 +54,22 @@ const TextRenderer: React.FC<{ block: MediaBlock }> = ({ block }) => {
     });
   };
 
+  const handleTextChange = (value: string) => {
+    const previousText = lastTextRef.current;
+
+    if (value === previousText) return;
+
+    lastTextRef.current = value;
+
+    updateBlock({
+      ...block,
+      data: {
+        ...block.data,
+        text: value,
+      },
+    });
+  };
+
   useEffect(() => {
     if (!screen) return;
   }, [screen?.width, screen?.height]);
@@ -78,7 +96,7 @@ const TextRenderer: React.FC<{ block: MediaBlock }> = ({ block }) => {
       <div className="absolute -top-1 -right-[30px] cursor-move bg-white p-1 rounded-sm shadow-md drag-handle">
         <Move size={20} />
       </div>
-      <TextEditor onChange={(value) => {}} data={block.data} />
+      <TextEditor onChange={handleTextChange} data={block.data} />
     </Rnd>
   );
 };

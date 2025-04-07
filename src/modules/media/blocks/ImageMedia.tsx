@@ -2,7 +2,7 @@ import { useEditorStore } from "@/stores/editor/useEditorStore";
 import { Type } from "lucide-react";
 import React, { useCallback, useEffect, useRef } from "react";
 import { ImageTool } from "../tools/ImageTool";
-import { MediaBlock } from "@/types/media.types";
+import { MediaBlock } from "@/modules/media/types";
 import { EditorContext, ToolUIContext } from "@/types/editor.types";
 
 const ImageMedia = () => {

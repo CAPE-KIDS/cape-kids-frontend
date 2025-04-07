@@ -17,7 +17,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import CustomSelect, { Option } from "@/components/CustomSelect";
 import { ScreenEditor } from "@/components/ScreenEditor/ScreenEditor";
-import { MediaTypeBlocks } from "@/modules/media/MediaTypeBlocks";
+import { MediaTypeBlocks } from "@/modules/media/components/MediaTypeBlocks";
+import TriggerButtons from "@/modules/triggers/components/TriggerButtons";
+import { useEditorStore } from "@/stores/editor/useEditorStore";
+import { mockSteps } from "@/modules/canvas/mock";
 
 const timelineStepSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -70,6 +73,7 @@ const TimelineSidebar = ({
   toggleSiderbarOpen: () => void;
 }) => {
   const { experimentData } = useExperimentStore();
+  const { blocks, mountStep } = useEditorStore();
   const {
     register,
     control,
@@ -84,6 +88,15 @@ const TimelineSidebar = ({
 
   const onSubmit = (data: TimelineStepFormData) => {
     console.log(data);
+  };
+
+  const openPreview = () => {
+    const mountedScreen = mountStep();
+    const previewWindow = window.open("/preview?id=custom", "_blank");
+    if (previewWindow) {
+      // previewWindow.name = JSON.stringify({ steps: blocks });
+      previewWindow.name = JSON.stringify({ steps: [mountedScreen] });
+    }
   };
 
   return (
@@ -126,7 +139,19 @@ const TimelineSidebar = ({
             </div>
 
             <div className="flex flex-col space-y-1 ">
-              <label className="font-light text-xs text-gray-400">Screen</label>
+              <div className="flex items-center justify-between">
+                <label className="font-light text-xs text-gray-400">
+                  Screen
+                </label>
+                <div>
+                  <button
+                    onClick={openPreview}
+                    className="text-xs cursor-pointer"
+                  >
+                    Preview
+                  </button>
+                </div>
+              </div>
               {/* Preview */}
               <ScreenEditor key={experimentData?.id} />
             </div>
@@ -143,20 +168,7 @@ const TimelineSidebar = ({
               {/* Triggers */}
               <div className="flex flex-col gap-1">
                 <span className="text-xs text-gray-500">Triggers</span>
-                <div className="flex gap-1">
-                  <button className="w-8 h-8 border flex items-center justify-center bg-[#E8EBFB] cursor-pointer text-xs">
-                    <Mouse size={20} />
-                  </button>
-                  <button className="w-8 h-8 border flex items-center justify-center bg-[#E8EBFB] cursor-pointer">
-                    <Keyboard size={20} />
-                  </button>
-                  <button className="w-8 h-8 border flex items-center justify-center bg-[#E8EBFB] cursor-pointer">
-                    <Clock size={20} />
-                  </button>
-                  <button className="w-8 h-8 border flex items-center justify-center bg-[#E8EBFB] cursor-pointer">
-                    <Mic size={20} />
-                  </button>
-                </div>
+                <TriggerButtons />
               </div>
             </div>
 

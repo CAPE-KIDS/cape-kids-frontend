@@ -1,6 +1,6 @@
 // components/MediaRenderer.tsx
 
-import { MediaBlock } from "@/types/media.types";
+import { MediaBlock } from "@/modules/media/types";
 import { Rnd } from "react-rnd";
 import { TextEditor } from "../TextEditor/TextEditor";
 import { Move } from "lucide-react";

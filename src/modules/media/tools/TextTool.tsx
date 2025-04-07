@@ -1,6 +1,6 @@
 // modules/media/tools/TextTool.ts
 import { Tool } from "@/types/editor.types";
-import { TextBlockData } from "@/types/media.types";
+import { TextBlockData } from "@/modules/media/types";
 import { Type } from "lucide-react";
 import { MouseEvent } from "react";
 

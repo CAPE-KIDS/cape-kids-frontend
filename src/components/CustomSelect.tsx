@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export type Option = {
   value: string;
@@ -18,6 +18,7 @@ interface CustomSelectProps {
     showToggle?: boolean;
     optionsStyle?: string;
     dropdownStyle?: string;
+    placeholder?: string;
   };
 }
 
@@ -34,16 +35,38 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     dropdownStyle:
       "absolute z-10 bg-white border w-full mt-1 rounded-md shadow-sm max-h-60 overflow-y-auto",
     showToggle: true,
+    placeholder: "Select one option",
   },
 }) => {
   const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const selected = options.find((o) => o.value === value);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
 
   return (
     <div
       className={`relative ${config?.wrapperStyle}`}
       key={JSON.stringify(options)}
+      ref={wrapperRef}
     >
       <button
         type="button"
@@ -51,7 +74,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         className={`${config?.selectorStyle}`}
       >
         {selected ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 truncate max-w-full">
             {selected.color && (
               <svg width="12" height="12">
                 <circle cx="6" cy="6" r="6" fill={selected.color} />
@@ -59,13 +82,13 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
             )}
             {selected.icon && <span>{selected.icon}</span>}
             {typeof selected.label === "string" ? (
-              <span className="text-sm">{selected.label}</span>
+              <span className="text-sm ">{selected.label}</span>
             ) : (
               selected.label
             )}
           </div>
         ) : (
-          <span className="text-gray-400">Select step type</span>
+          <span className="text-gray-400">{config?.placeholder}</span>
         )}
         {config?.showToggle && (
           <span className="text-gray-400">
@@ -79,7 +102,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
           {options.map((opt) => (
             <li
               key={opt.value}
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 onChange(opt.value);
                 setOpen(false);
               }}
@@ -90,7 +114,9 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                   <circle cx="6" cy="6" r="6" fill={opt.color} />
                 </svg>
               )}
-              {opt.label && <span>{opt.label}</span>}
+              {opt.label && (
+                <span className="truncate max-w-full">{opt.label}</span>
+              )}
               {opt.icon && <span className="ml-auto">{opt.icon}</span>}
             </li>
           ))}

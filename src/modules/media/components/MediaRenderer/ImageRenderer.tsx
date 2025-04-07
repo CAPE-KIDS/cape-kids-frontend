@@ -1,5 +1,5 @@
 import { useEditorStore } from "@/stores/editor/useEditorStore";
-import { MediaBlock } from "@/types/media.types";
+import { MediaBlock } from "@/modules/media/types";
 import React from "react";
 import { DraggableData, Rnd, RndDragEvent, RndResizeCallback } from "react-rnd";
 

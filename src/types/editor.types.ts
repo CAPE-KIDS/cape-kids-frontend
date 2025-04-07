@@ -1,6 +1,7 @@
 import { MouseEvent } from "react";
-import { MediaType, MediaBlock } from "./media.types";
+import { MediaType, MediaBlock } from "../modules/media/types";
 import { LexicalEditor } from "lexical";
+import { Trigger } from "@/modules/triggers/types";
 
 export interface EditorContext {
   screen: Screen;
@@ -60,8 +61,12 @@ export interface EditorState {
   blocks: MediaBlock[];
   updateBlock: (block: MediaBlock) => void;
   addBlock: (block: MediaBlock) => void;
+  triggers: Trigger[];
+  addTrigger: (trigger: Trigger) => void;
+  updateTrigger: (trigger: Trigger) => void;
   getRelativeSize: (px: number, total: number) => number;
   getAbsoluteSize: (px: number, total: number) => number;
+  mountStep: () => void;
 }
 
 export type EditorMode = null | {

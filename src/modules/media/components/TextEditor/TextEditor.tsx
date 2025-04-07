@@ -8,7 +8,10 @@ import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { TextStylePlugin } from "./plugins/TextStylePlugin";
 import { TextToolbar } from "./TextToolbar";
 import InitialDataPlugin from "./plugins/InitialDataPlugin";
-import { TextBlockData } from "@/types/media.types";
+import { TextBlockData } from "@/modules/media/types";
+import { $getRoot } from "lexical";
+import { debounce } from "lodash";
+import { OnChangeDebounce } from "./hooks/OnChangeDebounce";
 
 export const TextEditor = ({
   onChange,
@@ -40,12 +43,10 @@ export const TextEditor = ({
           <HistoryPlugin />
           <InitialDataPlugin data={data} />
           <TextStylePlugin />
-          <OnChangePlugin
-            onChange={(editorState) => {
-              editorState.read(() => {
-                const plainText = editorState.toJSON();
-                onChange && onChange(JSON.stringify(plainText));
-              });
+          <OnChangeDebounce
+            wait={500}
+            onChange={(json, plainText) => {
+              onChange && onChange(plainText);
             }}
           />
         </div>
