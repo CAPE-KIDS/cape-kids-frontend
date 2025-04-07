@@ -5,6 +5,7 @@ import { MediaBlock } from "@/modules/media/types";
 import { Image } from "lucide-react";
 import { MouseEvent } from "react";
 import { text } from "stream/consumers";
+import { getRelativeSize } from "@/utils/functions";
 
 export const ImageTool: Tool = {
   type: "image",
@@ -25,7 +26,7 @@ export const ImageTool: Tool = {
 
     inputRef?.current && inputRef.current.click();
   },
-  onChange: (e, { addBlock, screen, getRelativeSize, resetTool }) => {
+  onChange: (e, { addBlock, screen, resetTool }) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const file = files[0];

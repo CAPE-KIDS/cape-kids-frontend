@@ -1,15 +1,18 @@
-import { TriggerAction, TriggerContext } from "./types";
+import { Trigger } from "./types";
 import { TriggerActionsRegistry } from "./TriggerActionsRegistry";
+import { TriggerContext } from "./types";
 
-export const executeTriggerAction = (
-  action: TriggerAction,
+export const dispatchTriggerAction = (
+  trigger: Trigger,
   context: TriggerContext
 ) => {
-  const fn = TriggerActionsRegistry[action.type];
+  const { action } = trigger.metadata;
+  const actionDefinition = TriggerActionsRegistry[action];
 
-  if (fn) {
-    fn(action.payload as any, context);
-  } else {
-    console.warn("Ação de trigger desconhecida:", action.type);
+  if (!actionDefinition) {
+    console.warn(`[Trigger] Ação "${action}" não está registrada.`);
+    return;
   }
+
+  actionDefinition.execute(context);
 };

@@ -6,15 +6,8 @@ import { MediaBlock } from "@/modules/media/types";
 import { EditorContext, ToolUIContext } from "@/types/editor.types";
 
 const ImageMedia = () => {
-  const {
-    screen,
-    currentTool,
-    setTool,
-    addBlock,
-    resetTool,
-    getAbsoluteSize,
-    getRelativeSize,
-  } = useEditorStore();
+  const { screen, currentTool, setTool, addBlock, resetTool } =
+    useEditorStore();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -31,8 +24,6 @@ const ImageMedia = () => {
     setTool,
     addBlock,
     resetTool,
-    getAbsoluteSize,
-    getRelativeSize,
   } as ToolUIContext;
 
   return (

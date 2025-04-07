@@ -36,7 +36,7 @@ const mouseActions = [
 ] as MouseActions[];
 
 const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
-  const { blocks, triggers, addTrigger } = useEditorStore();
+  const { blocks, triggers, addTrigger, updateBlock } = useEditorStore();
   const [eventType, setEventType] = useState("");
   const [target, setTarget] = useState("");
   const [action, setAction] = useState("");
@@ -44,19 +44,31 @@ const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
   const [description, setDescription] = useState("");
 
   const handleSave = () => {
+    const isBlock = blocks.find((block) => block.id === target);
     const triggerData = {
       id: random(1000, 9999).toString(),
       timeline_step_id: "1234-5678-9101",
       stimullus_id: target,
       metadata: {
         type: eventType,
-        payload: {
-          description,
-        },
+        description,
+        action,
       },
     } as Trigger;
 
     addTrigger(triggerData);
+
+    if (isBlock) {
+      updateBlock({
+        ...isBlock,
+        triggers: [
+          ...(isBlock.triggers || []),
+          {
+            ...triggerData,
+          },
+        ],
+      });
+    }
     onClose();
   };
 

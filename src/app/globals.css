@@ -46,3 +46,6 @@ body {
   text-align: center;
 }
 
+span[data-lexical-text="true"] {
+  display: block;
+}

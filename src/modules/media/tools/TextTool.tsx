@@ -3,6 +3,7 @@ import { Tool } from "@/types/editor.types";
 import { TextBlockData } from "@/modules/media/types";
 import { Type } from "lucide-react";
 import { MouseEvent } from "react";
+import { getRelativeSize } from "@/utils/functions";
 
 let draft: {
   start: { x: number; y: number };
@@ -28,7 +29,7 @@ export const TextTool: Tool = {
     draft.current = { x, y };
   },
 
-  onMouseUp: (e, { addBlock, getRelativeSize, screen }) => {
+  onMouseUp: (e, { addBlock, screen }) => {
     if (!draft) return;
 
     const start = draft.start;
@@ -60,13 +61,11 @@ export const TextTool: Tool = {
       data: { text: "" } as TextBlockData,
     };
 
-    console.log("block", block);
-
     addBlock(block);
     draft = null;
   },
 
-  onDragEnd: (e, { getRelativePosition, getRelativeSize, getAbsoluteSize }) => {
+  onDragEnd: (e, { getRelativePosition }) => {
     const pos = getRelativePosition(e);
     console.log("drag ended at", pos);
   },

@@ -12,14 +12,7 @@ const getRelativePosition = (e: MouseEvent) => {
 };
 
 export const useEvents = () => {
-  const {
-    currentTool,
-    addBlock,
-    setTool,
-    getAbsoluteSize,
-    getRelativeSize,
-    screen,
-  } = useEditorStore();
+  const { currentTool, addBlock, setTool, screen } = useEditorStore();
 
   // MouseDown
   const handleMouseDown = (e: MouseEvent) => {
@@ -29,8 +22,6 @@ export const useEvents = () => {
       addBlock,
       getRelativePosition,
       setTool,
-      getAbsoluteSize,
-      getRelativeSize,
     });
   };
 
@@ -43,8 +34,6 @@ export const useEvents = () => {
       addBlock,
       getRelativePosition,
       setTool,
-      getAbsoluteSize,
-      getRelativeSize,
     });
   };
 
@@ -57,8 +46,6 @@ export const useEvents = () => {
       addBlock,
       getRelativePosition,
       setTool,
-      getAbsoluteSize,
-      getRelativeSize,
     });
   };
 

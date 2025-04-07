@@ -68,13 +68,6 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       };
     });
   },
-  getRelativeSize: (px: number, total: number) => {
-    return (px / total) * 100;
-  },
-
-  getAbsoluteSize: (px: number, total: number) => {
-    return (px * total) / 100;
-  },
   mountStep: (): TimelineStep => {
     const { blocks, triggers } = get();
     const timelineStep: TimelineStep = {

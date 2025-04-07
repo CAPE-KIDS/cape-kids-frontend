@@ -1,5 +1,6 @@
 import { $getRoot } from "lexical";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { $generateHtmlFromNodes } from "@lexical/html";
 import React, { useRef } from "react";
 
 const CAN_USE_DOM =
@@ -13,7 +14,11 @@ const useLayoutEffectImpl = CAN_USE_DOM
 
 const useLayoutEffect = useLayoutEffectImpl;
 
-type OnChangeFunction = (editorStateJson: string, editorText: string) => void;
+type OnChangeFunction = (
+  editorStateJson: string,
+  editorText: string,
+  htmlString: string
+) => void;
 
 export const OnChangeDebounce: React.FC<{
   ignoreInitialChange?: boolean;
@@ -24,7 +29,7 @@ export const OnChangeDebounce: React.FC<{
   ignoreInitialChange = true,
   ignoreSelectionChange = false,
   onChange,
-  wait = 167,
+  wait = 300,
 }) => {
   const [editor] = useLexicalComposerContext();
   const timerId = useRef<NodeJS.Timeout | null>(null);
@@ -48,8 +53,13 @@ export const OnChangeDebounce: React.FC<{
 
         timerId.current = setTimeout(() => {
           editorState.read(() => {
+            const htmlString = $generateHtmlFromNodes(editor, null);
             const root = $getRoot();
-            onChange(JSON.stringify(editorState), root.getTextContent());
+            onChange(
+              JSON.stringify(editorState),
+              root.getTextContent(),
+              htmlString
+            );
           });
         }, wait);
       }

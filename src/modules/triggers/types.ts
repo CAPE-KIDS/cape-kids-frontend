@@ -1,26 +1,34 @@
+export type TriggerActionType = "goToNextStep" | "goToPreviousStep";
+
 export type TriggerContext = {
-  goToNextStep: () => void;
+  activeStepId: string;
+  steps: { id: string }[];
+  setActiveStepId: (id: string) => void;
 };
 
-export type TriggerActionPayloadMap = {
-  goToNextStep: {
-    description: string;
-  };
-  goToPreviousStep: undefined;
-};
-
-export type TriggerActionType = keyof TriggerActionPayloadMap;
-
-export interface TriggerAction<
-  T extends TriggerActionType = TriggerActionType
-> {
-  type: T;
-  payload: TriggerActionPayloadMap[T];
-}
-
-export interface Trigger {
+export interface Trigger<T extends TriggerActionType = TriggerActionType> {
   id: string;
   timeline_step_id: string;
   stimullus_id: string | null;
-  metadata: TriggerAction<TriggerActionType>;
+  metadata: TriggerActionPayloadMap[T];
 }
+// Metadatas
+
+export interface BaseTriggerMetadata {
+  type: string;
+  action: TriggerActionType;
+}
+
+export interface GoToNextStepMetadata extends BaseTriggerMetadata {
+  action: "goToNextStep";
+  description?: string;
+}
+
+export interface GoToPreviousStepMetadata extends BaseTriggerMetadata {
+  action: "goToPreviousStep";
+}
+
+export type TriggerActionPayloadMap = {
+  goToNextStep: GoToNextStepMetadata;
+  goToPreviousStep: GoToPreviousStepMetadata;
+};

@@ -8,8 +8,6 @@ export interface EditorContext {
   addBlock: (block: MediaBlock) => void;
   getRelativePosition: (e: MouseEvent) => { x: number; y: number };
   setTool: (tool: Tool) => Tool | null;
-  getRelativeSize: (px: number, total: number) => number;
-  getAbsoluteSize: (px: number, total: number) => number;
   editor?: LexicalEditor;
 }
 
@@ -25,8 +23,6 @@ export interface ToolUIContext {
   setTool: (tool: Tool) => Tool | null;
   addBlock: (block: MediaBlock) => void;
   resetTool: () => void;
-  getRelativeSize: (px: number, total: number) => number;
-  getAbsoluteSize: (px: number, total: number) => number;
   getRelativePosition: (e: MouseEvent) => { x: number; y: number };
   editor?: LexicalEditor;
 }
@@ -64,8 +60,6 @@ export interface EditorState {
   triggers: Trigger[];
   addTrigger: (trigger: Trigger) => void;
   updateTrigger: (trigger: Trigger) => void;
-  getRelativeSize: (px: number, total: number) => number;
-  getAbsoluteSize: (px: number, total: number) => number;
   mountStep: () => void;
 }
 

@@ -1,15 +1,15 @@
-import {
-  TriggerActionType,
-  TriggerActionPayloadMap,
-  TriggerContext,
-} from "./types";
-import { goToNextStepAction } from "./actions/goToNextStep";
+import { TriggerActionType, TriggerContext } from "./types";
+import { goToNextStepAction } from "./actions/goToNextStepAction";
+import { goToPrevStepAction } from "./actions/goToPrevStepAction";
 
-export const TriggerActionsRegistry: {
-  [K in TriggerActionType]: (
-    payload: TriggerActionPayloadMap[K],
-    context: TriggerContext
-  ) => void;
-} = {
-  goToNextStep: goToNextStepAction.execute,
+type TriggerActionDefinition = {
+  execute: (context: TriggerContext) => void;
+};
+
+export const TriggerActionsRegistry: Record<
+  TriggerActionType,
+  TriggerActionDefinition
+> = {
+  goToNextStep: goToNextStepAction,
+  goToPreviousStep: goToPrevStepAction,
 };

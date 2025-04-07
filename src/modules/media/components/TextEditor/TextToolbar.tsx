@@ -31,17 +31,12 @@ const AlignOptions = [
 ];
 
 export const TextToolbar = () => {
-  const [showToobar, setShowToolbar] = useState(true);
+  const [showToobar, setShowToolbar] = useState(false);
   const [editor] = useLexicalComposerContext();
 
   const applyStyle = (style: Partial<CSSStyleDeclaration | StringStyle>) => {
     editor.dispatchCommand(FORMAT_TEXT_STYLE_COMMAND, style);
   };
-
-  // default method to apply style
-  // const toggleFormat = (format: "bold" | "italic" | "underline") => {
-  //   editor.dispatchCommand(FORMAT_TEXT_COMMAND, format);
-  // };
 
   const fontSizes = [12, 14, 16, 18, 24, 32, 40, 48, 56, 64, 72, 80, 96];
   const fontFamilies = ["Arial", "Inter", "Georgia", "Times New Roman"];
@@ -145,7 +140,9 @@ export const TextToolbar = () => {
 
         <CustomSelect
           onChange={(e) => {
-            editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, e);
+            applyStyle({
+              ["text-align"]: e,
+            });
           }}
           config={{
             wrapperStyle: "",

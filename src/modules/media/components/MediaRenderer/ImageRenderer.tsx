@@ -2,10 +2,10 @@ import { useEditorStore } from "@/stores/editor/useEditorStore";
 import { MediaBlock } from "@/modules/media/types";
 import React from "react";
 import { DraggableData, Rnd, RndDragEvent, RndResizeCallback } from "react-rnd";
+import { getAbsoluteSize, getRelativeSize } from "@/utils/functions";
 
 const ImageRenderer = ({ block }: { block: MediaBlock }) => {
-  const { getAbsoluteSize, getRelativeSize, screen, updateBlock } =
-    useEditorStore();
+  const { screen, updateBlock } = useEditorStore();
 
   const handleDrag = (e: RndDragEvent, { x, y }: DraggableData) => {
     if (!screen?.width || !screen.height) return;
@@ -50,8 +50,6 @@ const ImageRenderer = ({ block }: { block: MediaBlock }) => {
     };
 
     updateBlock({ ...newBlock });
-
-    console.log(newBlock);
   };
 
   return (

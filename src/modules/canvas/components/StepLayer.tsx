@@ -4,6 +4,7 @@ import { TimelineStep } from "@/modules/timeline/types";
 import { CanvasMediaRenderer } from "./CanvasMediaRenderer";
 import { useSizeObserver } from "@/hooks/useSizeObserver";
 import { useRef } from "react";
+import { useCanvasStore } from "../store/useCanvasStore";
 
 interface StepLayerProps {
   step: TimelineStep;
@@ -11,11 +12,8 @@ interface StepLayerProps {
 }
 
 const StepLayer = ({ step, visible }: StepLayerProps) => {
-  const screenRef = useRef<HTMLDivElement>(null);
-  const screen = useSizeObserver(screenRef);
   return (
     <div
-      ref={screenRef}
       className={`absolute inset-0 transition-opacity duration-300 ${
         visible
           ? "opacity-100 pointer-events-auto"
