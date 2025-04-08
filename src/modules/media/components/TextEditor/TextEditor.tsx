@@ -7,16 +7,25 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { TextStylePlugin } from "./plugins/TextStylePlugin";
 import { TextToolbar } from "./TextToolbar";
 import InitialDataPlugin from "./plugins/InitialDataPlugin";
-import { MediaBlock, TextBlockData } from "@/modules/media/types";
+import { MediaBlock } from "@/modules/media/types";
 import { OnChangeDebounce } from "./hooks/OnChangeDebounce";
+import { useEditorStore } from "@/stores/editor/useEditorStore";
+import { DoubleClickToEditPlugin } from "./plugins/DoubleClickToEditPlugin";
+import { useRef } from "react";
 
-export const TextEditor = ({
-  onChange,
-  block,
-}: {
+type Props = {
+  isEditable: boolean;
+  setIsEditable: (isEditable: boolean) => void;
   onChange?: (html: string, text: string) => void;
   block: MediaBlock;
-}) => {
+};
+
+export const TextEditor = ({
+  isEditable,
+  setIsEditable,
+  onChange,
+  block,
+}: Props) => {
   const editorConfig = {
     namespace: "TextEditor",
     nodes: [],
@@ -26,20 +35,41 @@ export const TextEditor = ({
     onError: (error: any) => console.error(error),
   };
 
+  const editorWrapperRef = useRef<HTMLDivElement>(null);
+
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <div className="flex flex-col w-full h-full">
+      <div
+        ref={editorWrapperRef}
+        className={`flex flex-col w-full h-full ${
+          isEditable ? "" : "select-none"
+        }
+        `}
+      >
         <TextToolbar />
-        <div className="flex-1 p-1 rounded ">
+        <div className="flex-1 p-1 rounded relative">
           <RichTextPlugin
             contentEditable={
-              <ContentEditable className="outline-none w-full h-full leading-none" />
+              <ContentEditable
+                className={`outline-none w-full h-full leading-none ${
+                  isEditable ? "" : "pointer-events-none select-none"
+                }`}
+              />
             }
-            placeholder={null}
+            placeholder={
+              <span className="text-xs font-light left-1 top-1 absolute">
+                Double-click to edit
+              </span>
+            }
           />
           <HistoryPlugin />
           <InitialDataPlugin data={block.data} />
           <TextStylePlugin block={block} />
+          <DoubleClickToEditPlugin
+            isEditable={isEditable}
+            setIsEditable={setIsEditable}
+            wrapperRef={editorWrapperRef}
+          />
           <OnChangeDebounce
             wait={500}
             onChange={(json, plainText, htmlString) => {

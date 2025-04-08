@@ -3,9 +3,10 @@ import { MediaBlock } from "@/modules/media/types";
 import React from "react";
 import { DraggableData, Rnd, RndDragEvent, RndResizeCallback } from "react-rnd";
 import { getAbsoluteSize, getRelativeSize } from "@/utils/functions";
+import { Trash2 } from "lucide-react";
 
 const ImageRenderer = ({ block }: { block: MediaBlock }) => {
-  const { screen, updateBlock } = useEditorStore();
+  const { screen, updateBlock, deleteBlock } = useEditorStore();
 
   const handleDrag = (e: RndDragEvent, { x, y }: DraggableData) => {
     if (!screen?.width || !screen.height) return;
@@ -71,6 +72,15 @@ const ImageRenderer = ({ block }: { block: MediaBlock }) => {
       onDragStop={handleDrag}
       onResizeStop={handleResize}
     >
+      <div
+        onClick={() => {
+          if (!block.id) return;
+          deleteBlock(block.id);
+        }}
+        className="absolute -bottom-0 -right-[22px] cursor-pointer bg-red-500 p-1 rounded-sm shadow-md"
+      >
+        <Trash2 size={12} color="white" />
+      </div>
       <img
         src={block.data.src}
         alt=""

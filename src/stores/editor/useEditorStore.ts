@@ -2,8 +2,10 @@
 import { create } from "zustand";
 import { EditorState } from "@/types/editor.types";
 import { StepType, TimelineStep } from "@/modules/timeline/types";
+import _ from "lodash";
 
 export const useEditorStore = create<EditorState>((set, get) => ({
+  isUpdating: false,
   screen: null,
   setEditorContainer: (screenData) => {
     set({
@@ -34,8 +36,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       const existingBlock = state.blocks.find((b) => b.id === updatedBlock.id);
       if (!existingBlock) return { blocks: state.blocks };
 
-      const isEqual =
-        JSON.stringify(existingBlock) === JSON.stringify(updatedBlock);
+      const isEqual = _.isEqual(existingBlock, updatedBlock);
       if (isEqual) return { blocks: state.blocks };
 
       return {
@@ -45,6 +46,17 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       };
     });
   },
+  deleteBlock: (blockId) => {
+    set((state) => {
+      const existingBlock = state.blocks.find((b) => b.id === blockId);
+      if (!existingBlock) return { blocks: state.blocks };
+
+      return {
+        blocks: state.blocks.filter((b) => b.id !== blockId),
+      };
+    });
+  },
+
   triggers: [],
   addTrigger: (trigger) =>
     set((state) => ({
@@ -68,13 +80,13 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       };
     });
   },
-  mountStep: (): TimelineStep => {
+  mountStep: (timelineId, orderIndex, type): TimelineStep => {
     const { blocks, triggers } = get();
     const timelineStep: TimelineStep = {
-      id: "1234-5678-9101",
-      timelineId: "1234-5678-9101",
-      orderIndex: 0,
-      type: "start",
+      id: crypto.randomUUID(),
+      timelineId,
+      orderIndex,
+      type,
       metadata: {
         blocks,
         triggers,

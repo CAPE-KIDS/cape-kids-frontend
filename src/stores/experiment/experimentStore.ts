@@ -62,28 +62,28 @@ export const useExperimentStore = create<ExperimentState>((set, get) => ({
           timelineId: "tl-1",
           orderIndex: 1,
           type: "start",
-          metadata: { name: "Introduction", positionX: 0, positionY: 0 },
+          metadata: { title: "Introduction", positionX: 0, positionY: 0 },
         },
         {
           id: "2",
           timelineId: "tl-1",
           orderIndex: 2,
           type: "task",
-          metadata: { name: "Flanker task v1", positionX: 0, positionY: 150 },
+          metadata: { title: "Flanker task v1", positionX: 0, positionY: 150 },
         },
         {
           id: "3",
           timelineId: "tl-1",
           orderIndex: 3,
-          type: "block",
-          metadata: { name: "Message", positionX: 0, positionY: 300 },
+          type: "custom_block",
+          metadata: { title: "Message", positionX: 0, positionY: 300 },
         },
         {
           id: "4",
           timelineId: "tl-1",
           orderIndex: 4,
           type: "end",
-          metadata: { name: "Last screen", positionX: 0, positionY: 450 },
+          metadata: { title: "Last screen", positionX: 0, positionY: 450 },
         },
       ];
 
@@ -113,13 +113,13 @@ export const useExperimentStore = create<ExperimentState>((set, get) => ({
 
       return {
         id: step.id,
-        type: "custom",
+        type: "custom", // related to the CustomNode component not to the type of step
         position: {
           x: step.metadata.positionX,
           y: step.metadata.positionY,
         },
         data: {
-          label: step.metadata.name,
+          label: step.metadata.title,
           step: step.orderIndex,
           type: stepType,
         },
@@ -136,7 +136,7 @@ export const useExperimentStore = create<ExperimentState>((set, get) => ({
         id: connection.id,
         source: connection.fromStepId,
         target: connection.toStepId,
-        type: "custom",
+        type: "custom", // related to the CustomEdge component not to the type of step
       };
     });
 

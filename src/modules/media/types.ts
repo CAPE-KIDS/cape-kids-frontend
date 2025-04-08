@@ -21,4 +21,5 @@ export interface MediaBlock {
   size?: { width: number; height: number };
   data: TextBlockData | any;
   triggers?: Trigger[];
+  deleted?: boolean;
 }

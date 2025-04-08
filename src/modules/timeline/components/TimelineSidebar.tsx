@@ -12,7 +12,7 @@ import {
   Type,
   Video,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import CustomSelect, { Option } from "@/components/CustomSelect";
@@ -21,29 +21,27 @@ import { MediaTypeBlocks } from "@/modules/media/components/MediaTypeBlocks";
 import TriggerButtons from "@/modules/triggers/components/TriggerButtons";
 import { useEditorStore } from "@/stores/editor/useEditorStore";
 import { mockSteps } from "@/modules/canvas/mock";
+import { useSearchParams } from "next/navigation";
+import { toast, Toaster } from "sonner";
+
+const mockTasks = [
+  { id: "1", name: "Flanker Task" },
+  { id: "2", name: "Go/No go" },
+  { id: "3", name: "N-back digit span" },
+];
 
 const timelineStepSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
   type: z.enum([
     "start",
     "task",
     "conditional",
     "sequential_stimuli",
     "simultaneos_stimuli",
-    "block",
+    "custom_block",
     "end",
   ]),
-  metadata: z
-    .record(
-      z.object({
-        name: z.string(),
-        positionX: z.number().optional(),
-        positionY: z.number().optional(),
-      })
-    )
-    .optional(),
-  orderIndex: z.number().optional(),
+  task: z.string().optional(),
 });
 type TimelineStepFormData = z.infer<typeof timelineStepSchema>;
 
@@ -72,35 +70,74 @@ const TimelineSidebar = ({
   sidebarOpen: boolean;
   toggleSiderbarOpen: () => void;
 }) => {
-  const { experimentData } = useExperimentStore();
+  const searchParams = useSearchParams();
+  const timelineId = searchParams.get("id");
+  const { experimentData, steps } = useExperimentStore();
   const { blocks, mountStep } = useEditorStore();
   const {
     register,
     control,
-    handleSubmit,
     setValue,
     watch,
+    getValues,
+    handleSubmit,
     formState: { errors },
   } = useForm<TimelineStepFormData>({
     resolver: zodResolver(timelineStepSchema),
     defaultValues: {},
   });
-
-  const onSubmit = (data: TimelineStepFormData) => {
-    console.log(data);
-  };
+  const [taskList, setTaskList] = useState<any[]>([]);
 
   const openPreview = () => {
-    const mountedScreen = mountStep();
-    const previewWindow = window.open("/preview?id=custom", "_blank");
+    const { title, type } = getValues();
+    const timelineId = steps[0]?.timelineId;
+    const orderIndex = steps.length + 1;
+
+    const timelineStepScreen = mountStep(timelineId, orderIndex, type);
+
+    if (timelineStepScreen.metadata.blocks.length === 0) {
+      toast.error("The screen is empty. Please add at least one block.");
+      return;
+    }
+
+    const previewWindow = window.open(
+      `/preview?id=${timelineStepScreen.id}`,
+      "_blank"
+    );
     if (previewWindow) {
       // previewWindow.name = JSON.stringify({ steps: blocks });
-      previewWindow.name = JSON.stringify({ steps: [mountedScreen] });
+      previewWindow.name = JSON.stringify({ steps: [timelineStepScreen] });
     }
   };
 
+  const onSubmit = () => {
+    const { title, type } = getValues();
+    const timelineId = steps[0]?.timelineId;
+    const orderIndex = steps.length + 1;
+
+    const timelineStepScreen = mountStep(timelineId, orderIndex, type);
+    console.log(timelineStepScreen.metadata.blocks);
+
+    if (timelineStepScreen.metadata.blocks.length === 0) {
+      toast.error("The screen is empty. Please add at least one block.");
+      return;
+    }
+  };
+
+  useEffect(() => {
+    if (watch("type") === "task") {
+      // getTasks
+      setTaskList(mockTasks);
+      return;
+    }
+
+    setTaskList([]);
+    setValue("task", "");
+  }, [watch("type")]);
+
   return (
     <ResizableSidebar isOpen={sidebarOpen} onClose={toggleSiderbarOpen}>
+      <Toaster position="top-right" richColors />
       <div className="flex w-full h-full items-center gap-10">
         {/* Lefftside */}
         <div className="max-w-2xl w-full">
@@ -110,35 +147,79 @@ const TimelineSidebar = ({
 
           <div className="flex flex-col gap-4">
             <div className="flex flex-col space-y-1">
-              <label className="font-light text-xs text-gray-400">Title</label>
+              <div className="flex items-center justify-between">
+                <label className="font-light text-xs text-gray-400">
+                  Title
+                </label>
+                {errors.title && (
+                  <span className="text-red-500 text-xs">
+                    Title is required
+                  </span>
+                )}
+              </div>
               <input
                 {...register("title")}
                 className="bg-[#EBEFFF] rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
-                placeholder="Experiment title"
+                placeholder="Step title"
               />
-              {errors.title && (
-                <span className="text-red-500 text-xs">
-                  {errors.title.message}
-                </span>
-              )}
             </div>
 
             {/* Type com React-Select */}
             <div className="flex flex-col space-y-1">
-              <label className="font-light text-xs text-gray-400">Type</label>
+              <div className="flex items-center justify-between">
+                <label className="font-light text-xs text-gray-400">Type</label>
+
+                {errors.type && (
+                  <span className="text-red-500 text-xs">
+                    Type is requireds
+                  </span>
+                )}
+              </div>
               <CustomSelect
                 value={watch("type") || null}
-                onChange={(val) => setValue("type", val)}
+                onChange={(val) => {
+                  setValue("type", val);
+                  if (errors.type) {
+                    delete errors.type;
+                  }
+                }}
                 options={options}
               />
-              {errors.type && (
-                <span className="text-red-500 text-xs">
-                  {errors.type.message}
-                </span>
-              )}
             </div>
 
-            <div className="flex flex-col space-y-1 ">
+            {/* Custom Input depending on type */}
+
+            {watch("type") === "task" && taskList && (
+              <>
+                <div className="flex flex-col space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="font-light text-xs text-gray-400">
+                      Task
+                    </label>
+                    {errors.task && (
+                      <span className="text-red-500 text-xs">
+                        Task is required
+                      </span>
+                    )}
+                  </div>
+                  <CustomSelect
+                    value={watch("task") || null}
+                    onChange={(val) => {
+                      setValue("task", val);
+                      if (errors.task) {
+                        delete errors.task;
+                      }
+                    }}
+                    options={taskList.map((task) => ({
+                      value: task.id,
+                      label: task.name,
+                    }))}
+                  />
+                </div>
+              </>
+            )}
+
+            <div className="flex flex-col space-y-1 relative">
               <div className="flex items-center justify-between">
                 <label className="font-light text-xs text-gray-400">
                   Screen
@@ -173,7 +254,10 @@ const TimelineSidebar = ({
             </div>
 
             {/* Save */}
-            <button className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm">
+            <button
+              onClick={handleSubmit(onSubmit)}
+              className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm"
+            >
               Save
             </button>
           </div>

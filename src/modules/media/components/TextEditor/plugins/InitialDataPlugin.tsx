@@ -3,7 +3,7 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { $getSelection } from "lexical";
 import React, { useEffect, useRef } from "react";
 
-const InitialTextPlugin = ({ data }: { data: TextBlockData }) => {
+const InitialDataPlugin = ({ data }: { data: TextBlockData }) => {
   const [editor] = useLexicalComposerContext();
   const hasInitialized = useRef(false);
 
@@ -22,4 +22,4 @@ const InitialTextPlugin = ({ data }: { data: TextBlockData }) => {
   return null;
 };
 
-export default InitialTextPlugin;
+export default InitialDataPlugin;

@@ -7,7 +7,7 @@ export type StepType =
   | "conditional"
   | "sequential_stimuli"
   | "simultaneos_stimuli"
-  | "block"
+  | "custom_block"
   | "end";
 
 export const StepColors: Record<
@@ -37,7 +37,7 @@ export const StepColors: Record<
     background: "#1D8499",
     color: "#FFFFFF",
   },
-  block: {
+  custom_block: {
     background: "#FF6200",
     color: "#FFFFFF",
   },
@@ -48,8 +48,11 @@ export const StepColors: Record<
 } as const;
 
 export interface TimelineStepMetadata {
-  blocks: MediaBlock[] | null;
-  triggers: Trigger[] | null;
+  title: string;
+  positionX: number | null;
+  positionY: number | null;
+  blocks?: MediaBlock[] | null;
+  triggers?: Trigger[] | null;
 }
 
 export interface TimelineStep {
