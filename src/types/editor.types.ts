@@ -7,7 +7,7 @@ import { StepType, TimelineStep } from "@/modules/timeline/types";
 
 export interface EditorContext {
   screen: Screen;
-  addBlock: (block: MediaBlock) => void;
+  addStep: (block: MediaBlock) => void;
   getRelativePosition: (e: MouseEvent) => { x: number; y: number };
   setTool: (tool: Tool) => Tool | null;
   editor?: LexicalEditor;
@@ -23,7 +23,7 @@ export interface ToolUIContext {
   screen: Screen;
   inputRef?: React.RefObject<HTMLInputElement | null>;
   setTool: (tool: Tool) => Tool | null;
-  addBlock: (block: MediaBlock) => void;
+  addStep: (block: MediaBlock) => void;
   resetTool: () => void;
   getRelativePosition: (e: MouseEvent) => { x: number; y: number };
   editor?: LexicalEditor;
@@ -57,17 +57,26 @@ export interface EditorState {
   setTool: (tool: Tool) => Tool | null;
   resetTool: () => void;
   blocks: MediaBlock[];
-  updateBlock: (block: MediaBlock) => void;
-  addBlock: (block: MediaBlock) => void;
+  updateStep: (block: MediaBlock) => void;
+  addStep: (block: MediaBlock) => void;
   deleteBlock: (blockId: string) => void;
   triggers: Trigger[];
   addTrigger: (trigger: Trigger) => void;
   updateTrigger: (trigger: Trigger) => void;
+  calculateRenderPosititon: (steps: TimelineStep[]) => StepPositions;
   mountStep: (
     timelineId: string,
-    orderIndex: number,
-    type: StepType
+    positions: StepPositions,
+    type: StepType,
+    title: string
   ) => TimelineStep;
+  clearEditor: () => void;
+}
+
+interface StepPositions {
+  index: number;
+  x: number;
+  y: number;
 }
 
 export type EditorMode = null | {

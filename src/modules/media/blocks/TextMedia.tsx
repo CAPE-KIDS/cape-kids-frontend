@@ -4,11 +4,11 @@ import React from "react";
 import { TextTool } from "../tools/TextTool";
 
 const TextMedia = () => {
-  const { currentTool, setTool, addBlock, resetTool } = useEditorStore();
+  const { currentTool, setTool, addStep, resetTool } = useEditorStore();
 
   const UIContext = {
     setTool,
-    addBlock,
+    addStep,
     resetTool,
   };
 

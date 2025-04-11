@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "../globals.css";
 import { AuthProvider } from "@/context/AuthProvider";
 import SidebarMenu from "@/components/SidebarMenu";
+import NextTopLoader from "nextjs-toploader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +23,7 @@ export default function ({
         <SidebarMenu />
 
         <div className="flex flex-1 flex-col h-screen overflow-auto">
+          <NextTopLoader showSpinner={false} />
           {children}
         </div>
       </div>

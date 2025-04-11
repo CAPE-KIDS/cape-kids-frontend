@@ -6,7 +6,7 @@ import { getAbsoluteSize, getRelativeSize } from "@/utils/functions";
 import { Trash2 } from "lucide-react";
 
 const ImageRenderer = ({ block }: { block: MediaBlock }) => {
-  const { screen, updateBlock, deleteBlock } = useEditorStore();
+  const { screen, updateStep, deleteBlock } = useEditorStore();
 
   const handleDrag = (e: RndDragEvent, { x, y }: DraggableData) => {
     if (!screen?.width || !screen.height) return;
@@ -14,7 +14,7 @@ const ImageRenderer = ({ block }: { block: MediaBlock }) => {
     const absoluteX = getRelativeSize(x, screen.width);
     const absuloteY = getRelativeSize(y, screen.height);
 
-    updateBlock({
+    updateStep({
       ...block,
       position: {
         x: absoluteX,
@@ -50,7 +50,7 @@ const ImageRenderer = ({ block }: { block: MediaBlock }) => {
       },
     };
 
-    updateBlock({ ...newBlock });
+    updateStep({ ...newBlock });
   };
 
   return (

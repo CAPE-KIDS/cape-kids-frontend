@@ -1,11 +1,10 @@
 // stores/useEditorStore.ts
 import { create } from "zustand";
 import { EditorState } from "@/types/editor.types";
-import { StepType, TimelineStep } from "@/modules/timeline/types";
+import { TimelineStep } from "@/modules/timeline/types";
 import _ from "lodash";
 
 export const useEditorStore = create<EditorState>((set, get) => ({
-  isUpdating: false,
   screen: null,
   setEditorContainer: (screenData) => {
     set({
@@ -27,11 +26,11 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     set({ currentTool: null });
   },
   blocks: [],
-  addBlock: (block) =>
+  addStep: (block) =>
     set((state) => ({
       blocks: [...state.blocks, block],
     })),
-  updateBlock: (updatedBlock) => {
+  updateStep: (updatedBlock) => {
     set((state) => {
       const existingBlock = state.blocks.find((b) => b.id === updatedBlock.id);
       if (!existingBlock) return { blocks: state.blocks };
@@ -80,19 +79,64 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       };
     });
   },
-  mountStep: (timelineId, orderIndex, type): TimelineStep => {
+  calculateRenderPosititon: (steps) => {
+    if (steps.length === 0 || !steps) {
+      return {
+        index: 1,
+        x: 0,
+        y: 0,
+      };
+    }
+
+    const index = Math.max(...steps.map((step) => step.orderIndex));
+
+    const indexValue = index + 1;
+
+    if (indexValue === 2) {
+      return {
+        index: indexValue,
+        x: 0,
+        y: 150,
+      };
+    }
+
+    const yPosition = steps.reduce((acc, step) => {
+      const stepY = step.metadata.positionY || 0;
+      if (stepY > acc) {
+        return stepY + 150;
+      }
+      return acc;
+    }, 0);
+
+    return {
+      index: indexValue,
+      x: 0,
+      y: yPosition,
+    };
+  },
+  mountStep: (timelineId, positions, type, title): TimelineStep => {
     const { blocks, triggers } = get();
     const timelineStep: TimelineStep = {
       id: crypto.randomUUID(),
       timelineId,
-      orderIndex,
+      orderIndex: positions.index,
       type,
       metadata: {
+        title,
         blocks,
         triggers,
+        positionX: positions.x,
+        positionY: positions.y,
       },
     };
 
     return timelineStep;
+  },
+  clearEditor: () => {
+    set({
+      currentTool: null,
+      blocks: [],
+      triggers: [],
+    });
   },
 }));

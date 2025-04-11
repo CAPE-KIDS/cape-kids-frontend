@@ -1,41 +1,41 @@
 import React, { useEffect, useState } from "react";
 import TimelineHeader from "./components/TimelineHeader";
-import { useExperimentStore } from "@/stores/experiment/experimentStore";
+import { useTimelineStore } from "@/stores/timeline/timelineStore";
 import TimelineEditor from "./components/TimelineEditor";
 import TimelineSidebar from "./components/TimelineSidebar";
+import { Experiment } from "@/stores/timeline/timelineStore";
+import { Loader2 } from "lucide-react";
 
 type TimelineViewProps = {
-  id: string;
+  data: Experiment | null;
 };
 
-const TimelineView: React.FC<TimelineViewProps> = ({ id }) => {
-  const { experimentData, loading, error, getExperimentById } =
-    useExperimentStore();
+const TimelineView: React.FC<TimelineViewProps> = ({ data }) => {
+  const { sourceData, loading } = useTimelineStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSiderbarOpen = () => {
     setSidebarOpen((prev) => !prev);
   };
 
-  useEffect(() => {
-    if (id) {
-      getExperimentById(id);
-    }
-  }, [id, getExperimentById]);
-
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-full gap-4">
+        <Loader2 className="animate-spin" size={24} />
+        <span>Loading...</span>
+      </div>
+    );
   }
 
-  if (!experimentData) {
+  if (!sourceData) {
     return <div>No experiment data found</div>;
   }
 
   return (
     <div>
       <TimelineHeader
-        title={experimentData.name}
-        key={experimentData.id}
+        title={sourceData?.title || ""}
+        key={sourceData?.id || ""}
         onAddStep={toggleSiderbarOpen}
       />
       <TimelineEditor />

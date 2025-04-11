@@ -1,7 +1,7 @@
 "use client";
 import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,12 +12,19 @@ import TimelineHeader from "@/modules/timeline/components/TimelineHeader";
 import { title } from "process";
 import TimelineView from "@/modules/timeline/TimelineView";
 import { useParams } from "next/navigation";
+import { useTimelineStore } from "@/stores/timeline/timelineStore";
 
 // Schema de validação
 
 const CreateExperimentsTimeline = () => {
+  const { getExperimentData } = useTimelineStore();
   const params = useParams();
   const experimentId = params.id as string;
+
+  useEffect(() => {
+    const data = getExperimentData(experimentId);
+  }, []);
+
   return (
     <div className="flex flex-col h-full">
       <PageHeader

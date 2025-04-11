@@ -8,13 +8,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Copy } from "lucide-react";
 import DataTable from "@/components/DataTable";
 import SectionHeader from "@/components/SectionHeader";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 
 // Schema de validação
 const experimentSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  participantsLimit: z
+  participantTarget: z
     .number({ invalid_type_error: "Participants limit must be a number" })
     .min(1, "Must be at least 1"),
   allowExtraParticipants: z.boolean(),
@@ -40,8 +40,6 @@ const CreateExperiments = () => {
   });
 
   const onSubmit = (data: ExperimentFormData) => {
-    console.log("Form Data:", data);
-
     router.push("/experiments/1234-5678-9101/timeline");
   };
 
@@ -120,14 +118,14 @@ const CreateExperiments = () => {
                 </label>
                 <input
                   type="number"
-                  {...register("participantsLimit", { valueAsNumber: true })}
+                  {...register("participantTarget", { valueAsNumber: true })}
                   className="bg-[#EBEFFF] rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
                   placeholder="Number of participants"
                   min="1"
                 />
-                {errors.participantsLimit && (
+                {errors.participantTarget && (
                   <span className="text-red-500 text-xs">
-                    {errors.participantsLimit.message}
+                    {errors.participantTarget.message}
                   </span>
                 )}
               </div>

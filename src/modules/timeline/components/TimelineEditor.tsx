@@ -12,14 +12,14 @@ import {
 import "@xyflow/react/dist/style.css";
 import CustomNode from "./CustomNode";
 import CustomEdge from "./CustomEdge";
-import { useExperimentStore } from "@/stores/experiment/experimentStore";
+import { useTimelineStore } from "@/stores/timeline/timelineStore";
 
 import "../../../../tailwind.config";
 
 const TimelineEditor = () => {
-  const { nodes: initialNodes, edges: initialEdges } = useExperimentStore();
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const { nodes: timelineNodes, edges: timelineEdges } = useTimelineStore();
+  const [nodes, setNodes, onNodesChange] = useNodesState(timelineNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(timelineEdges);
 
   const onConnect = (params: Connection) => {
     setEdges((eds) => {
@@ -63,7 +63,12 @@ const TimelineEditor = () => {
         },
       }))
     );
-  }, [edges]);
+  }, [timelineNodes, edges]);
+
+  useEffect(() => {
+    setNodes(timelineNodes);
+    setEdges(timelineEdges);
+  }, [timelineNodes, timelineEdges]);
 
   const onNodeDrag = useCallback(() => {
     const buttons = document.querySelectorAll(".edge-remove-btn");

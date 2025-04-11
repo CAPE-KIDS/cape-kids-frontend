@@ -26,7 +26,7 @@ export const ImageTool: Tool = {
 
     inputRef?.current && inputRef.current.click();
   },
-  onChange: (e, { addBlock, screen, resetTool }) => {
+  onChange: (e, { addStep, screen, resetTool }) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const file = files[0];
@@ -61,7 +61,7 @@ export const ImageTool: Tool = {
           },
         } as MediaBlock;
 
-        addBlock(block);
+        addStep(block);
         resetTool();
       };
       reader.readAsDataURL(file);

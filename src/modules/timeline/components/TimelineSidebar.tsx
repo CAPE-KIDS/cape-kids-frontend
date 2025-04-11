@@ -1,5 +1,5 @@
 import ResizableSidebar from "@/components/ResizableSidebar";
-import { useExperimentStore } from "@/stores/experiment/experimentStore";
+import { useTimelineStore } from "@/stores/timeline/timelineStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Clock,
@@ -20,9 +20,10 @@ import { ScreenEditor } from "@/components/ScreenEditor/ScreenEditor";
 import { MediaTypeBlocks } from "@/modules/media/components/MediaTypeBlocks";
 import TriggerButtons from "@/modules/triggers/components/TriggerButtons";
 import { useEditorStore } from "@/stores/editor/useEditorStore";
-import { mockSteps } from "@/modules/canvas/mock";
 import { useSearchParams } from "next/navigation";
 import { toast, Toaster } from "sonner";
+import { TimelineStep } from "../types";
+import _, { merge } from "lodash";
 
 const mockTasks = [
   { id: "1", name: "Flanker Task" },
@@ -72,8 +73,9 @@ const TimelineSidebar = ({
 }) => {
   const searchParams = useSearchParams();
   const timelineId = searchParams.get("id");
-  const { experimentData, steps } = useExperimentStore();
-  const { blocks, mountStep } = useEditorStore();
+  const { sourceData, steps, updateSteps } = useTimelineStore();
+  const { blocks, mountStep, calculateRenderPosititon, clearEditor } =
+    useEditorStore();
   const {
     register,
     control,
@@ -88,12 +90,15 @@ const TimelineSidebar = ({
   });
   const [taskList, setTaskList] = useState<any[]>([]);
 
+  const [typeOptions, setTypeOptions] = useState<Option[]>(options);
+
   const openPreview = () => {
+    const { steps } = useTimelineStore();
     const { title, type } = getValues();
     const timelineId = steps[0]?.timelineId;
-    const orderIndex = steps.length + 1;
+    const positions = calculateRenderPosititon(steps);
 
-    const timelineStepScreen = mountStep(timelineId, orderIndex, type);
+    const timelineStepScreen = mountStep(timelineId, positions, type, title);
 
     if (timelineStepScreen.metadata.blocks.length === 0) {
       toast.error("The screen is empty. Please add at least one block.");
@@ -113,15 +118,25 @@ const TimelineSidebar = ({
   const onSubmit = () => {
     const { title, type } = getValues();
     const timelineId = steps[0]?.timelineId;
-    const orderIndex = steps.length + 1;
+    const positions = calculateRenderPosititon(steps);
 
-    const timelineStepScreen = mountStep(timelineId, orderIndex, type);
-    console.log(timelineStepScreen.metadata.blocks);
+    const timelineStepScreen = mountStep(timelineId, positions, type, title);
 
     if (timelineStepScreen.metadata.blocks.length === 0) {
       toast.error("The screen is empty. Please add at least one block.");
       return;
     }
+
+    // update to save in the backend
+    updateSteps(timelineStepScreen);
+    toggleSiderbarOpen();
+    toast.success("Step added successfully!");
+    setValue("title", "");
+    setValue("type", "");
+    setValue("task", "");
+    setTaskList([]);
+    setTypeOptions(options);
+    clearEditor();
   };
 
   useEffect(() => {
@@ -135,6 +150,24 @@ const TimelineSidebar = ({
     setValue("task", "");
   }, [watch("type")]);
 
+  useEffect(() => {
+    const filteredOptions = options.map((option) => {
+      const hasStart = steps.some((step) => step.type === "start");
+      const hasEnd = steps.some((step) => step.type === "end");
+
+      if (
+        (hasStart && option.value === "start") ||
+        (hasEnd && option.value === "end")
+      ) {
+        return;
+      }
+
+      return option;
+    });
+
+    setTypeOptions(filteredOptions.filter(Boolean) as Option[]);
+  }, [steps]);
+
   return (
     <ResizableSidebar isOpen={sidebarOpen} onClose={toggleSiderbarOpen}>
       <Toaster position="top-right" richColors />
@@ -143,7 +176,7 @@ const TimelineSidebar = ({
         <div className="max-w-2xl w-full">
           {/* Header */}
           <h2 className="text-2xl mb-4">Adding step to the timeline</h2>
-          <p className=" mb-4">{experimentData?.name}</p>
+          <p className=" mb-4">{sourceData?.title}</p>
 
           <div className="flex flex-col gap-4">
             <div className="flex flex-col space-y-1">
@@ -164,7 +197,7 @@ const TimelineSidebar = ({
               />
             </div>
 
-            {/* Type com React-Select */}
+            {/* Type  */}
             <div className="flex flex-col space-y-1">
               <div className="flex items-center justify-between">
                 <label className="font-light text-xs text-gray-400">Type</label>
@@ -183,7 +216,7 @@ const TimelineSidebar = ({
                     delete errors.type;
                   }
                 }}
-                options={options}
+                options={typeOptions}
               />
             </div>
 
@@ -234,7 +267,7 @@ const TimelineSidebar = ({
                 </div>
               </div>
               {/* Preview */}
-              <ScreenEditor key={experimentData?.id} />
+              <ScreenEditor key={sourceData?.id} />
             </div>
 
             {/* Footer */}

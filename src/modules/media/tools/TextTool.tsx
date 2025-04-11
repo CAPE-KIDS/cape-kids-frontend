@@ -29,7 +29,7 @@ export const TextTool: Tool = {
     draft.current = { x, y };
   },
 
-  onMouseUp: (e, { addBlock, screen }) => {
+  onMouseUp: (e, { addStep, screen }) => {
     if (!draft) return;
 
     const start = draft.start;
@@ -61,7 +61,7 @@ export const TextTool: Tool = {
       data: { text: "" } as TextBlockData,
     };
 
-    addBlock(block);
+    addStep(block);
     draft = null;
   },
 

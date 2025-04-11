@@ -6,6 +6,8 @@ export type Option = {
   label: string | React.ReactNode;
   color?: string;
   icon?: React.ReactNode;
+  disabled?: boolean;
+  isSelected?: boolean;
 };
 
 interface CustomSelectProps {
@@ -30,8 +32,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     wrapperStyle: "",
     selectorStyle:
       "w-full bg-[#EBEFFF] rounded-lg p-2 text-left flex items-center justify-between focus:outline-none cursor-pointer",
-    optionsStyle:
-      "flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100",
+    optionsStyle: "flex items-center gap-2 px-2 py-1 hover:bg-gray-100",
     dropdownStyle:
       "absolute z-10 bg-white border w-full mt-1 rounded-md shadow-sm max-h-60 overflow-y-auto",
     showToggle: true,
@@ -104,10 +105,15 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
               key={opt.value}
               onClick={(e) => {
                 e.preventDefault();
+                if (opt.disabled) return;
                 onChange(opt.value);
                 setOpen(false);
               }}
-              className={config?.optionsStyle}
+              className={`${config?.optionsStyle} ${
+                opt.disabled
+                  ? "opacity-50 cursor-not-allowed"
+                  : "cursor-pointer"
+              }`}
             >
               {opt.color && (
                 <svg width="12" height="12">

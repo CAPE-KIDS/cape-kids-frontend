@@ -71,7 +71,7 @@ export const TextEditor = ({
             wrapperRef={editorWrapperRef}
           />
           <OnChangeDebounce
-            wait={500}
+            wait={100}
             onChange={(json, plainText, htmlString) => {
               onChange && onChange(htmlString, plainText);
             }}

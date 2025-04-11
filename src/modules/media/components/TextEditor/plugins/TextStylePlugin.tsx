@@ -32,7 +32,7 @@ const styleMap: { [key: string]: string } = {
 };
 
 export const TextStylePlugin = ({ block }: { block: MediaBlock }) => {
-  const { resetTool, updateBlock, screen } = useEditorStore();
+  const { resetTool, updateStep, screen } = useEditorStore();
   const [editor] = useLexicalComposerContext();
 
   const updateBlockStyle = (key: string, value: any) => {
@@ -46,7 +46,7 @@ export const TextStylePlugin = ({ block }: { block: MediaBlock }) => {
       block.data[styleMap[key]] = value;
     }
 
-    updateBlock({
+    updateStep({
       ...block,
     });
   };

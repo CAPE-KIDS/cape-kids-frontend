@@ -8,7 +8,7 @@ import { debounce } from "lodash";
 import { getAbsoluteSize, getRelativeSize } from "@/utils/functions";
 
 const TextRenderer: React.FC<{ block: MediaBlock }> = ({ block }) => {
-  const { screen, updateBlock, deleteBlock } = useEditorStore();
+  const { screen, updateStep, deleteBlock } = useEditorStore();
   const lastTextRef = useRef(block.data.text);
   const [isEditable, setIsEditable] = useState(false);
 
@@ -18,7 +18,7 @@ const TextRenderer: React.FC<{ block: MediaBlock }> = ({ block }) => {
     const absoluteX = getRelativeSize(x, screen.width);
     const absuloteY = getRelativeSize(y, screen.height);
 
-    updateBlock({
+    updateStep({
       ...block,
       position: {
         x: absoluteX,
@@ -42,7 +42,7 @@ const TextRenderer: React.FC<{ block: MediaBlock }> = ({ block }) => {
     const newX = getRelativeSize(position.x, screen.width);
     const newY = getRelativeSize(position.y, screen.height);
 
-    updateBlock({
+    updateStep({
       ...block,
       position: {
         x: newX,
@@ -58,7 +58,7 @@ const TextRenderer: React.FC<{ block: MediaBlock }> = ({ block }) => {
   const handleTextChange = (html: string, text: string) => {
     if (block.data.text === text) return;
 
-    updateBlock({
+    updateStep({
       ...block,
       data: {
         ...block.data,

@@ -36,7 +36,7 @@ const mouseActions = [
 ] as MouseActions[];
 
 const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
-  const { blocks, triggers, addTrigger, updateBlock } = useEditorStore();
+  const { blocks, triggers, addTrigger, updateStep } = useEditorStore();
   const [eventType, setEventType] = useState("");
   const [target, setTarget] = useState("");
   const [action, setAction] = useState("");
@@ -59,7 +59,7 @@ const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
     addTrigger(triggerData);
 
     if (isBlock) {
-      updateBlock({
+      updateStep({
         ...isBlock,
         triggers: [
           ...(isBlock.triggers || []),
