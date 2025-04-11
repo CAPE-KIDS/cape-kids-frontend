@@ -2,13 +2,11 @@ import { MediaBlock } from "../media/types";
 import { Trigger } from "../triggers/types";
 
 export type StepType =
-  | "start"
+  | "custom_block"
   | "task"
   | "conditional"
   | "sequential_stimuli"
-  | "simultaneos_stimuli"
-  | "custom_block"
-  | "end";
+  | "simultaneos_stimuli";
 
 export const StepColors: Record<
   StepType,
@@ -17,10 +15,6 @@ export const StepColors: Record<
     color: string;
   }
 > = {
-  start: {
-    background: "#1E1E1E",
-    color: "#FFFFFF",
-  },
   task: {
     background: "#5388D8",
     color: "#FFFFFF",
@@ -38,11 +32,7 @@ export const StepColors: Record<
     color: "#FFFFFF",
   },
   custom_block: {
-    background: "#FF6200",
-    color: "#FFFFFF",
-  },
-  end: {
-    background: "#FF3B30",
+    background: "#333",
     color: "#FFFFFF",
   },
 } as const;

@@ -24,6 +24,7 @@ import { useSearchParams } from "next/navigation";
 import { toast, Toaster } from "sonner";
 import { TimelineStep } from "../types";
 import _, { merge } from "lodash";
+import { TimelineStepOrder } from "./TimelineStepOrder";
 
 const mockTasks = [
   { id: "1", name: "Flanker Task" },
@@ -34,22 +35,19 @@ const mockTasks = [
 const timelineStepSchema = z.object({
   title: z.string().min(1, "Title is required"),
   type: z.enum([
-    "start",
+    "custom_block",
     "task",
     "conditional",
     "sequential_stimuli",
     "simultaneos_stimuli",
-    "custom_block",
-    "end",
   ]),
   task: z.string().optional(),
 });
 type TimelineStepFormData = z.infer<typeof timelineStepSchema>;
 
-const options: Option[] = [
-  { value: "start", label: "Start", color: "#1E1E1E" },
+export const options: Option[] = [
+  { value: "custom_block", label: "Custom block", color: "#333" },
   { value: "task", label: "Task", color: "#3B82F6" },
-  { value: "custom_block", label: "Custom block", color: "#F97316" },
   { value: "conditional", label: "Conditional", color: "#34C759" },
   {
     value: "sequential_stimuli",
@@ -61,7 +59,6 @@ const options: Option[] = [
     label: "Simultaneous Stimuli",
     color: "#1D8499",
   },
-  { value: "end", label: "End", color: "#EF4444" },
 ];
 
 const TimelineSidebar = ({
@@ -297,8 +294,11 @@ const TimelineSidebar = ({
         </div>
 
         {/* Rightside */}
-        <div className="w-full max-w-96 bg-[#EBEFFF] h-full max-h-[660px] p-6">
-          <h2>Step order</h2>
+        <div className="w-full max-w-96 bg-[#EBEFFF] h-full max-h-[660px] p-6 relative">
+          <TimelineStepOrder
+            draftTitle={watch("title")}
+            draftType={watch("type")}
+          />
         </div>
       </div>
     </ResizableSidebar>
