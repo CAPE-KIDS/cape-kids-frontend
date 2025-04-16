@@ -90,7 +90,6 @@ const TimelineSidebar = ({
   const [typeOptions, setTypeOptions] = useState<Option[]>(options);
 
   const openPreview = () => {
-    const { steps } = useTimelineStore();
     const { title, type } = getValues();
     const timelineId = steps[0]?.timelineId;
     const positions = calculateRenderPosititon(steps);

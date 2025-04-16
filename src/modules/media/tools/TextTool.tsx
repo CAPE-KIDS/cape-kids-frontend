@@ -58,7 +58,10 @@ export const TextTool: Tool = {
         width: getRelativeSize(width, screen.width),
         height: getRelativeSize(height, screen.height),
       },
-      data: { text: "" } as TextBlockData,
+      data: {
+        text: "",
+        fontSize: getRelativeSize(16, screen.width),
+      } as TextBlockData,
     };
 
     addStep(block);
