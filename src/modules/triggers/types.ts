@@ -10,6 +10,7 @@ export type TriggerContext = {
   activeStepId: string;
   steps: { id: string }[];
   setActiveStepId: (id: string) => void;
+  started?: boolean;
 };
 
 export interface Trigger<T extends TriggerActionType = TriggerActionType> {

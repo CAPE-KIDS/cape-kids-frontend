@@ -5,13 +5,15 @@ import { useEffect, useState } from "react";
 import { useTriggerHandler } from "@/modules/triggers/useTriggerHandler";
 import { useCanvasStore } from "../store/useCanvasStore";
 import { useKeyboardTriggers } from "@/modules/triggers/useKeyboardTriggers";
+import { useTimerTriggers } from "@/modules/triggers/useTimerTrigger";
 
 interface StepLayerProps {
   step: TimelineStep;
   visible: boolean;
+  started: boolean;
 }
 
-const StepLayer = ({ step, visible }: StepLayerProps) => {
+const StepLayer = ({ step, visible, started }: StepLayerProps) => {
   const { activeStepId, steps, setActiveStepId } = useCanvasStore();
 
   const allTriggers =
@@ -21,6 +23,14 @@ const StepLayer = ({ step, visible }: StepLayerProps) => {
     activeStepId,
     steps,
     setActiveStepId,
+    started,
+  });
+
+  useTimerTriggers(allTriggers, {
+    activeStepId,
+    steps,
+    setActiveStepId,
+    started,
   });
 
   return (

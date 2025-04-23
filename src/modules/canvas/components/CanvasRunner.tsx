@@ -10,9 +10,10 @@ import { Toaster } from "sonner";
 
 interface CanvasRunnerProps {
   steps?: TimelineStep[];
+  started: boolean;
 }
 
-const CanvasRunner = ({ steps }: CanvasRunnerProps) => {
+const CanvasRunner = ({ steps, started }: CanvasRunnerProps) => {
   const screenRef = useRef<HTMLDivElement>(null);
   const screen = useSizeObserver(screenRef);
 
@@ -42,13 +43,16 @@ const CanvasRunner = ({ steps }: CanvasRunnerProps) => {
   return (
     <div className="relative w-full h-full z-40" ref={screenRef}>
       <Toaster position="top-right" richColors closeButton />
-      {stateSteps.map((step) => (
-        <StepLayer
-          key={step.id}
-          step={step}
-          visible={step.id === activeStepId}
-        />
-      ))}
+      {stateSteps
+        .filter((step) => step.id === activeStepId)
+        .map((step) => (
+          <StepLayer
+            key={step.id}
+            step={step}
+            visible={true}
+            started={started}
+          />
+        ))}
     </div>
   );
 };

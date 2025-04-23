@@ -1,16 +1,10 @@
 // app/preview/page.tsx
 "use client";
 
-// import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { TimelineStep } from "@/modules/timeline/types";
 import CanvasRunner from "@/modules/canvas/components/CanvasRunner";
-
-// const CanvasRunner = dynamic(
-//   () => import("@/modules/canvas/components/CanvasRunner"),
-//   { ssr: false }
-// );
 
 const PreviewPage = () => {
   const searchParams = useSearchParams();
@@ -20,7 +14,6 @@ const PreviewPage = () => {
   const [loading, setLoading] = useState(true);
   const [steps, setSteps] = useState<TimelineStep[] | null>(null);
 
-  // Carrega os steps via window.name
   useEffect(() => {
     try {
       if (typeof window !== "undefined" && window.name) {
@@ -62,7 +55,7 @@ const PreviewPage = () => {
       <div className="relative w-full h-full overflow-hidden">
         {!started && <div className="absolute inset-0 bg-black z-50" />}
 
-        {steps && <CanvasRunner steps={steps} />}
+        {steps && <CanvasRunner steps={steps} started={started} />}
       </div>
 
       {/* Overlay de início */}
