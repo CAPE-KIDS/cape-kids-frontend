@@ -5,6 +5,7 @@ import { useCanvasStore } from "../store/useCanvasStore";
 import { getAbsoluteSize } from "@/utils/functions";
 import { useEffect } from "react";
 import { useTriggerHandler } from "@/modules/triggers/useTriggerHandler";
+import { z } from "zod";
 
 export const CanvasMediaRenderer: React.FC<{ block: MediaBlock }> = ({
   block,
@@ -13,9 +14,22 @@ export const CanvasMediaRenderer: React.FC<{ block: MediaBlock }> = ({
   const { getHandlersFromTriggers } = useTriggerHandler();
   const handlers = getHandlersFromTriggers(block.triggers);
 
-  useEffect(() => {
-    console.log(handlers);
-  }, []);
+  if (block.type === "screen") {
+    const hasTriggers = block.triggers && block.triggers.length > 0;
+
+    return (
+      <div
+        {...handlers}
+        tabIndex={0}
+        className={`${
+          hasTriggers
+            ? " absolute inset-0  z-50 pointer-events-auto"
+            : "pointer-events-none hidden"
+        }`}
+        style={{ width: "100%", height: "100%" }}
+      />
+    );
+  }
 
   const fontSize = block.data.fontSize
     ? getAbsoluteSize(block.data.fontSize, screen?.width)
@@ -29,10 +43,12 @@ export const CanvasMediaRenderer: React.FC<{ block: MediaBlock }> = ({
     height: `auto`,
     ...block.data,
     fontSize: `${fontSize}px`,
+    zIndex: 100,
   };
 
   switch (block.type) {
     case "text":
+      console.log(block);
       return (
         <div
           {...handlers}

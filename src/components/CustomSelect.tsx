@@ -102,7 +102,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         <ul className={config?.dropdownStyle}>
           {options.map((opt) => (
             <li
-              key={opt.value}
+              key={JSON.stringify(opt)}
               onClick={(e) => {
                 e.preventDefault();
                 if (opt.disabled) return;

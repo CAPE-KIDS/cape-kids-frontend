@@ -17,7 +17,12 @@ import { useTimelineStore } from "@/stores/timeline/timelineStore";
 import "../../../../tailwind.config";
 
 const TimelineEditor = () => {
-  const { nodes: timelineNodes, edges: timelineEdges } = useTimelineStore();
+  const {
+    nodes: timelineNodes,
+    edges: timelineEdges,
+    steps,
+    sourceData,
+  } = useTimelineStore();
   const [nodes, setNodes, onNodesChange] = useNodesState(timelineNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(timelineEdges);
 
@@ -84,8 +89,30 @@ const TimelineEditor = () => {
     });
   }, []);
 
+  const openPreview = () => {
+    // Logic to open preview modal or page
+    console.log("Preview opened", steps);
+
+    const previewWindow = window.open(
+      `/preview?id=${sourceData?.id}`,
+      "_blank"
+    );
+    if (previewWindow) {
+      // previewWindow.name = JSON.stringify({ steps: blocks });
+      previewWindow.name = JSON.stringify({ steps });
+    }
+  };
+
   return (
-    <div className="w-full h-[600px] rounded-md border">
+    <div className="w-full h-[600px] rounded-md border relative">
+      <div className="absolute right-1 top-1 flex items-center gap-2">
+        <button
+          onClick={openPreview}
+          className="text-xs cursor-pointer bg-white border p-2 rounded-md shadow-sm hover:bg-gray-50 transition z-20"
+        >
+          Preview
+        </button>
+      </div>
       <ReactFlow
         nodes={nodes}
         edges={edges}

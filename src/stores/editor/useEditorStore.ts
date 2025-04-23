@@ -3,6 +3,8 @@ import { create } from "zustand";
 import { EditorState } from "@/types/editor.types";
 import { TimelineStep } from "@/modules/timeline/types";
 import _ from "lodash";
+import { MediaBlock } from "@/modules/media/types";
+import { Trigger } from "@/modules/triggers/types";
 
 export const useEditorStore = create<EditorState>((set, get) => ({
   screen: null,
@@ -55,30 +57,47 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       };
     });
   },
+  addScreenBlock: () => {
+    const { blocks } = get();
+    const existingScreenBlock = blocks.find((block) => block.type === "screen");
+    if (existingScreenBlock) return;
 
-  triggers: [],
-  addTrigger: (trigger) =>
+    const screenBlock = {
+      id: crypto.randomUUID(),
+      type: "screen",
+      data: null,
+    } as MediaBlock;
+
     set((state) => ({
-      triggers: [...state.triggers, trigger],
-    })),
-  updateTrigger: (updatedTrigger) => {
+      blocks: [...state.blocks, screenBlock],
+    }));
+  },
+  getTriggersForBlock: (blockId: string) => {
+    const block = get().blocks.find((b) => b.id === blockId);
+    return block?.triggers || [];
+  },
+  addTriggerToBlock: (blockIdOrNull: string | null, trigger: Trigger) => {
     set((state) => {
-      const existingTrigger = state.triggers.find(
-        (t) => t.id === updatedTrigger.id
-      );
-      if (!existingTrigger) return { triggers: state.triggers };
+      const blocks = state.blocks;
+      const targetBlockId =
+        blockIdOrNull ?? blocks.find((b) => b.type === "screen")?.id;
 
-      const isEqual =
-        JSON.stringify(existingTrigger) === JSON.stringify(updatedTrigger);
-      if (isEqual) return { triggers: state.triggers };
+      if (!targetBlockId) return {};
+
+      const block = blocks.find((b) => b.id === targetBlockId);
+      if (!block) return {};
+
+      const updatedBlock = {
+        ...block,
+        triggers: [...(block.triggers || []), trigger],
+      };
 
       return {
-        triggers: state.triggers.map((t) =>
-          t.id === updatedTrigger.id ? updatedTrigger : t
-        ),
+        blocks: blocks.map((b) => (b.id === targetBlockId ? updatedBlock : b)),
       };
     });
   },
+
   calculateRenderPosititon: (steps) => {
     if (steps.length === 0 || !steps) {
       return {
@@ -115,7 +134,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     };
   },
   mountStep: (timelineId, positions, type, title): TimelineStep => {
-    const { blocks, triggers } = get();
+    const { blocks } = get();
     const timelineStep: TimelineStep = {
       id: crypto.randomUUID(),
       timelineId,
@@ -124,7 +143,6 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       metadata: {
         title,
         blocks,
-        triggers,
         positionX: positions.x,
         positionY: positions.y,
       },
@@ -136,7 +154,6 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     set({
       currentTool: null,
       blocks: [],
-      triggers: [],
     });
   },
 }));

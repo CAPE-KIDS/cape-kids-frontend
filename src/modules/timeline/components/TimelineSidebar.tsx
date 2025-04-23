@@ -71,8 +71,13 @@ const TimelineSidebar = ({
   const searchParams = useSearchParams();
   const timelineId = searchParams.get("id");
   const { sourceData, steps, updateSteps } = useTimelineStore();
-  const { blocks, mountStep, calculateRenderPosititon, clearEditor } =
-    useEditorStore();
+  const {
+    blocks,
+    mountStep,
+    calculateRenderPosititon,
+    clearEditor,
+    addScreenBlock,
+  } = useEditorStore();
   const {
     register,
     control,
@@ -86,7 +91,6 @@ const TimelineSidebar = ({
     defaultValues: {},
   });
   const [taskList, setTaskList] = useState<any[]>([]);
-
   const [typeOptions, setTypeOptions] = useState<Option[]>(options);
 
   const openPreview = () => {
@@ -95,6 +99,7 @@ const TimelineSidebar = ({
     const positions = calculateRenderPosititon(steps);
 
     const timelineStepScreen = mountStep(timelineId, positions, type, title);
+    console.log("timelineStepScreen", timelineStepScreen);
 
     if (timelineStepScreen.metadata.blocks.length === 0) {
       toast.error("The screen is empty. Please add at least one block.");
@@ -136,6 +141,10 @@ const TimelineSidebar = ({
   };
 
   useEffect(() => {
+    addScreenBlock();
+  }, [steps]);
+
+  useEffect(() => {
     if (watch("type") === "task") {
       // getTasks
       setTaskList(mockTasks);
@@ -145,24 +154,6 @@ const TimelineSidebar = ({
     setTaskList([]);
     setValue("task", "");
   }, [watch("type")]);
-
-  useEffect(() => {
-    const filteredOptions = options.map((option) => {
-      const hasStart = steps.some((step) => step.type === "start");
-      const hasEnd = steps.some((step) => step.type === "end");
-
-      if (
-        (hasStart && option.value === "start") ||
-        (hasEnd && option.value === "end")
-      ) {
-        return;
-      }
-
-      return option;
-    });
-
-    setTypeOptions(filteredOptions.filter(Boolean) as Option[]);
-  }, [steps]);
 
   return (
     <ResizableSidebar isOpen={sidebarOpen} onClose={toggleSiderbarOpen}>

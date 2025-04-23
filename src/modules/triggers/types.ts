@@ -1,4 +1,10 @@
-export type TriggerActionType = "goToNextStep" | "goToPreviousStep";
+export interface TriggerAction {
+  label: string;
+  type: TriggerActionType;
+  execute: (context: TriggerContext) => void;
+}
+
+export type TriggerActionType = "goToNextStep" | "goToPrevStep";
 
 export type TriggerContext = {
   activeStepId: string;
@@ -24,11 +30,11 @@ export interface GoToNextStepMetadata extends BaseTriggerMetadata {
   description?: string;
 }
 
-export interface GoToPreviousStepMetadata extends BaseTriggerMetadata {
-  action: "goToPreviousStep";
+export interface GoToPrevStepMetadata extends BaseTriggerMetadata {
+  action: "goToPrevStep";
 }
 
 export type TriggerActionPayloadMap = {
   goToNextStep: GoToNextStepMetadata;
-  goToPreviousStep: GoToPreviousStepMetadata;
+  goToPrevStep: GoToPrevStepMetadata;
 };

@@ -2,7 +2,6 @@ import { MouseEvent } from "react";
 import { MediaType, MediaBlock } from "../modules/media/types";
 import { LexicalEditor } from "lexical";
 import { Trigger } from "@/modules/triggers/types";
-import { BlockTypes } from "./block.types";
 import { StepType, TimelineStep } from "@/modules/timeline/types";
 
 export interface EditorContext {
@@ -59,11 +58,11 @@ export interface EditorState {
   blocks: MediaBlock[];
   updateStep: (block: MediaBlock) => void;
   addStep: (block: MediaBlock) => void;
+  addScreenBlock: () => void;
   deleteBlock: (blockId: string) => void;
-  triggers: Trigger[];
-  addTrigger: (trigger: Trigger) => void;
-  updateTrigger: (trigger: Trigger) => void;
   calculateRenderPosititon: (steps: TimelineStep[]) => StepPositions;
+  getTriggersForBlock: (blockId: string) => Trigger[];
+  addTriggerToBlock: (blockId: string | null, trigger: Trigger) => void;
   mountStep: (
     timelineId: string,
     positions: StepPositions,

@@ -4,43 +4,33 @@ import { useEditorStore } from "@/stores/editor/useEditorStore";
 import CustomSelect, { Option } from "@/components/CustomSelect";
 import { MediaBlock } from "@/modules/media/types";
 import { capitalize, random } from "lodash";
-import { Trigger, TriggerAction } from "../../types";
+import { Trigger } from "../../types";
+import { TriggerActionsRegistry } from "../../TriggerActionsRegistry";
 
 interface Props {
   onClose: () => void;
 }
 
-// Tipos possíveis de evento de mouse
 const mouseEvents = [
   { value: "click", label: "Click" },
   { value: "doubleClick", label: "Double click" },
   { value: "hover", label: "Hover" },
-  // { value: "Wheel", label: "Wheel" },
-  // { value: "rightClick", label: "Right Click" },
-  // { value: "dragStart", label: "Drag Start" },
-  // { value: "dragEnd", label: "Drag End" },
+  { value: "wheel", label: "Wheel" },
+  { value: "rightClick", label: "Right Click" },
+  { value: "dragStart", label: "Drag Start" },
+  { value: "dragEnd", label: "Drag End" },
 ];
 
-interface MouseActions extends TriggerAction {
-  label: string;
-}
-const mouseActions = [
-  {
-    type: "goToNextStep",
-    label: "Go to Next Step",
-  },
-  {
-    type: "goToPreviousStep",
-    label: "Go to Previous Step",
-  },
-] as MouseActions[];
+const mouseActions = Object.values(TriggerActionsRegistry).map((action) => ({
+  value: action.type,
+  label: action.label,
+}));
 
 const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
-  const { blocks, triggers, addTrigger, updateStep } = useEditorStore();
+  const { blocks, addTriggerToBlock, updateStep } = useEditorStore();
   const [eventType, setEventType] = useState("");
   const [target, setTarget] = useState("");
   const [action, setAction] = useState("");
-  const [delay, setDelay] = useState(0);
   const [description, setDescription] = useState("");
 
   const handleSave = () => {
@@ -56,23 +46,19 @@ const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
       },
     } as Trigger;
 
-    addTrigger(triggerData);
-
     if (isBlock) {
-      updateStep({
-        ...isBlock,
-        triggers: [
-          ...(isBlock.triggers || []),
-          {
-            ...triggerData,
-          },
-        ],
-      });
+      addTriggerToBlock(target, triggerData);
     }
     onClose();
   };
 
   const formatDisplay = (block: MediaBlock) => {
+    if (block.type === "screen") {
+      return {
+        value: block.id,
+        label: "Screen",
+      };
+    }
     return {
       value: block.id,
       label: `${capitalize(block.type)} Media: ${block.data.text}`,
@@ -110,13 +96,7 @@ const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
         <div>
           <label>Target:</label>
           <CustomSelect
-            options={[
-              {
-                value: "screen_id_1",
-                label: "Screen",
-              },
-              ...(blocks.map((t) => formatDisplay(t)) as Option[]),
-            ]}
+            options={[...(blocks.map((t) => formatDisplay(t)) as Option[])]}
             value={target}
             onChange={(value) => setTarget(value)}
             config={{
@@ -137,7 +117,7 @@ const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
         <label>Action</label>
         <CustomSelect
           options={mouseActions.map((action) => ({
-            value: action.type,
+            value: action.value,
             label: action.label,
           }))}
           value={action}
@@ -154,18 +134,6 @@ const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
             placeholder: "Select an action",
           }}
         />
-
-        {/* Delay */}
-        {/* <label>
-          Delay (ms):
-          <input
-            type="number"
-            value={delay}
-            onChange={(e) => setDelay(Number(e.target.value))}
-            className="w-full border rounded px-2 py-1 mt-1"
-            placeholder="0"
-          />
-        </label> */}
 
         {/* Description */}
         <label>

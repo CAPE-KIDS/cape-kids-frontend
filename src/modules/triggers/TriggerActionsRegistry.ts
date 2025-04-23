@@ -3,6 +3,8 @@ import { goToNextStepAction } from "./actions/goToNextStepAction";
 import { goToPrevStepAction } from "./actions/goToPrevStepAction";
 
 type TriggerActionDefinition = {
+  type: TriggerActionType;
+  label: string;
   execute: (context: TriggerContext) => void;
 };
 
@@ -11,5 +13,5 @@ export const TriggerActionsRegistry: Record<
   TriggerActionDefinition
 > = {
   goToNextStep: goToNextStepAction,
-  goToPreviousStep: goToPrevStepAction,
+  goToPrevStep: goToPrevStepAction,
 };

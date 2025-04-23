@@ -1,6 +1,6 @@
 import { Trigger } from "../triggers/types";
 
-export type MediaType = "text" | "image" | "video" | "audio";
+export type MediaType = "screen" | "text" | "image" | "video" | "audio";
 
 export interface TextBlockData {
   html: string;

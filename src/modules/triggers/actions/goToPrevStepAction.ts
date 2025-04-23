@@ -1,16 +1,12 @@
-import { toast } from "sonner";
-import { TriggerContext } from "../types";
+import { TriggerAction, TriggerContext } from "../types";
 
-export const goToPrevStepAction = {
-  type: "goToPrevStep" as const,
+export const goToPrevStepAction: TriggerAction = {
+  label: "Go to Previous Step",
+  type: "goToPrevStep",
   execute: (context: TriggerContext) => {
     const { steps, activeStepId, setActiveStepId } = context;
     const index = steps.findIndex((s) => s.id === activeStepId);
     const prev = steps[index - 1];
-
-    toast("Go to previous step action triggered!", {
-      position: "top-right",
-    });
 
     if (prev) {
       setActiveStepId(prev.id);
