@@ -57,6 +57,7 @@ interface TimelineState {
   getExperimentById: (id: string) => Promise<Experiment>;
   getExperimentData: (id: string) => Promise<void>;
   updateSteps: (updatedStep: TimelineStep) => void;
+  removeStep: (stepId: string) => void;
   formatNodeAndEdgeData: () => void;
 }
 
@@ -136,6 +137,22 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     get().formatNodeAndEdgeData();
   },
 
+  removeStep: (stepId: string) => {
+    const { steps, connections } = get();
+    const updatedSteps = steps.filter((step) => step.id !== stepId);
+
+    const updatedConnections = connections.filter(
+      (conn) => conn.fromStepId !== stepId && conn.toStepId !== stepId
+    );
+
+    set({
+      steps: updatedSteps,
+      connections: updatedConnections,
+    });
+
+    get().formatNodeAndEdgeData();
+  },
+
   updateConnections: () => {
     const { steps, connections } = get();
     if (steps.length === 1) {
@@ -172,6 +189,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
           label: step.metadata.title,
           step: step.orderIndex,
           type: stepType,
+          stepData: step,
         },
         style: {
           background: StepColors[stepType].background,
@@ -180,7 +198,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
         },
       };
     });
-    console.log("connections", connections);
     const formatedEdges = connections.map((connection) => {
       return {
         id: connection.id,

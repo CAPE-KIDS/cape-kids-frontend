@@ -1,22 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import TimelineHeader from "./components/TimelineHeader";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
 import TimelineEditor from "./components/TimelineEditor";
 import TimelineSidebar from "./components/TimelineSidebar";
-import { Experiment } from "@/stores/timeline/timelineStore";
 import { Loader2 } from "lucide-react";
+import { useTimelineSidebar } from "@/stores/timeline/sidebarStore";
 
-type TimelineViewProps = {
-  data: Experiment | null;
-};
-
-const TimelineView: React.FC<TimelineViewProps> = ({ data }) => {
+const TimelineView = () => {
   const { sourceData, loading } = useTimelineStore();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const toggleSiderbarOpen = () => {
-    setSidebarOpen((prev) => !prev);
-  };
+  const { sidebarOpen, closeSidebar } = useTimelineSidebar();
 
   if (loading) {
     return (
@@ -36,13 +28,10 @@ const TimelineView: React.FC<TimelineViewProps> = ({ data }) => {
       <TimelineHeader
         title={sourceData?.title || ""}
         key={sourceData?.id || ""}
-        onAddStep={toggleSiderbarOpen}
+        onAddStep={() => useTimelineSidebar.getState().openSidebar(null)}
       />
       <TimelineEditor />
-      <TimelineSidebar
-        sidebarOpen={sidebarOpen}
-        toggleSiderbarOpen={toggleSiderbarOpen}
-      />
+      <TimelineSidebar />
     </div>
   );
 };

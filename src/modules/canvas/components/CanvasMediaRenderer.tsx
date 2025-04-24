@@ -48,7 +48,6 @@ export const CanvasMediaRenderer: React.FC<{ block: MediaBlock }> = ({
 
   switch (block.type) {
     case "text":
-      console.log(block);
       return (
         <div
           {...handlers}

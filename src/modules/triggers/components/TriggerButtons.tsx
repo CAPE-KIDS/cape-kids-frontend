@@ -3,22 +3,19 @@ import React, { JSX, useState } from "react";
 import MouseTriggerModal from "./ConfigModal/MouseTriggerModal";
 import KeyboardTriggerModal from "./ConfigModal/KeyboardTriggerModal";
 import TimerTriggerModal from "./ConfigModal/TimerTriggerModal";
-import VoiceTriggerModal from "./ConfigModal/VoiceTriggerModal";
 
-type TriggerType = "mouse" | "keyboard" | "timer" | "voice";
+type TriggerType = "mouse" | "keyboard" | "timer";
 
 const triggerOptions: { type: TriggerType; icon: JSX.Element }[] = [
   { type: "mouse", icon: <Mouse size={20} /> },
   { type: "keyboard", icon: <Keyboard size={20} /> },
   { type: "timer", icon: <Clock size={20} /> },
-  { type: "voice", icon: <Mic size={20} /> },
 ];
 
 const modalMap: Record<TriggerType, React.FC<{ onClose: () => void }>> = {
   mouse: MouseTriggerModal,
   keyboard: KeyboardTriggerModal,
   timer: TimerTriggerModal,
-  voice: VoiceTriggerModal,
 };
 
 const TriggerButtons = () => {

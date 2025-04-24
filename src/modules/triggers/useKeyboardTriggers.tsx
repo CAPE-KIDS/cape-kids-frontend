@@ -35,7 +35,8 @@ export const useKeyboardTriggers = (
         e.shiftKey ? "shift" : null,
       ].filter(Boolean);
 
-      const key = e.key.toLowerCase();
+      let key = e.key.toLowerCase();
+      if (key === " ") key = "space";
 
       if (["control", "shift", "alt", "meta"].includes(key)) {
         if (modifiers.includes(key)) return;
@@ -51,7 +52,7 @@ export const useKeyboardTriggers = (
         if (fullCombo === triggerCombo) {
           e.preventDefault();
           console.log(
-            `[Trigger] Atalho válido: "${triggerCombo}" → ${trigger.metadata.action}`
+            `[Trigger] Right shortcut: "${triggerCombo}" → ${trigger.metadata.action}`
           );
           dispatchTriggerAction(trigger, context);
         }

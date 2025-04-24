@@ -98,6 +98,34 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     });
   },
 
+  getAllTriggers: () => {
+    const { blocks } = get();
+    return blocks.flatMap((b) =>
+      (b.triggers || []).map((trigger) => ({
+        ...trigger,
+        blockId: b.id,
+        blockLabel: b.type === "screen" ? "Screen" : `${b.type} Media`,
+        blockData: b.data?.text || "",
+      }))
+    );
+  },
+  removeTriggerFromBlock: (blockId, triggerId) => {
+    set((state) => {
+      const block = state.blocks.find((b) => b.id === blockId);
+      if (!block) return {};
+
+      const updatedTriggers = (block.triggers || []).filter(
+        (t) => t.id !== triggerId
+      );
+
+      const updatedBlock = { ...block, triggers: updatedTriggers };
+
+      return {
+        blocks: state.blocks.map((b) => (b.id === blockId ? updatedBlock : b)),
+      };
+    });
+  },
+
   calculateRenderPosititon: (steps) => {
     if (steps.length === 0 || !steps) {
       return {

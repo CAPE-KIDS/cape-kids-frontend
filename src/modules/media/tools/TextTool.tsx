@@ -70,7 +70,6 @@ export const TextTool: Tool = {
 
   onDragEnd: (e, { getRelativePosition }) => {
     const pos = getRelativePosition(e);
-    console.log("drag ended at", pos);
   },
 
   onClick: (e, { setTool }) => {

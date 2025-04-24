@@ -1,8 +1,14 @@
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import { Handle, Position } from "@xyflow/react";
 import { MoreVertical } from "lucide-react";
+import { useTimelineSidebar } from "@/stores/timeline/sidebarStore";
 
 const CustomNode = ({ data }: { data: any }) => {
+  const { openSidebar } = useTimelineSidebar();
+
+  useEffect(() => {
+    console.log("CustomNode data", data);
+  }, [data]);
   return (
     <div className="relative px-3 py-3 shadow-md rounded-lg w-40 h-24">
       {/* Node label */}
@@ -15,7 +21,10 @@ const CustomNode = ({ data }: { data: any }) => {
 
       {/* Quick action button (3 dots) */}
       <div className="absolute top-3 right-1 text-white cursor-pointer">
-        <button className="text-white cursor-pointer">
+        <button
+          onClick={() => openSidebar(data.stepData)}
+          className="text-white cursor-pointer"
+        >
           <MoreVertical size={16} />
         </button>
       </div>

@@ -11,15 +11,9 @@ export const ImageTool: Tool = {
   type: "image",
   editorStyles: "cursor-move",
   icon: <Image size={20} />,
-  onMouseDown: (e: MouseEvent, ctx: EditorContext) => {
-    // console.log("ImageTool onmousedown", e, ctx);
-  },
-  onMouseMove: (e: MouseEvent, ctx: EditorContext) => {
-    // console.log("ImageTool onmousemove");
-  },
-  onMouseUp: (e: MouseEvent, ctx: EditorContext) => {
-    // console.log("ImageTool onmouseup");
-  },
+  onMouseDown: (e: MouseEvent, ctx: EditorContext) => {},
+  onMouseMove: (e: MouseEvent, ctx: EditorContext) => {},
+  onMouseUp: (e: MouseEvent, ctx: EditorContext) => {},
   onClick: (e, { setTool, inputRef }) => {
     const tool = setTool(ImageTool);
     if (!tool) return;

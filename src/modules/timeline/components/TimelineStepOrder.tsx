@@ -13,6 +13,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
+import { useTimelineSidebar } from "@/stores/timeline/sidebarStore";
 import { TimelineStep } from "@/modules/timeline/types";
 import { options } from "./TimelineSidebar";
 import { Grip } from "lucide-react";
@@ -20,39 +21,39 @@ import { Grip } from "lucide-react";
 interface TimelineStepOrderProps {
   draftTitle: string;
   draftType: string;
-  onStepsReorder?: (steps: TimelineStep[]) => void;
 }
 
 export function TimelineStepOrder({
   draftTitle,
   draftType,
-  onStepsReorder,
 }: TimelineStepOrderProps) {
   const { steps } = useTimelineStore();
+  const { currentStep } = useTimelineSidebar();
   const [items, setItems] = useState<TimelineStep[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  const draftStep: TimelineStep | null = draftType
-    ? {
-        id: "__draft__",
-        timelineId: "preview",
-        orderIndex: -1,
-        type: draftType as any,
-        metadata: {
-          title: draftTitle || "",
-          positionX: 0,
-          positionY: 0,
-          blocks: [],
-        },
-      }
-    : null;
+  const draftStep: TimelineStep | null =
+    !currentStep && draftType
+      ? {
+          id: "__draft__",
+          timelineId: "preview",
+          orderIndex: -1,
+          type: draftType as any,
+          metadata: {
+            title: draftTitle || "",
+            positionX: 0,
+            positionY: 0,
+            blocks: [],
+          },
+        }
+      : null;
 
   useEffect(() => {
     const sorted = [...steps].sort(
       (a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0)
     );
     setItems(draftStep ? [...sorted, draftStep] : sorted);
-  }, [steps, draftTitle, draftType]);
+  }, [steps, draftTitle, draftType, currentStep]);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -67,15 +68,11 @@ export function TimelineStepOrder({
     const newItems = arrayMove(items, oldIndex, newIndex);
 
     setItems(newItems);
-
-    const stepsOnly = newItems.filter((s) => s.id !== "__draft__");
-    onStepsReorder?.(stepsOnly);
-
     setActiveId(null);
   };
 
   return (
-    <div className="p-4 bg-[#e6ecff] rounded-xl space-y-4">
+    <div className="bg-[#e6ecff] rounded-xl space-y-4">
       <h2 className="text-lg font-semibold mb-2">Timeline order</h2>
       <DndContext
         collisionDetection={closestCenter}

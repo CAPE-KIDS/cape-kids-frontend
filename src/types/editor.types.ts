@@ -63,6 +63,8 @@ export interface EditorState {
   calculateRenderPosititon: (steps: TimelineStep[]) => StepPositions;
   getTriggersForBlock: (blockId: string) => Trigger[];
   addTriggerToBlock: (blockId: string | null, trigger: Trigger) => void;
+  getAllTriggers: () => Trigger[];
+  removeTriggerFromBlock: (blockId: string | null, triggerId: string) => void;
   mountStep: (
     timelineId: string,
     positions: StepPositions,

@@ -15,6 +15,8 @@ import CustomEdge from "./CustomEdge";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
 
 import "../../../../tailwind.config";
+import { TimelineStep } from "../types";
+import { Toaster } from "sonner";
 
 const TimelineEditor = () => {
   const {
@@ -71,7 +73,16 @@ const TimelineEditor = () => {
   }, [timelineNodes, edges]);
 
   useEffect(() => {
-    setNodes(timelineNodes);
+    const formattedNodes = timelineNodes.map((node) => ({
+      ...node,
+      data: {
+        ...node.data,
+        onEdit: handleEditStep,
+        onDelete: handleDeleteStep,
+      },
+    }));
+
+    setNodes(formattedNodes);
     setEdges(timelineEdges);
   }, [timelineNodes, timelineEdges]);
 
@@ -90,21 +101,27 @@ const TimelineEditor = () => {
   }, []);
 
   const openPreview = () => {
-    // Logic to open preview modal or page
-    console.log("Preview opened", steps);
-
     const previewWindow = window.open(
       `/preview?id=${sourceData?.id}`,
       "_blank"
     );
     if (previewWindow) {
-      // previewWindow.name = JSON.stringify({ steps: blocks });
       previewWindow.name = JSON.stringify({ steps });
     }
   };
 
+  const handleEditStep = (stepId: string) => {
+    console.log("Edit step:", stepId);
+  };
+
+  const handleDeleteStep = (stepId: string) => {
+    console.log("Delete step:", stepId);
+  };
+
   return (
     <div className="w-full h-[600px] rounded-md border relative">
+      <Toaster position="top-right" richColors />
+
       <div className="absolute right-1 top-1 flex items-center gap-2">
         <button
           onClick={openPreview}
