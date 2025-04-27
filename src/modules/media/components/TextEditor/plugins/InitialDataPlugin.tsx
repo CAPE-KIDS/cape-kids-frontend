@@ -11,7 +11,6 @@ const InitialDataPlugin = ({ data }: { data: TextBlockData }) => {
   const { screen } = useEditorStore();
 
   useEffect(() => {
-    console.log(screen);
     if (!data || hasInitialized.current) return;
     hasInitialized.current = true;
 
@@ -20,7 +19,6 @@ const InitialDataPlugin = ({ data }: { data: TextBlockData }) => {
       root.clear();
 
       const paragraph = $createParagraphNode();
-      console.log("data", data);
       const textNode = $createTextNode(data.text || "");
       const fontSize = getAbsoluteSize(data.fontSize, screen?.width) || 16;
 

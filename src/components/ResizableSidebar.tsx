@@ -84,7 +84,9 @@ const ResizableSidebar: React.FC<ResizableSidebarProps> = ({
       />
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-8">{children}</div>
+      <div className="flex-1 overflow-y-auto px-8 py-4 max-h-full">
+        {children}
+      </div>
 
       {/* Close Button */}
       {onClose && (

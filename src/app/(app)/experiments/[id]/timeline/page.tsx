@@ -13,6 +13,7 @@ import { title } from "process";
 import TimelineView from "@/modules/timeline/TimelineView";
 import { useParams } from "next/navigation";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
+import StimuliConfigModal from "@/components/blockTypes/sequentialStimuli/SequentialStimuliConfigModal";
 
 // Schema de validação
 
@@ -52,6 +53,8 @@ const CreateExperimentsTimeline = () => {
       >
         Save and continue
       </button>
+
+      <StimuliConfigModal />
     </div>
   );
 };

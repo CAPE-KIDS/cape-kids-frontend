@@ -1,7 +1,7 @@
 // stores/useEditorStore.ts
 import { create } from "zustand";
 import { EditorState } from "@/types/editor.types";
-import { TimelineStep } from "@/modules/timeline/types";
+import { StepType, TimelineStep } from "@/modules/timeline/types";
 import _ from "lodash";
 import { MediaBlock } from "@/modules/media/types";
 import { Trigger } from "@/modules/triggers/types";
@@ -10,8 +10,13 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   screen: null,
   setEditorContainer: (screenData) => {
     set({
-      screen: { ...screenData },
+      screen: screenData,
     });
+    get().addScreenBlock();
+  },
+  editorContext: "main",
+  setEditorContext: (context) => {
+    set({ editorContext: context });
   },
   currentTool: null,
   setTool: (tool) => {
@@ -178,10 +183,46 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
     return timelineStep;
   },
+  historyStack: [],
+
+  pushHistory: (stepType) => {
+    const { blocks, historyStack } = get();
+    const last = historyStack[historyStack.length - 1];
+
+    if (last && last.stepType === stepType) return;
+
+    set((state) => ({
+      historyStack: [
+        ...state.historyStack,
+        { stepType, blocks: _.cloneDeep(blocks) },
+      ],
+    }));
+  },
+
+  popHistory: () => {
+    const { historyStack } = get();
+    if (!historyStack.length) return;
+
+    const last = historyStack[historyStack.length - 1];
+
+    set((state) => ({
+      blocks: _.cloneDeep(last.blocks),
+      historyStack: historyStack.slice(0, -1),
+    }));
+
+    return last.stepType;
+  },
+
+  clearHistory: () => {
+    set({ historyStack: [] });
+  },
+
   clearEditor: () => {
     set({
       currentTool: null,
       blocks: [],
+      historyStack: [],
+      editorContext: "main",
     });
   },
 }));

@@ -1,5 +1,5 @@
 import React from "react";
-import TriggerModalBase from "./TriggerModalBase";
+import ModalBase from "../../../../components/ModalBase";
 
 interface Props {
   onClose: () => void;
@@ -7,9 +7,9 @@ interface Props {
 
 const VoiceTriggerModal: React.FC<Props> = ({ onClose }) => {
   return (
-    <TriggerModalBase title="Voice Trigger" onClose={onClose}>
+    <ModalBase title="Voice Trigger" onClose={onClose}>
       <p className="text-sm text-gray-600">Voice config</p>
-    </TriggerModalBase>
+    </ModalBase>
   );
 };
 

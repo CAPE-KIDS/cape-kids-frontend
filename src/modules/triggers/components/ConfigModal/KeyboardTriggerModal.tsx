@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import TriggerModalBase from "./TriggerModalBase";
+import ModalBase from "../../../../components/ModalBase";
 import { useEditorStore } from "@/stores/editor/useEditorStore";
 import CustomSelect from "@/components/CustomSelect";
 import { MediaBlock } from "@/modules/media/types";
@@ -46,7 +46,7 @@ const KeyboardTriggerModal: React.FC<Props> = ({ onClose }) => {
   };
 
   return (
-    <TriggerModalBase title="Keyboard Trigger" onClose={onClose}>
+    <ModalBase title="Keyboard Trigger" onClose={onClose}>
       <div className="flex flex-col gap-3 text-sm">
         {/* Key Combo */}
         <KeyCaptureInput value={keyCombo} onKeyCapture={setKeyCombo} />
@@ -100,7 +100,7 @@ const KeyboardTriggerModal: React.FC<Props> = ({ onClose }) => {
           </button>
         </div>
       </div>
-    </TriggerModalBase>
+    </ModalBase>
   );
 };
 

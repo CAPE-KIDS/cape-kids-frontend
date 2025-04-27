@@ -6,9 +6,6 @@ import { useTimelineSidebar } from "@/stores/timeline/sidebarStore";
 const CustomNode = ({ data }: { data: any }) => {
   const { openSidebar } = useTimelineSidebar();
 
-  useEffect(() => {
-    console.log("CustomNode data", data);
-  }, [data]);
   return (
     <div className="relative px-3 py-3 shadow-md rounded-lg w-40 h-24">
       {/* Node label */}

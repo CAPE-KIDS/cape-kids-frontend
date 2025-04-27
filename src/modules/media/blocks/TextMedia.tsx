@@ -4,7 +4,8 @@ import React from "react";
 import { TextTool } from "../tools/TextTool";
 
 const TextMedia = () => {
-  const { currentTool, setTool, addStep, resetTool } = useEditorStore();
+  const { currentTool, setTool, addStep, resetTool, editorContext } =
+    useEditorStore();
 
   const UIContext = {
     setTool,
@@ -12,9 +13,16 @@ const TextMedia = () => {
     resetTool,
   };
 
+  const handleClick = (e: React.MouseEvent) => {
+    // if (editorContext === "main") {
+    //   TextTool.onClick && TextTool.onClick(e, { ...UIContext });
+    // }
+    TextTool.onClick && TextTool.onClick(e, { ...UIContext });
+  };
+
   return (
     <button
-      onClick={(e) => TextTool.onClick && TextTool.onClick(e, { ...UIContext })}
+      onClick={handleClick}
       className={`w-8 h-8 border flex items-center justify-center bg-[#E8EBFB] cursor-pointer ${
         currentTool?.type === TextTool.type
           ? "border-blue-500 border-2 border-dashed bg-blue-100"

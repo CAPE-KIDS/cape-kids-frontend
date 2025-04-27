@@ -119,7 +119,7 @@ const TimelineEditor = () => {
   };
 
   return (
-    <div className="w-full h-[600px] rounded-md border relative">
+    <div className="w-full h-[600px] max-h-[calc(100vh-230px)] rounded-md border relative">
       <Toaster position="top-right" richColors />
 
       <div className="absolute right-1 top-1 flex items-center gap-2">

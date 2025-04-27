@@ -3,7 +3,7 @@ import ResizableSidebar from "@/components/ResizableSidebar";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
 import { useTimelineSidebar } from "@/stores/timeline/sidebarStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import CustomSelect, { Option } from "@/components/CustomSelect";
@@ -14,7 +14,10 @@ import { useEditorStore } from "@/stores/editor/useEditorStore";
 import { toast, Toaster } from "sonner";
 import { TimelineStepOrder } from "./TimelineStepOrder";
 import TriggerManager from "@/modules/triggers/components/TriggerManager";
-import { Trash } from "lucide-react";
+import { Settings, Trash } from "lucide-react";
+import { useStimuliModal } from "@/stores/timeline/blockTypes/stimuliModalStore";
+import { StepType } from "../types";
+import _ from "lodash";
 
 const timelineStepSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -30,18 +33,34 @@ const timelineStepSchema = z.object({
 type TimelineStepFormData = z.infer<typeof timelineStepSchema>;
 
 export const options: Option[] = [
-  { value: "custom_block", label: "Custom block", color: "#333" },
-  { value: "task", label: "Task", color: "#3B82F6" },
-  { value: "conditional", label: "Conditional", color: "#34C759" },
+  {
+    value: "custom_block",
+    label: "Custom block",
+    color: "#333",
+    showScreen: true,
+  },
+  { value: "task", label: "Task", color: "#3B82F6", showScreen: false },
+  {
+    value: "conditional",
+    label: "Conditional",
+    color: "#34C759",
+    showScreen: false,
+  },
   {
     value: "sequential_stimuli",
     label: "Sequential Stimuli",
     color: "#8F1D99",
+    onSelect: () => {
+      const { openModal } = useStimuliModal.getState();
+      openModal();
+    },
+    showScreen: false,
   },
   {
     value: "simultaneous_stimuli",
     label: "Simultaneous Stimuli",
     color: "#1D8499",
+    showScreen: false,
   },
 ];
 
@@ -56,6 +75,8 @@ const TimelineSidebar = () => {
     clearEditor,
     addScreenBlock,
     addStep,
+    pushHistory,
+    historyStack,
   } = useEditorStore();
 
   const {
@@ -122,7 +143,7 @@ const TimelineSidebar = () => {
   useEffect(() => {
     if (!sidebarOpen) {
       reset();
-      clearEditor(); // limpa blocos antigos
+      clearEditor();
       return;
     }
 
@@ -140,11 +161,15 @@ const TimelineSidebar = () => {
       (currentStep.metadata.blocks || []).forEach((block) => {
         addStep(block);
       });
+
+      pushHistory(currentStep.type);
     }
   }, [sidebarOpen]);
 
   useEffect(() => {
-    if (watch("type") === "task") {
+    const type = watch("type");
+
+    if (type === "task") {
       setTaskList([
         { id: "1", name: "Flanker Task" },
         { id: "2", name: "Go/No go" },
@@ -154,7 +179,34 @@ const TimelineSidebar = () => {
       setTaskList([]);
       setValue("task", "");
     }
+
+    if (type === "sequential_stimuli") {
+      useEditorStore.setState({
+        blocks: [],
+        editorContext: "stimuli",
+      });
+      return;
+    }
+
+    const historySnapshot = historyStack.find((step) => step.stepType === type);
+
+    if (historySnapshot) {
+      useEditorStore.setState({
+        blocks: _.cloneDeep(historySnapshot.blocks),
+      });
+    } else {
+      useEditorStore.setState({
+        blocks: [],
+      });
+    }
   }, [watch("type")]);
+
+  const handleConfig = () => {
+    const selectedModal = options.find((opt) => opt.value === watch("type"));
+    if (selectedModal?.onSelect) {
+      selectedModal.onSelect();
+    }
+  };
 
   return (
     <ResizableSidebar
@@ -163,7 +215,7 @@ const TimelineSidebar = () => {
         closeSidebar();
       }}
     >
-      <div className="flex w-full h-full items-center gap-10">
+      <div className="flex w-full h-full gap-10">
         <div className="max-w-2xl w-full">
           <h2 className="text-2xl mb-4">
             {currentStep ? "Editing step" : "Adding step to the timeline"}
@@ -188,10 +240,32 @@ const TimelineSidebar = () => {
 
             {/* Type */}
             <div className="flex flex-col space-y-1">
-              <label className="text-xs text-gray-400">Type</label>
+              <div className="flex justify-between">
+                <label className="text-xs text-gray-400">Type</label>
+                {options.find((opt) => opt.value === watch("type"))
+                  ?.onSelect && (
+                  <Settings
+                    width={16}
+                    className="cursor-pointer"
+                    onClick={handleConfig}
+                  />
+                )}
+              </div>
               <CustomSelect
                 value={watch("type") || null}
-                onChange={(val) => setValue("type", val)}
+                onChange={(val) => {
+                  const { blocks } = useEditorStore.getState();
+                  const currentStepType = watch("type");
+
+                  pushHistory(currentStepType as StepType);
+
+                  const selected = options.find((opt) => opt.value === val);
+                  if (selected?.onSelect) {
+                    selected.onSelect();
+                  }
+
+                  setValue("type", val);
+                }}
                 options={options}
               />
               {errors.type && (
@@ -217,27 +291,33 @@ const TimelineSidebar = () => {
             )}
 
             {/* Editor */}
-            <div className="flex flex-col space-y-1">
-              <label className="text-xs text-gray-400">Screen</label>
-              <ScreenEditor key={sourceData?.id} />
-            </div>
+            {options.find((opt) => opt.value === watch("type"))?.showScreen && (
+              <>
+                <div className="flex flex-col space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs text-gray-400">Screen</label>
+                  </div>
+                  <ScreenEditor key={sourceData?.id} />
+                </div>
 
-            <div className="flex items-center mt-4 gap-8">
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-gray-500">Media</span>
-                <MediaTypeBlocks />
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-gray-500">Triggers</span>
-                <TriggerButtons />
-              </div>
-            </div>
+                <div className="flex items-center mt-4 gap-8">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-gray-500">Media</span>
+                    <MediaTypeBlocks />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-gray-500">Triggers</span>
+                    <TriggerButtons />
+                  </div>
+                </div>
+              </>
+            )}
 
-            <div className="flex gap-1 mt-4 justify-between">
+            <div className="flex gap-4 justify-between items-center">
               {/* Submit */}
               <button
                 onClick={handleSubmit(onSubmit)}
-                className="mt-4 w-md bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm cursor-pointer"
+                className="w-md flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm cursor-pointer"
               >
                 {currentStep ? "Update" : "Save"}
               </button>
@@ -245,9 +325,9 @@ const TimelineSidebar = () => {
               {currentStep && (
                 <button
                   onClick={handleRemove}
-                  className="mt-2 w-fit flex items-center justify-center gap-2 text-red-600 hover:text-red-700 text-sm cursor-pointer"
+                  className="group w-fit flex items-center justify-center gap-2 text-red-600 hover:text-red-700 text-sm cursor-pointer"
                 >
-                  <Trash size={16} />
+                  <Trash size={16} className="group-hover:animate-bounce" />
                   Remove step
                 </button>
               )}
@@ -261,7 +341,9 @@ const TimelineSidebar = () => {
             draftTitle={watch("title")}
             draftType={watch("type")}
           />
-          <TriggerManager />
+          {options.find((opt) => opt.value === watch("type"))?.showScreen && (
+            <TriggerManager />
+          )}
         </div>
       </div>
     </ResizableSidebar>

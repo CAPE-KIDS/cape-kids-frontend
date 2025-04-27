@@ -12,7 +12,7 @@ export interface EditorContext {
   editor?: LexicalEditor;
 }
 
-interface Screen {
+export interface Screen {
   element: HTMLDivElement | null;
   width: number | null;
   height: number | null;
@@ -49,13 +49,25 @@ export interface Tool {
   onKeyDown?: (e: KeyboardEvent, ctx: EditorContext) => void;
 }
 
+export type EditorContextType = "main" | "stimuli";
+export interface HistorySnapshot {
+  stepType: StepType;
+  blocks: MediaBlock[];
+}
+
 export interface EditorState {
   screen: Screen | null;
   setEditorContainer: (screenData: Screen) => void;
+  editorContext: EditorContextType;
+  setEditorContext: (context: EditorContextType) => void;
   currentTool: Tool | null;
   setTool: (tool: Tool) => Tool | null;
   resetTool: () => void;
   blocks: MediaBlock[];
+  historyStack: HistorySnapshot[] | [];
+  pushHistory: (stepType: StepType) => void;
+  popHistory: () => void;
+  clearHistory: () => void;
   updateStep: (block: MediaBlock) => void;
   addStep: (block: MediaBlock) => void;
   addScreenBlock: () => void;
@@ -74,7 +86,7 @@ export interface EditorState {
   clearEditor: () => void;
 }
 
-interface StepPositions {
+export interface StepPositions {
   index: number;
   x: number;
   y: number;

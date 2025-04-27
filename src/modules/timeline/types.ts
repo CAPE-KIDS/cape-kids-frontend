@@ -43,7 +43,10 @@ export interface TimelineStepMetadata {
   positionY: number | null;
   blocks?: MediaBlock[] | null;
   triggers?: Trigger[] | null;
+  config?: StepConfig;
 }
+
+export type StepConfig = StimulusStepConfig | null;
 
 export interface TimelineStep {
   id: string;
@@ -58,4 +61,22 @@ export interface StepConnection {
   fromStepId: string;
   toStepId: string;
   condition: string | null;
+}
+
+// Step types specific
+export interface StimuliBlockConfig {
+  trials: number;
+  stimulusDuration: number;
+  interStimulusInterval: number;
+  showFeedback: boolean;
+  feedbackDuration?: number;
+  randomize: boolean;
+  steps: TimelineStep[];
+}
+
+export interface StimulusStepConfig {
+  stimulusId: string;
+  duration: number;
+  feedback?: boolean;
+  feedbackDuration?: number;
 }

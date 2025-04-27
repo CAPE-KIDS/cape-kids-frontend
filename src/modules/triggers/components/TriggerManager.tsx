@@ -53,10 +53,10 @@ const TriggerManager: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-2 mt-6">
-      <h3 className="text-lg font-semibold mb-2">Step Triggers</h3>
+      <h3 className="text-md font-semibold">Triggers</h3>
 
       {allTriggers.length === 0 && (
-        <p className="text-sm text-gray-500">No triggers found.</p>
+        <p className="text-sm text-gray-500">No triggers added.</p>
       )}
 
       {allTriggers.map((trigger) => (

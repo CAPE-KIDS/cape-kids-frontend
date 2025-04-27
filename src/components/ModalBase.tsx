@@ -1,19 +1,23 @@
 import React from "react";
 
-interface TriggerModalBaseProps {
+interface ModalBaseProps {
+  styles?: string;
   title: string;
   onClose: () => void;
   children: React.ReactNode;
 }
 
-const TriggerModalBase: React.FC<TriggerModalBaseProps> = ({
+const ModalBase: React.FC<ModalBaseProps> = ({
   title,
   onClose,
   children,
+  styles,
 }) => {
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-xl p-6 w-[400px] max-w-[90%] relative">
+      <div
+        className={`bg-white rounded-xl shadow-xl p-6 w-[400px] max-w-[90%] relative ${styles}`}
+      >
         <h2 className="text-lg font-semibold mb-4">{title}</h2>
         <button
           onClick={onClose}
@@ -27,4 +31,4 @@ const TriggerModalBase: React.FC<TriggerModalBaseProps> = ({
   );
 };
 
-export default TriggerModalBase;
+export default ModalBase;

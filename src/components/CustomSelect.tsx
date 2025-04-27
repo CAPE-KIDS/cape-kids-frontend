@@ -8,6 +8,8 @@ export type Option = {
   icon?: React.ReactNode;
   disabled?: boolean;
   isSelected?: boolean;
+  onSelect?: () => void;
+  showScreen?: boolean;
 };
 
 interface CustomSelectProps {

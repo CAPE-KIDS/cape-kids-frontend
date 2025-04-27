@@ -68,12 +68,6 @@ const TextRenderer: React.FC<{ block: MediaBlock }> = ({ block }) => {
     });
   };
 
-  useEffect(() => {
-    if (!screen) return;
-  }, [screen?.width, screen?.height]);
-
-  // undo last delete action
-
   return (
     <Rnd
       position={{
