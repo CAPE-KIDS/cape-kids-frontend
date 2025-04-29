@@ -1,6 +1,6 @@
+// stores/timeline/blockTypes/useStimuliModal.ts
 import { MediaBlock } from "@/modules/media/types";
 import { StimuliBlockConfig, TimelineStep } from "@/modules/timeline/types";
-import { StepPositions } from "@/types/editor.types";
 import { create } from "zustand";
 
 interface StimuliModalState {
@@ -12,10 +12,13 @@ interface StimuliModalState {
   addStimulusStep: (step: TimelineStep) => void;
   updateStimulusStep: (step: TimelineStep) => void;
   removeStimulusStep: (id: string) => void;
+  duplicateStimulusStep: (id: string) => void;
   stimulusEditorOpen: boolean;
   openStimulusEditorModal: () => void;
   closeStimulusEditorModal: () => void;
-  mountStimulusStep: (blocks: MediaBlock[]) => TimelineStep;
+  editingStep: TimelineStep | null;
+  setEditingStep: (step: TimelineStep | null) => void;
+  mountStimulusStep: (blocks: MediaBlock[], title: string) => TimelineStep;
   calculateOrderIndex: () => number;
   clear: () => void;
 }
@@ -37,30 +40,28 @@ export const useStimuliModal = create<StimuliModalState>((set, get) => ({
   openStimulusEditorModal: () => set({ stimulusEditorOpen: true }),
   closeStimulusEditorModal: () => set({ stimulusEditorOpen: false }),
 
+  editingStep: null,
+  setEditingStep: (step) => set({ editingStep: step }),
+
   setConfig: (data) =>
     set((state) => ({
-      config: {
-        ...state.config,
-        ...data,
-      },
+      config: { ...state.config, ...data },
     })),
 
-  mountStimulusStep: (blocks): TimelineStep => {
+  mountStimulusStep: (blocks, title): TimelineStep => {
     const step: TimelineStep = {
       id: crypto.randomUUID(),
       timelineId: "",
       orderIndex: get().calculateOrderIndex(),
       type: "sequential_stimuli",
       metadata: {
-        title: "Stimulus",
+        title,
         positionX: 0,
         positionY: 0,
-        blocks: blocks,
+        blocks,
         triggers: [],
       },
     };
-
-    console.log("Mounting step", step);
 
     set((state) => ({
       config: {
@@ -70,17 +71,6 @@ export const useStimuliModal = create<StimuliModalState>((set, get) => ({
     }));
 
     return step;
-  },
-
-  calculateOrderIndex: (): number => {
-    const { steps } = get().config;
-
-    if (steps.length === 0) {
-      return 1;
-    }
-
-    const index = Math.max(...steps.map((step) => step.orderIndex || 0));
-    return index + 1;
   },
 
   addStimulusStep: (step) =>
@@ -107,9 +97,39 @@ export const useStimuliModal = create<StimuliModalState>((set, get) => ({
       },
     })),
 
+  duplicateStimulusStep: (id: string) =>
+    set((state) => {
+      const stepToDuplicate = state.config.steps.find((s) => s.id === id);
+      if (!stepToDuplicate) return state;
+
+      const duplicatedStep = {
+        ...stepToDuplicate,
+        id: crypto.randomUUID(),
+        metadata: {
+          ...stepToDuplicate.metadata,
+        },
+        orderIndex: get().calculateOrderIndex(),
+      };
+
+      return {
+        config: {
+          ...state.config,
+          steps: [...state.config.steps, duplicatedStep],
+        },
+      };
+    }),
+
+  calculateOrderIndex: () => {
+    const { steps } = get().config;
+    if (steps.length === 0) return 1;
+    return Math.max(...steps.map((s) => s.orderIndex || 0)) + 1;
+  },
+
   clear: () =>
     set(() => ({
       open: false,
+      stimulusEditorOpen: false,
+      editingStep: null,
       config: {
         trials: 1,
         stimulusDuration: 1000,

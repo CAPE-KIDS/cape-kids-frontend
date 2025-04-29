@@ -17,7 +17,14 @@ export interface Trigger<T extends TriggerActionType = TriggerActionType> {
   id: string;
   timeline_step_id: string;
   stimullus_id: string | null;
-  metadata: TriggerActionPayloadMap[T];
+  metadata: TriggerMetadata;
+}
+
+export interface TriggerMetadata {
+  type: "click" | "keydown";
+  description: string;
+  action: keyof TriggerActionPayloadMap;
+  key?: string;
 }
 // Metadatas
 
