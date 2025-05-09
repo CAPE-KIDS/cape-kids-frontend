@@ -53,13 +53,19 @@ const CanvasRunner = ({ steps, started }: CanvasRunnerProps) => {
         step.id === activeStepId && step.metadata?.blocks?.[0]?.type === "save"
     );
 
+    const isFeedbackBlock = steps?.find(
+      (step) =>
+        step.id === activeStepId &&
+        step.metadata?.blocks?.[0]?.type === "feedback"
+    );
+
     // const isInterStimulusBlock = steps?.find(
     //   (step) =>
     //     step.id === activeStepId &&
     //     step.metadata?.blocks?.[0]?.type === "inter_stimulus"
     // );
 
-    if (!started || !activeStepId || isSaveBlock) return;
+    if (!started || !activeStepId || isSaveBlock || isFeedbackBlock) return;
 
     startStepResult(activeStepId);
 

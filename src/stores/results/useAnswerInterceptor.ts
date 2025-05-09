@@ -18,6 +18,7 @@ export const useAnswerInterceptor = () => {
       return;
 
     const last = currentResult.interactions.at(-1);
+    console.log("last", last);
     if (!last) return;
 
     const step = steps.find((s) => s.id === activeStepId);
@@ -28,11 +29,12 @@ export const useAnswerInterceptor = () => {
       step.metadata?.blocks?.flatMap((block) => block.triggers || []) || [];
 
     const isCorrect = triggers.some((trigger) => {
-      if (trigger.metadata.type === "keydown") {
+      const triggerType = trigger.metadata.type;
+      if (triggerType === "keydown") {
         return last.type === "keydown" && trigger.metadata.key === last.key;
       }
-      if (trigger.metadata.type === "click") {
-        return last.type === "click" && trigger.id === last.target;
+      if (triggerType === "click") {
+        return last.type === "click" && trigger.stimulus_id === last.target;
       }
       return false;
     });

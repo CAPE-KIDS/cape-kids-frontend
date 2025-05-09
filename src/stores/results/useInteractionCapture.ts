@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useResultsStore } from "./useResultsStore";
 import { normalizeKeyCombo } from "@/utils/functions";
 
-const MOUSE_EVENTS = ["click", "contextmenu", "dblclick", "wheel"] as const;
+const MOUSE_EVENTS = ["click", "contextmenu", "wheel"] as const;
 const KEY_EVENTS = ["keydown"] as const;
 
 export const useInteractionCapture = () => {

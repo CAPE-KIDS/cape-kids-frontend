@@ -13,12 +13,11 @@ interface Props {
 
 const mouseEvents = [
   { value: "click", label: "Click" },
-  { value: "doubleClick", label: "Double click" },
-  { value: "hover", label: "Hover" },
-  { value: "wheel", label: "Wheel" },
-  { value: "rightClick", label: "Right Click" },
-  { value: "dragStart", label: "Drag Start" },
-  { value: "dragEnd", label: "Drag End" },
+  // { value: "hover", label: "Hover" },
+  // { value: "wheel", label: "Wheel" },
+  // { value: "rightClick", label: "Right Click" },
+  // { value: "dragStart", label: "Drag Start" },
+  // { value: "dragEnd", label: "Drag End" },
 ];
 
 const mouseActions = Object.values(TriggerActionsRegistry).map((action) => ({
@@ -28,7 +27,7 @@ const mouseActions = Object.values(TriggerActionsRegistry).map((action) => ({
 
 const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
   const { blocks, addTriggerToBlock, updateStep } = useEditorStore();
-  const [eventType, setEventType] = useState("");
+  const [eventType, setEventType] = useState(mouseEvents[0].value);
   const [target, setTarget] = useState("");
   const [action, setAction] = useState("");
   const [description, setDescription] = useState("");

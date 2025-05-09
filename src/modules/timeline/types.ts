@@ -69,8 +69,7 @@ export interface StimuliBlockConfig {
   trials: number;
   stimulusDuration: number | null;
   interStimulusInterval: number | null;
-  showFeedback: boolean;
-  feedbackDuration?: number;
+  feedbackDuration?: number | null;
   randomize: boolean;
   displayRate?: number;
   overrideStimulus?: boolean;

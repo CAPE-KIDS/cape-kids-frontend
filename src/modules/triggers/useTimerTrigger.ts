@@ -25,11 +25,11 @@ export const useTimerTriggers = (
       const safeDelay = !isNaN(delay) && delay >= 0 ? delay : 1000;
 
       let elapsed = 0;
-      console.log(`⏱️ ${elapsed / 1000}s elapsed`);
+      // console.log(`⏱️ ${elapsed / 1000}s elapsed`);
 
       const interval = setInterval(() => {
         elapsed += 1000;
-        console.log(`⏱️ ${elapsed / 1000}s elapsed`);
+        // console.log(`⏱️ ${elapsed / 1000}s elapsed`);
       }, 1000);
       intervals.push(interval);
 

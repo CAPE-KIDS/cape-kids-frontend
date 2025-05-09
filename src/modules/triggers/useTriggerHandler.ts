@@ -17,7 +17,6 @@ export const useTriggerHandler = () => {
     (fn: () => void) => Record<string, () => void>
   > = {
     click: (fn) => ({ onClick: fn }),
-    doubleClick: (fn) => ({ onDoubleClick: fn }),
     hover: (fn) => ({ onMouseEnter: fn }),
     rightClick: (fn) => ({ onContextMenu: fn }),
     wheel: (fn) => ({ onWheel: fn }),

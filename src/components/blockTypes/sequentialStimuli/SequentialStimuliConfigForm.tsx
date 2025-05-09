@@ -3,6 +3,7 @@ import { Tooltip } from "@/components/Tooltip";
 import { StimuliBlockConfig } from "@/modules/timeline/types";
 import { useStimuliModal } from "@/stores/timeline/blockTypes/stimuliModalStore";
 import React from "react";
+import { toast } from "sonner";
 
 const SequentialStimuliConfigForm = () => {
   const { open, config, setConfig, updateStimulusStepsConfigField } =
@@ -120,16 +121,52 @@ const SequentialStimuliConfigForm = () => {
           />
         </label>
 
-        <label className="flex items-center gap-4 ">
+        <div className="flex items-center gap-4 ">
           <div className="min-w-[192px]">
             Show Feedback
-            <Tooltip>This is the feedback shown after each trial</Tooltip>
+            <Tooltip>
+              Enable to display a feedback after the user interaction.
+            </Tooltip>
           </div>
-          <Toggle
-            checked={config.showFeedback}
-            onChange={(value) => handleChange("showFeedback", value)}
-          />
-        </label>
+          <div className="flex gap-2 items-center flex-1">
+            <Toggle
+              checked={config.feedbackDuration !== null}
+              onChange={(value) => {
+                if (!config.feedbackDuration) {
+                  handleChange("feedbackDuration", 1000);
+                } else {
+                  handleChange("feedbackDuration", null);
+                }
+              }}
+            />
+            {config.feedbackDuration === null ? (
+              <div className="w-full border rounded px-2 py-1 mt-1 flex-1">
+                Disabled
+              </div>
+            ) : (
+              <div className="relative flex-1 max-w-26">
+                <input
+                  type="number"
+                  value={config.feedbackDuration}
+                  onChange={(e) => {
+                    if (+e.target.value > 10000) {
+                      toast.error(
+                        "Feedback duration cannot be greater than 10 seconds"
+                      );
+                      handleChange("feedbackDuration", Number(10000));
+                      return;
+                    }
+                    handleChange("feedbackDuration", Number(e.target.value));
+                  }}
+                  className="w-full border rounded px-2 py-1 mt-1 flex-1 "
+                />
+                <span className="text-sm text-gray-500 absolute right-8 bottom-[5px] pointer-events-none">
+                  ms
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
 
         <label className="flex items-center gap-4">
           <div className="min-w-[192px]">

@@ -7,6 +7,8 @@ import { useEffect } from "react";
 import { useTriggerHandler } from "@/modules/triggers/useTriggerHandler";
 import { z } from "zod";
 import SaveScreen from "./SaveScreen";
+import FeedbackScreen from "./FeedbackScreen";
+import { Cross, Plus } from "lucide-react";
 
 export const CanvasMediaRenderer: React.FC<{ block: MediaBlock }> = ({
   block,
@@ -14,6 +16,10 @@ export const CanvasMediaRenderer: React.FC<{ block: MediaBlock }> = ({
   const { screen } = useCanvasStore();
   const { getHandlersFromTriggers } = useTriggerHandler();
   const handlers = getHandlersFromTriggers(block.triggers);
+
+  if (block.type === "feedback") {
+    return <FeedbackScreen block={block} />;
+  }
 
   if (block.type === "save") {
     return <SaveScreen />;
@@ -28,12 +34,14 @@ export const CanvasMediaRenderer: React.FC<{ block: MediaBlock }> = ({
         tabIndex={0}
         className={`${
           hasTriggers
-            ? " absolute inset-0  z-50 pointer-events-auto bg-black"
+            ? " absolute inset-0 z-50 pointer-events-auto bg-black flex items-center justify-center"
             : "pointer-events-none hidden"
         }`}
         style={{ width: "100%", height: "100%" }}
         data-block-id={block.id}
-      />
+      >
+        <Plus size={40} className="text-white" />
+      </div>
     );
   }
 

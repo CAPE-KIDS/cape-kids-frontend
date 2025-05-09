@@ -46,6 +46,16 @@ export const compileTimeline = (steps: TimelineStep[]): TimelineStep[] => {
         const parsedStep = handleStimuliDurationConfig(newStep);
         compiled.push(parsedStep);
 
+        // Feedback step
+        if (config.feedbackDuration) {
+          const feedbackStep = createFeedback(
+            newStep.id,
+            config.feedbackDuration
+          );
+          compiled.push(feedbackStep);
+        }
+
+        // Inter Stimulus Interval step
         const hasInterStimulusInterval =
           childSteps.metadata.config?.interStimulusInterval > 0;
 
@@ -137,6 +147,44 @@ const createSaveStep = (): TimelineStep => {
   } as TimelineStep;
 
   return saveStep;
+};
+
+const createFeedback = (parentId: string, delay: number): TimelineStep => {
+  const feedbackStep = {
+    id: crypto.randomUUID(),
+    type: "custom_block",
+    metadata: {
+      positionX: 0,
+      positionY: 0,
+      width: 0,
+      height: 0,
+      title: "",
+      blocks: [
+        {
+          type: "feedback",
+          id: crypto.randomUUID(),
+          data: null,
+          triggers: [
+            {
+              id: crypto.randomUUID(),
+              timeline_step_id: parentId,
+              stimulus_id: crypto.randomUUID(),
+              metadata: {
+                type: "timer",
+                delay,
+                description: "",
+                action: "goToNextStep",
+              },
+            },
+          ],
+        },
+      ],
+    },
+    orderIndex: 9999,
+    timelineId: "",
+  } as TimelineStep;
+
+  return feedbackStep;
 };
 
 const handleStimuliDurationConfig = (step: TimelineStep): TimelineStep => {
