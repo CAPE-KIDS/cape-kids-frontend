@@ -1,4 +1,3 @@
-// components/SequentialStimuliEditorModal.tsx
 import ModalBase from "@/components/ModalBase";
 import { ScreenEditor } from "@/components/ScreenEditor/ScreenEditor";
 import { Toggle } from "@/components/Toggle";
@@ -16,7 +15,6 @@ import { z } from "zod";
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
 });
-
 type ExperimentFormData = z.infer<typeof formSchema>;
 
 const SequentialStimuliEditorModal = () => {
@@ -36,7 +34,6 @@ const SequentialStimuliEditorModal = () => {
     register,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<ExperimentFormData>({
@@ -45,20 +42,45 @@ const SequentialStimuliEditorModal = () => {
 
   const [overrideConfig, setOverrideConfig] = useState({
     displayRate: 1,
-    overrideStimulus: false,
-    stimulusDuration: config.stimulusDuration,
+    overrideStimulusDuration: false,
+    stimulusDuration: config.stimulusDuration || 2000,
+    overrideInterStimulusInterval: false,
+    interStimulusInterval: config.interStimulusInterval || 1000,
   });
 
   useEffect(() => {
     if (editingStep) {
-      setValue("title", editingStep.metadata.title);
+      const { title, config: stepConfig } = editingStep.metadata;
+
+      setValue("title", title);
       clearEditor();
       (editingStep.metadata.blocks || []).forEach(addStep);
+
+      setOverrideConfig({
+        displayRate: stepConfig?.displayRate ?? 1,
+        overrideStimulusDuration: stepConfig?.overrideStimulusDuration ?? false,
+        stimulusDuration:
+          stepConfig?.stimulusDuration ?? config.stimulusDuration,
+        overrideInterStimulusInterval:
+          stepConfig?.overrideInterStimulusInterval ?? false,
+        interStimulusInterval:
+          stepConfig?.interStimulusInterval ?? config.interStimulusInterval,
+      });
     }
   }, [editingStep]);
 
   const handleChange = (field: string, value: any) => {
     setOverrideConfig((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const resetOverrideConfig = () => {
+    setOverrideConfig({
+      displayRate: 1,
+      overrideStimulusDuration: false,
+      stimulusDuration: config.stimulusDuration,
+      overrideInterStimulusInterval: false,
+      interStimulusInterval: config.interStimulusInterval,
+    });
   };
 
   const handleSave = handleSubmit(({ title }) => {
@@ -67,34 +89,45 @@ const SequentialStimuliEditorModal = () => {
       (block) => block.triggers && block.triggers.length > 0
     );
 
-    if (!hasBlocks) {
-      toast.error("You must add at least one block.");
-      return;
-    }
+    if (!hasBlocks) return toast.error("You must add at least one block.");
+    if (!hasTrigger) return toast.error("You must add at least one trigger.");
 
-    if (!hasTrigger) {
-      toast.error("You must add at least one trigger.");
-      return;
-    }
+    const commonMetadata = {
+      title,
+      blocks,
+      config: {
+        ...config,
+        displayRate: overrideConfig.displayRate,
+        stimulusDuration: overrideConfig.overrideStimulusDuration
+          ? overrideConfig.stimulusDuration
+          : config.stimulusDuration,
+        interStimulusInterval: overrideConfig.overrideInterStimulusInterval
+          ? overrideConfig.interStimulusInterval
+          : config.interStimulusInterval,
+        overrideStimulusDuration: overrideConfig.overrideStimulusDuration,
+        overrideInterStimulusInterval:
+          overrideConfig.overrideInterStimulusInterval,
+      },
+    };
 
     if (editingStep) {
-      const updatedStep = {
+      updateStimulusStep({
         ...editingStep,
         metadata: {
           ...editingStep.metadata,
-          title,
-          blocks,
+          ...commonMetadata,
         },
-      };
-      updateStimulusStep(updatedStep);
+      });
       setEditingStep(null);
     } else {
-      mountStimulusStep(blocks, title);
+      mountStimulusStep(blocks, title, overrideConfig);
     }
 
     closeStimulusEditorModal();
     clearEditor();
     reset();
+    resetOverrideConfig();
+    toast.success("Stimuli saved successfully.");
   });
 
   if (!stimulusEditorOpen) return null;
@@ -106,6 +139,8 @@ const SequentialStimuliEditorModal = () => {
         closeStimulusEditorModal();
         setEditingStep(null);
         clearEditor();
+        resetOverrideConfig();
+        reset();
       }}
       styles="w-[900px]"
     >
@@ -115,7 +150,7 @@ const SequentialStimuliEditorModal = () => {
             <label className="font-light text-xs text-gray-400">Title</label>
             <input
               {...register("title")}
-              className="bg-[#EBEFFF] rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
+              className="bg-[#EBEFFF] rounded-lg p-2"
               placeholder="Stimuli title"
             />
             {errors.title && (
@@ -126,9 +161,7 @@ const SequentialStimuliEditorModal = () => {
           </div>
 
           <div className="flex flex-col space-y-1">
-            <div className="flex items-center justify-between">
-              <label className="text-xs text-gray-400">Screen</label>
-            </div>
+            <label className="text-xs text-gray-400">Screen</label>
             <ScreenEditor />
           </div>
         </div>
@@ -139,10 +172,10 @@ const SequentialStimuliEditorModal = () => {
             <input
               type="number"
               className="border border-gray-300 rounded-lg p-2 text-xs"
-              value={overrideConfig?.displayRate}
+              value={overrideConfig.displayRate}
               onChange={(e) => {
-                if (+e.target.value > config.trials) return;
-                handleChange("displayRate", Number(e.target.value));
+                const value = Number(e.target.value);
+                if (value <= config.trials) handleChange("displayRate", value);
               }}
               max={config.trials}
               min={1}
@@ -152,24 +185,58 @@ const SequentialStimuliEditorModal = () => {
             </span>
           </label>
 
+          {/* Stimulus duration toggle */}
           <div>
             <p className="text-xs mb-1">Override stimulus time?</p>
             <div className="flex gap-2">
               <Toggle
-                checked={overrideConfig.overrideStimulus}
-                onChange={(value) => handleChange("overrideStimulus", value)}
+                checked={overrideConfig.overrideStimulusDuration}
+                onChange={(value) => {
+                  handleChange("overrideStimulusDuration", value);
+                  if (!value)
+                    handleChange("stimulusDuration", config.stimulusDuration);
+                }}
               />
-              {overrideConfig.overrideStimulus && (
-                <div>
-                  <input
-                    type="number"
-                    className="border border-gray-300 rounded-lg p-2 text-xs"
-                    value={overrideConfig?.stimulusDuration}
-                    onChange={(e) =>
-                      handleChange("stimulusDuration", Number(e.target.value))
-                    }
-                  />
-                </div>
+              {overrideConfig.overrideStimulusDuration && (
+                <input
+                  type="number"
+                  className="border border-gray-300 rounded-lg p-2 text-xs"
+                  value={overrideConfig.stimulusDuration || 2000}
+                  onChange={(e) =>
+                    handleChange("stimulusDuration", Number(e.target.value))
+                  }
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Inter-stimulus interval toggle */}
+          <div className="mt-2">
+            <p className="text-xs mb-1">Override inter stimulus time?</p>
+            <div className="flex gap-2">
+              <Toggle
+                checked={overrideConfig.overrideInterStimulusInterval}
+                onChange={(value) => {
+                  handleChange("overrideInterStimulusInterval", value);
+                  if (!value)
+                    handleChange(
+                      "interStimulusInterval",
+                      config.interStimulusInterval
+                    );
+                }}
+              />
+              {overrideConfig.overrideInterStimulusInterval && (
+                <input
+                  type="number"
+                  className="border border-gray-300 rounded-lg p-2 text-xs"
+                  value={overrideConfig.interStimulusInterval || 1000}
+                  onChange={(e) =>
+                    handleChange(
+                      "interStimulusInterval",
+                      Number(e.target.value)
+                    )
+                  }
+                />
               )}
             </div>
           </div>
@@ -196,14 +263,16 @@ const SequentialStimuliEditorModal = () => {
             closeStimulusEditorModal();
             setEditingStep(null);
             clearEditor();
+            resetOverrideConfig();
+            reset();
           }}
-          className="text-sm px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 cursor-pointer"
+          className="text-sm px-3 py-1 rounded border border-gray-300 hover:bg-gray-100"
         >
           Cancel
         </button>
         <button
           onClick={handleSave}
-          className="text-sm px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+          className="text-sm px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
         >
           Save
         </button>

@@ -1,7 +1,9 @@
+// modules/triggers/useKeyboardTriggers.ts
 import { useEffect } from "react";
 import { Trigger } from "./types";
 import { TriggerContext } from "./types";
 import { dispatchTriggerAction } from "./dispatcher";
+import { normalizeKeyCombo } from "@/utils/functions";
 
 export const useKeyboardTriggers = (
   triggers: Trigger[],
@@ -11,7 +13,6 @@ export const useKeyboardTriggers = (
     const currentStep = context.steps.find(
       (s) => s.id === context.activeStepId
     );
-
     if (!currentStep) return;
 
     const blockIdsInCurrentStep =
@@ -23,37 +24,22 @@ export const useKeyboardTriggers = (
         typeof t?.metadata?.key === "string" &&
         t.metadata.key.trim() !== "" &&
         t.metadata.key !== "*" &&
-        blockIdsInCurrentStep.includes(t.stimullus_id)
+        blockIdsInCurrentStep.includes(t.stimulus_id)
     );
 
     if (keyboardTriggers.length === 0) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      const modifiers = [
-        e.ctrlKey ? "ctrl" : null,
-        e.altKey ? "alt" : null,
-        e.shiftKey ? "shift" : null,
-      ].filter(Boolean);
+      const fullCombo = normalizeKeyCombo(e);
 
-      let key = e.key.toLowerCase();
-      if (key === " ") key = "space";
-
-      if (["control", "shift", "alt", "meta"].includes(key)) {
-        if (modifiers.includes(key)) return;
-      }
-
-      const fullCombo = [...modifiers, key].join("+");
-
-      console.log(`[KeyDown] Pressed: "${fullCombo}"`);
+      if (!fullCombo) return;
 
       keyboardTriggers.forEach((trigger) => {
+        if (!trigger.metadata.key) return;
         const triggerCombo = trigger.metadata.key.toLowerCase().trim();
 
         if (fullCombo === triggerCombo) {
           e.preventDefault();
-          console.log(
-            `[Trigger] Right shortcut: "${triggerCombo}" → ${trigger.metadata.action}`
-          );
           dispatchTriggerAction(trigger, context);
         }
       });
@@ -62,7 +48,7 @@ export const useKeyboardTriggers = (
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [
-    JSON.stringify(triggers.map((t) => t.metadata.key + t.stimullus_id)),
+    JSON.stringify(triggers.map((t) => t.metadata.key + t.stimulus_id)),
     context.activeStepId,
   ]);
 };

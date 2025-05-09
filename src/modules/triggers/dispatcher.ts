@@ -1,6 +1,7 @@
 import { Trigger } from "./types";
 import { TriggerActionsRegistry } from "./TriggerActionsRegistry";
 import { TriggerContext } from "./types";
+import { useResultsStore } from "@/stores/results/useResultsStore";
 
 export const dispatchTriggerAction = (
   trigger: Trigger,
@@ -9,14 +10,12 @@ export const dispatchTriggerAction = (
   const { action } = trigger.metadata;
   const actionDefinition = TriggerActionsRegistry[action];
 
-  console.log(
-    `[Trigger] Executando ação "${action}" para o gatilho ${trigger.id}`
-  );
-
   if (!actionDefinition) {
     console.warn(`[Trigger] Ação "${action}" não está registrada.`);
     return;
   }
 
-  actionDefinition.execute(context);
+  setTimeout(() => {
+    actionDefinition.execute(context);
+  }, 0);
 };

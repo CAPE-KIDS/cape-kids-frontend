@@ -107,6 +107,14 @@ const TimelineSidebar = () => {
     const newStep = mountStep(timelineId, positions, type, title);
     newStep.id = currentStep?.id || newStep.id;
 
+    if (type === "sequential_stimuli") {
+      const { config, steps } = useStimuliModal.getState();
+      newStep.metadata.group = {
+        config,
+        steps,
+      };
+    }
+
     updateSteps(newStep);
     toast.success(currentStep ? "Step updated!" : "Step created!");
     closeSidebar();

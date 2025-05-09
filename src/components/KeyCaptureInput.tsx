@@ -1,3 +1,6 @@
+"use client";
+
+import { normalizeKeyCombo } from "@/utils/functions";
 import React, { useEffect, useRef, useState } from "react";
 
 interface KeyCaptureInputProps {
@@ -18,21 +21,7 @@ const KeyCaptureInput: React.FC<KeyCaptureInputProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
 
-      let key = e.key.toLowerCase();
-      if (key === "control") key = "ctrl";
-      if (key === " ") key = "space";
-      if (key === "escape") key = "esc";
-
-      const modifiers = [];
-      if (e.ctrlKey) modifiers.push("ctrl");
-      if (e.altKey) modifiers.push("alt");
-      if (e.shiftKey) modifiers.push("shift");
-
-      const isModifierKey = ["ctrl", "shift", "alt", "meta"].includes(key);
-      const combo =
-        !isModifierKey || modifiers.length === 0
-          ? [...modifiers, key].join("+")
-          : null;
+      const combo = normalizeKeyCombo(e);
 
       if (combo) {
         onKeyCapture(combo);

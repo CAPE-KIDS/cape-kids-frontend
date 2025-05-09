@@ -41,7 +41,10 @@ const StepLayer = ({ step, visible, started }: StepLayerProps) => {
           : "opacity-0 pointer-events-none"
       }`}
     >
-      <div className="w-full h-full flex items-center justify-center">
+      <div
+        className="w-full h-full flex items-center justify-center"
+        data-block-id="Screen"
+      >
         {step.metadata.blocks?.map((block) => (
           <CanvasMediaRenderer block={block} key={block.id} />
         ))}

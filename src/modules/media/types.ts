@@ -1,6 +1,14 @@
 import { Trigger } from "../triggers/types";
 
-export type MediaType = "screen" | "text" | "image" | "video" | "audio";
+export type MediaType =
+  | "screen"
+  | "feedback"
+  | "inter_stimulus"
+  | "text"
+  | "image"
+  | "video"
+  | "audio"
+  | "save";
 
 export interface TextBlockData {
   html: string;

@@ -29,7 +29,7 @@ const TimerTriggerModal: React.FC<Props> = ({ onClose }) => {
     const triggerData = {
       id: random(1000, 9999).toString(),
       timeline_step_id: "1234-5678-9101",
-      stimullus_id: screenBlock.id,
+      stimulus_id: screenBlock.id,
       metadata: {
         type: "timer",
         delay,

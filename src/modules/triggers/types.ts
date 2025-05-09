@@ -16,12 +16,12 @@ export type TriggerContext = {
 export interface Trigger<T extends TriggerActionType = TriggerActionType> {
   id: string;
   timeline_step_id: string;
-  stimullus_id: string | null;
+  stimulus_id: string | null;
   metadata: TriggerMetadata;
 }
 
 export interface TriggerMetadata {
-  type: "click" | "keydown";
+  type: "click" | "keydown" | "timer";
   description: string;
   action: keyof TriggerActionPayloadMap;
   key?: string;

@@ -29,7 +29,7 @@ const KeyboardTriggerModal: React.FC<Props> = ({ onClose }) => {
     const triggerData = {
       id: random(1000, 9999).toString(),
       timeline_step_id: "1234-5678-9101",
-      stimullus_id: isBlock?.id || "screen",
+      stimulus_id: isBlock?.id || "screen",
       metadata: {
         type: "keydown",
         key: keyCombo,

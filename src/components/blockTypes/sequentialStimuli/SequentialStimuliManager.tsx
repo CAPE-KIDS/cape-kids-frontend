@@ -26,13 +26,15 @@ const SequentialStimuliManager = () => {
   const {
     openStimulusEditorModal,
     config,
+    steps,
     setEditingStep,
     removeStimulusStep,
     duplicateStimulusStep,
+    updateStimulusOrder,
   } = useStimuliModal();
 
   const handleEdit = (stepId: string) => {
-    const step = config.steps.find((s) => s.id === stepId);
+    const step = steps.find((s) => s.id === stepId);
     if (step) {
       setEditingStep(step);
       openStimulusEditorModal();
@@ -40,7 +42,7 @@ const SequentialStimuliManager = () => {
   };
 
   const rows = useMemo(() => {
-    return config.steps.map((step) => {
+    return steps.map((step) => {
       const { type, trigger } = getFirstBlockTypeAndTrigger(step);
       return {
         id: step.id,
@@ -49,7 +51,7 @@ const SequentialStimuliManager = () => {
         trigger,
       };
     });
-  }, [config.steps]);
+  }, [steps]);
 
   return (
     <div>
@@ -66,33 +68,30 @@ const SequentialStimuliManager = () => {
         </button>
       </div>
 
-      {config.steps.length > 0 ? (
-        <DataTable
-          headers={[
-            { key: "type", label: "TYPE" },
-            { key: "name", label: "Name" },
-            { key: "trigger", label: "Trigger" },
-          ]}
-          rows={rows}
-          withQuickActions
-          actions={[
-            {
-              label: "Edit",
-              onClick: (row) => handleEdit(row.id),
-            },
-            {
-              label: "Duplicate",
-              onClick: (row) => duplicateStimulusStep(row.id),
-            },
-            {
-              label: "Remove",
-              onClick: (row) => removeStimulusStep(row.id),
-            },
-          ]}
-        />
-      ) : (
-        <p className="text-sm text-gray-500">No stimuli added yet.</p>
-      )}
+      <div className="max-h-[200px] overflow-y-auto">
+        {steps.length > 0 ? (
+          <DataTable
+            headers={[
+              { key: "type", label: "TYPE" },
+              { key: "name", label: "Name" },
+              { key: "trigger", label: "Trigger" },
+            ]}
+            rows={rows}
+            withQuickActions
+            actions={[
+              { label: "Edit", onClick: (row) => handleEdit(row.id) },
+              {
+                label: "Duplicate",
+                onClick: (row) => duplicateStimulusStep(row.id),
+              },
+              { label: "Remove", onClick: (row) => removeStimulusStep(row.id) },
+            ]}
+            onReorder={(newOrder) => updateStimulusOrder(newOrder)}
+          />
+        ) : (
+          <p className="text-sm text-gray-500">No stimuli added yet.</p>
+        )}
+      </div>
     </div>
   );
 };

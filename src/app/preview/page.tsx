@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { TimelineStep } from "@/modules/timeline/types";
 import CanvasRunner from "@/modules/canvas/components/CanvasRunner";
+import { compileTimeline } from "@/utils/functions";
 
 const PreviewPage = () => {
   const searchParams = useSearchParams();
@@ -19,7 +20,8 @@ const PreviewPage = () => {
       if (typeof window !== "undefined" && window.name) {
         const data = JSON.parse(window.name);
         if (data?.steps) {
-          setSteps(data.steps);
+          const parsedSteps = compileTimeline(data.steps);
+          setSteps(parsedSteps);
         }
       }
     } catch (err) {

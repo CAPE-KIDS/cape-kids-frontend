@@ -6,7 +6,7 @@ export type StepType =
   | "task"
   | "conditional"
   | "sequential_stimuli"
-  | "simultaneos_stimuli";
+  | "simultaneous_stimuli";
 
 export const StepColors: Record<
   StepType,
@@ -27,7 +27,7 @@ export const StepColors: Record<
     background: "#8F1D99",
     color: "#FFFFFF",
   },
-  simultaneos_stimuli: {
+  simultaneous_stimuli: {
     background: "#1D8499",
     color: "#FFFFFF",
   },
@@ -44,9 +44,10 @@ export interface TimelineStepMetadata {
   blocks?: MediaBlock[] | null;
   triggers?: Trigger[] | null;
   config?: StepConfig;
+  group?: StimuliGroup;
 }
 
-export type StepConfig = StimulusStepConfig | null;
+export type StepConfig = StimulusStepConfig | StimuliBlockConfig | null;
 
 export interface TimelineStep {
   id: string;
@@ -66,12 +67,14 @@ export interface StepConnection {
 // Step types specific
 export interface StimuliBlockConfig {
   trials: number;
-  stimulusDuration: number;
-  interStimulusInterval: number;
+  stimulusDuration: number | null;
+  interStimulusInterval: number | null;
   showFeedback: boolean;
   feedbackDuration?: number;
   randomize: boolean;
-  steps: TimelineStep[];
+  displayRate?: number;
+  overrideStimulus?: boolean;
+  advanceOnWrong: boolean;
 }
 
 export interface StimulusStepConfig {
@@ -79,4 +82,10 @@ export interface StimulusStepConfig {
   duration: number;
   feedback?: boolean;
   feedbackDuration?: number;
+  advanceOnWrong: boolean;
+}
+
+export interface StimuliGroup {
+  config: StimuliBlockConfig;
+  steps: TimelineStep[];
 }

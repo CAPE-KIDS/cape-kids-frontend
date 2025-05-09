@@ -1,4 +1,3 @@
-// modules/canvas/components/CanvasRunner.tsx
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -7,6 +6,9 @@ import { useCanvasStore } from "../store/useCanvasStore";
 import { TimelineStep } from "@/modules/timeline/types";
 import { useSizeObserver } from "@/hooks/useSizeObserver";
 import { Toaster } from "sonner";
+import { useResultsStore } from "@/stores/results/useResultsStore";
+import { useInteractionCapture } from "@/stores/results/useInteractionCapture";
+import { useAnswerInterceptor } from "@/stores/results/useAnswerInterceptor";
 
 interface CanvasRunnerProps {
   steps?: TimelineStep[];
@@ -24,6 +26,11 @@ const CanvasRunner = ({ steps, started }: CanvasRunnerProps) => {
     activeStepId,
   } = useCanvasStore();
 
+  useInteractionCapture();
+  useAnswerInterceptor();
+
+  const { startStepResult, completeStepResult } = useResultsStore();
+
   useEffect(() => {
     if (steps) {
       setSteps(steps);
@@ -39,6 +46,27 @@ const CanvasRunner = ({ steps, started }: CanvasRunnerProps) => {
       });
     }
   }, [screenRef.current, screen.width, screen.height]);
+
+  useEffect(() => {
+    const isSaveBlock = steps?.find(
+      (step) =>
+        step.id === activeStepId && step.metadata?.blocks?.[0]?.type === "save"
+    );
+
+    // const isInterStimulusBlock = steps?.find(
+    //   (step) =>
+    //     step.id === activeStepId &&
+    //     step.metadata?.blocks?.[0]?.type === "inter_stimulus"
+    // );
+
+    if (!started || !activeStepId || isSaveBlock) return;
+
+    startStepResult(activeStepId);
+
+    return () => {
+      completeStepResult();
+    };
+  }, [activeStepId, started]);
 
   return (
     <div className="relative w-full h-full z-40" ref={screenRef}>
