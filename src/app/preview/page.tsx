@@ -73,43 +73,46 @@ const PreviewPage = () => {
   };
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-white">
-      {/* Canvas com steps carregados */}
-      <div className="relative w-full h-full overflow-hidden">
-        {!started && <div className="absolute inset-0 bg-black z-50" />}
+    <>
+      <div className="relative w-screen h-screen overflow-hidden bg-white">
+        {/* Canvas com steps carregados */}
+        <div className="relative w-full h-full overflow-hidden">
+          {!started && <div className="absolute inset-0 bg-black z-50" />}
 
-        {steps && (
-          <>
-            <button
-              className="p-2 bg-black text-white cursor-pointer hover:opacity-80 border border-white absolute left-[-1px] top-[-1px] z-50"
-              onClick={resetPreview}
-            >
-              Restart
-            </button>
-            <CanvasRunner steps={steps} started={started} />
-          </>
-        )}
-      </div>
+          {steps && (
+            <>
+              <button
+                className="p-2 bg-black text-white cursor-pointer hover:opacity-80 border border-white absolute left-[-1px] top-[-1px] z-50"
+                onClick={resetPreview}
+              >
+                Restart
+              </button>
+              <CanvasRunner steps={steps} started={started} />
+            </>
+          )}
+        </div>
 
-      {/* Overlay de início */}
-      <div
-        onClick={handleStart}
-        className={`absolute inset-0 z-50 bg-black text-white flex flex-col items-center justify-center transition-opacity duration-500 ${
-          started ? "opacity-0 pointer-events-none" : "opacity-100"
-        }`}
-      >
-        {loading ? (
-          <>
-            <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin mb-4" />
-            <p className="text-sm text-gray-300">Loading...</p>
-          </>
-        ) : (
-          <>
-            <h1 className="text-2xl mb-6">Click on the screen to start</h1>
-          </>
-        )}
+        {/* Overlay de início */}
+        <div
+          onClick={handleStart}
+          className={`absolute inset-0 z-50 bg-black text-white flex flex-col items-center justify-center transition-opacity duration-500 ${
+            started ? "opacity-0 pointer-events-none" : "opacity-100"
+          }`}
+        >
+          {loading ? (
+            <>
+              <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin mb-4" />
+              <p className="text-sm text-gray-300">Loading...</p>
+            </>
+          ) : (
+            <>
+              <h1 className="text-2xl mb-6">Click on the screen to start</h1>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+      <div id="feedback-overlay-root" />
+    </>
   );
 };
 

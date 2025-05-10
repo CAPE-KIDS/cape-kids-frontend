@@ -15,6 +15,8 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import Image from "next/image";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/router";
 
 type MenuItemProps = {
   title: string;
@@ -31,16 +33,6 @@ const menuItems = [
   { title: "Participants", icon: Users, url: "/participants" },
   { title: "Reports", icon: FileChartColumn, url: "/reports" },
   { title: "Settings", icon: Settings, url: "/settings" },
-];
-
-const configItems = [
-  { title: "Account", icon: CircleUser, url: "/account" },
-  {
-    title: "Logout",
-    icon: LogOut,
-    url: "/logout",
-    onClick: () => console.log("logout"),
-  },
 ];
 
 function MenuItem({
@@ -93,6 +85,18 @@ function MenuItem({
 
 export default function SidebarMenu() {
   const [collapsed, setCollapsed] = useState(false);
+  const { logout } = useAuth();
+  const configItems = [
+    { title: "Account", icon: CircleUser, url: "/account" },
+    {
+      title: "Logout",
+      icon: LogOut,
+      url: "/logout",
+      onClick: () => {
+        logout();
+      },
+    },
+  ];
 
   return (
     <aside

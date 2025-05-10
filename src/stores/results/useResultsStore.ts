@@ -24,7 +24,9 @@ interface ResultsState {
   currentResult: StepResult | null;
   activeResultId: string | null;
   startTime: number | null;
-
+  showTryAgain: boolean;
+  showTryAgainTimeout: NodeJS.Timeout | null;
+  setShowTryAgain: (delay: number) => void;
   startStepResult: (stepId: string, stepType: string) => void;
   completeStepResult: () => void;
   updateCurrentResult: (patch: Partial<StepResult>) => void;
@@ -37,7 +39,8 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
   currentResult: null,
   activeResultId: null,
   startTime: null,
-
+  showTryAgain: false,
+  showTryAgainTimeout: null,
   startStepResult: (stepId, stepType) => {
     const now = Date.now();
     const newResult: StepResult = {
@@ -106,6 +109,22 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
     set({
       currentResult: updatedResult,
     });
+  },
+
+  setShowTryAgain: (delay) => {
+    const { showTryAgainTimeout } = get();
+    if (showTryAgainTimeout) {
+      clearTimeout(showTryAgainTimeout);
+    }
+
+    set((state) => ({
+      showTryAgain: true,
+    }));
+
+    const timeout = setTimeout(() => {
+      set({ showTryAgain: false });
+    }, delay || 1000);
+    set({ showTryAgainTimeout: timeout });
   },
 
   clearResults: () =>

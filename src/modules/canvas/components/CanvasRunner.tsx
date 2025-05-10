@@ -32,7 +32,8 @@ const CanvasRunner = ({ steps, started }: CanvasRunnerProps) => {
   useInteractionCapture();
   useAnswerInterceptor();
 
-  const { startStepResult, completeStepResult } = useResultsStore();
+  const { startStepResult, completeStepResult, showTryAgain } =
+    useResultsStore();
 
   useEffect(() => {
     if (steps) {
@@ -87,6 +88,13 @@ const CanvasRunner = ({ steps, started }: CanvasRunnerProps) => {
       <Toaster position="top-right" richColors closeButton />
 
       {activeStep && <CanvasDebugger />}
+      {showTryAgain && (
+        <div className="fixed top-0 left-0 w-full h-full bg-red-500 z-[400]">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white">
+            Try Again
+          </div>
+        </div>
+      )}
 
       {/* Render the active step layer */}
 

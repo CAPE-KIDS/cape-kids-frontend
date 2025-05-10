@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -17,6 +17,7 @@
     "@lexical/react": "^0.29.0",
     "@xyflow/react": "^12.5.3",
     "canvas": "^3.0.0-rc3",
+    "capekids-shared": "file:../capekids-shared",
     "hotkeys-js": "^3.13.9",
     "lexical": "^0.29.0",
     "lodash": "^4.17.21",
@@ -44,3 +45,4 @@
     "typescript": "^5"
   }
 }
+

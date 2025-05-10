@@ -5,25 +5,25 @@ import { TriggerActionsRegistry } from "@/modules/triggers/TriggerActionsRegistr
 import { useCanvasStore } from "@/modules/canvas/store/useCanvasStore";
 
 export const useAnswerInterceptor = () => {
-  const { currentResult, updateCurrentResult } = useResultsStore();
-  const { activeStepId, steps, setActiveStepId } = useCanvasStore();
+  const { currentResult, updateCurrentResult, setShowTryAgain, showTryAgain } =
+    useResultsStore();
+  const { activeStepId, steps, setActiveStepId, activeStep } = useCanvasStore();
 
   useEffect(() => {
     if (
       !currentResult ||
       !activeStepId ||
-      currentResult.isCorrect !== undefined ||
+      showTryAgain ||
       currentResult.interactions.length === 0
     )
       return;
 
     const last = currentResult.interactions.at(-1);
-    console.log("last", last);
     if (!last) return;
 
     const step = steps.find((s) => s.id === activeStepId);
     const config = step?.metadata?.config;
-    if (!step || !config?.advanceOnWrong) return;
+    if (!step) return;
 
     const triggers: Trigger[] =
       step.metadata?.blocks?.flatMap((block) => block.triggers || []) || [];
@@ -39,16 +39,35 @@ export const useAnswerInterceptor = () => {
       return false;
     });
 
-    updateCurrentResult({ isCorrect });
+    if (isCorrect && currentResult.isCorrect !== true) {
+      updateCurrentResult({ isCorrect: true });
 
-    if (!isCorrect && config?.advanceOnWrong) {
-      setTimeout(() => {
-        TriggerActionsRegistry.goToNextStep.execute({
-          activeStepId,
-          steps,
-          setActiveStepId,
-        });
-      }, 100);
+      if (config?.advanceOnWrong || activeStep?.type === "sequential_stimuli") {
+        setTimeout(() => {
+          TriggerActionsRegistry.goToNextStep.execute({
+            activeStepId,
+            steps,
+            setActiveStepId,
+          });
+        }, 100);
+      }
+    } else if (!isCorrect && currentResult.isCorrect !== false) {
+      updateCurrentResult({ isCorrect: false });
+      if (config?.advanceOnWrong) {
+        setTimeout(() => {
+          TriggerActionsRegistry.goToNextStep.execute({
+            activeStepId,
+            steps,
+            setActiveStepId,
+          });
+        }, 100);
+      } else {
+        if (activeStep?.type === "sequential_stimuli") {
+          setShowTryAgain(
+            activeStep?.metadata?.config?.feedbackDuration || 1000
+          );
+        }
+      }
     }
   }, [currentResult]);
 };

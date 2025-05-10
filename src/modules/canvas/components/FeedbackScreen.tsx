@@ -29,7 +29,7 @@ const FeedbackScreen = ({ block }: { block: MediaBlock }) => {
   if (isCorrect === undefined) return null;
 
   return (
-    <div className="absolute inset-0 z-50 flex items-center justify-center text-center bg-black text-lg">
+    <div className="absolute inset-0 z-[50] flex items-center justify-center text-center bg-black text-lg">
       {isCorrect ? (
         <div className="flex items-center gap-2">
           <p className="text-2xl font-medium text-green-500">Correct</p>
