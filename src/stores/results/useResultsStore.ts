@@ -12,6 +12,7 @@ export interface Interaction {
 
 export interface StepResult {
   stepId: string;
+  stepType: string;
   startedAt: number;
   completedAt?: number;
   interactions: Interaction[];
@@ -24,7 +25,7 @@ interface ResultsState {
   activeResultId: string | null;
   startTime: number | null;
 
-  startStepResult: (stepId: string) => void;
+  startStepResult: (stepId: string, stepType: string) => void;
   completeStepResult: () => void;
   updateCurrentResult: (patch: Partial<StepResult>) => void;
   captureInteraction: (interaction: Interaction) => void;
@@ -37,10 +38,11 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
   activeResultId: null,
   startTime: null,
 
-  startStepResult: (stepId) => {
+  startStepResult: (stepId, stepType) => {
     const now = Date.now();
     const newResult: StepResult = {
       stepId,
+      stepType,
       startedAt: now,
       interactions: [],
     };

@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import { useResultsStore } from "@/stores/results/useResultsStore";
 import { useInteractionCapture } from "@/stores/results/useInteractionCapture";
 import { useAnswerInterceptor } from "@/stores/results/useAnswerInterceptor";
+import CanvasDebugger from "./CanvasDebugger";
 
 interface CanvasRunnerProps {
   steps?: TimelineStep[];
@@ -24,6 +25,8 @@ const CanvasRunner = ({ steps, started }: CanvasRunnerProps) => {
     setSteps,
     steps: stateSteps,
     activeStepId,
+    setActiveStep,
+    activeStep,
   } = useCanvasStore();
 
   useInteractionCapture();
@@ -65,9 +68,14 @@ const CanvasRunner = ({ steps, started }: CanvasRunnerProps) => {
     //     step.metadata?.blocks?.[0]?.type === "inter_stimulus"
     // );
 
+    const activeStep = steps?.find((step) => step.id === activeStepId);
+    if (activeStep) {
+      setActiveStep(activeStep);
+    }
+
     if (!started || !activeStepId || isSaveBlock || isFeedbackBlock) return;
 
-    startStepResult(activeStepId);
+    startStepResult(activeStepId, activeStep?.type || "");
 
     return () => {
       completeStepResult();
@@ -77,6 +85,11 @@ const CanvasRunner = ({ steps, started }: CanvasRunnerProps) => {
   return (
     <div className="relative w-full h-full z-40" ref={screenRef}>
       <Toaster position="top-right" richColors closeButton />
+
+      {activeStep && <CanvasDebugger />}
+
+      {/* Render the active step layer */}
+
       {stateSteps
         .filter((step) => step.id === activeStepId)
         .map((step) => (

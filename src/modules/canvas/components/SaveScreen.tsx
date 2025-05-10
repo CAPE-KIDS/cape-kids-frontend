@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useCanvasStore } from "../store/useCanvasStore";
 import { StepResult, useResultsStore } from "@/stores/results/useResultsStore";
+import { Tooltip } from "@/components/Tooltip";
 
 const SaveScreen = () => {
   const { steps, activeStepId } = useCanvasStore();
@@ -22,11 +23,7 @@ const SaveScreen = () => {
 
       const filteredResults = results.filter((result) => {
         const step = filteredSteps.find((s) => s.id === result.stepId);
-        return (
-          step &&
-          step.metadata?.blocks?.[0]?.type !== "inter_stimulus" &&
-          step.type !== "custom_block"
-        );
+        return step && step.metadata?.blocks?.[0]?.type !== "inter_stimulus";
       });
       setFilteredResults(filteredResults);
 
@@ -84,7 +81,14 @@ const SaveScreen = () => {
                   {endedByTimeout ? "Timeout" : `Participant`}
                 </td>
                 <td className="border p-2">
-                  {step.isCorrect ? (
+                  {step.stepType === "custom_block" ? (
+                    <div>
+                      Not evaluated{" "}
+                      <Tooltip>
+                        Results area evaluated only for stimulus and tasks.
+                      </Tooltip>
+                    </div>
+                  ) : step.isCorrect ? (
                     <span className="text-green-500">Correct ✅</span>
                   ) : (
                     <span className="text-red-500">Incorrect ❌</span>

@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { TimelineStep } from "@/modules/timeline/types";
 import CanvasRunner from "@/modules/canvas/components/CanvasRunner";
 import { compileTimeline } from "@/utils/functions";
+import { useResultsStore } from "@/stores/results/useResultsStore";
 
 const PreviewPage = () => {
   const searchParams = useSearchParams();
@@ -14,11 +15,14 @@ const PreviewPage = () => {
   const [started, setStarted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [steps, setSteps] = useState<TimelineStep[] | null>(null);
+  const [rawData, setRawData] = useState<any>(null);
+  const { clearResults } = useResultsStore();
 
   useEffect(() => {
     try {
       if (typeof window !== "undefined" && window.name) {
         const data = JSON.parse(window.name);
+        setRawData(data);
         if (data?.steps) {
           const parsedSteps = compileTimeline(data.steps);
           setSteps(parsedSteps);
@@ -51,13 +55,40 @@ const PreviewPage = () => {
     }, 500);
   };
 
+  const resetPreview = () => {
+    setLoading(true);
+    setStarted(false);
+    setSteps(null);
+    clearResults();
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch((err) => {
+        console.warn("Falha ao sair do modo fullscreen:", err);
+      });
+    }
+
+    // Reload data
+    const parsedSteps = compileTimeline(rawData.steps);
+    setSteps(parsedSteps);
+    setLoading(false);
+  };
+
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-white">
       {/* Canvas com steps carregados */}
       <div className="relative w-full h-full overflow-hidden">
         {!started && <div className="absolute inset-0 bg-black z-50" />}
 
-        {steps && <CanvasRunner steps={steps} started={started} />}
+        {steps && (
+          <>
+            <button
+              className="p-2 bg-black text-white cursor-pointer hover:opacity-80 border border-white absolute left-[-1px] top-[-1px] z-50"
+              onClick={resetPreview}
+            >
+              Restart
+            </button>
+            <CanvasRunner steps={steps} started={started} />
+          </>
+        )}
       </div>
 
       {/* Overlay de início */}

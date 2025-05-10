@@ -15,6 +15,8 @@ interface CanvasStore {
   activeStepId: string | null;
   setSteps: (steps: TimelineStep[]) => void;
   setActiveStepId: (id: string) => void;
+  activeStep: TimelineStep | null;
+  setActiveStep: (step: TimelineStep) => void;
 }
 
 export const useCanvasStore = create<CanvasStore>((set) => ({
@@ -28,4 +30,7 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
   activeStepId: null,
   setSteps: (steps) => set({ steps, activeStepId: steps[0]?.id || null }),
   setActiveStepId: (id) => set({ activeStepId: id }),
+
+  activeStep: null,
+  setActiveStep: (step) => set({ activeStep: step }),
 }));
