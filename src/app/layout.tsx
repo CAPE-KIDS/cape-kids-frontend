@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthProvider";
 import SidebarMenu from "@/components/SidebarMenu";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,6 +21,8 @@ export default function RootLayout({
     <html lang="en">
       <AuthProvider>
         <body className={`${inter.className} antialiased`}>
+          <Toaster position="top-right" richColors />
+
           <div className="flex">
             <div className="flex flex-1 flex-col h-screen overflow-auto">
               {children}

@@ -5,7 +5,6 @@ import StepLayer from "./StepLayer";
 import { useCanvasStore } from "../store/useCanvasStore";
 import { TimelineStep } from "@/modules/timeline/types";
 import { useSizeObserver } from "@/hooks/useSizeObserver";
-import { Toaster } from "sonner";
 import { useResultsStore } from "@/stores/results/useResultsStore";
 import { useInteractionCapture } from "@/stores/results/useInteractionCapture";
 import { useAnswerInterceptor } from "@/stores/results/useAnswerInterceptor";
@@ -85,8 +84,6 @@ const CanvasRunner = ({ steps, started }: CanvasRunnerProps) => {
 
   return (
     <div className="relative w-full h-full z-40" ref={screenRef}>
-      <Toaster position="top-right" richColors closeButton />
-
       {activeStep && <CanvasDebugger />}
       {showTryAgain && (
         <div className="fixed top-0 left-0 w-full h-full bg-red-500 z-[400]">

@@ -11,7 +11,7 @@ import { ScreenEditor } from "@/components/ScreenEditor/ScreenEditor";
 import { MediaTypeBlocks } from "@/modules/media/components/MediaTypeBlocks";
 import TriggerButtons from "@/modules/triggers/components/TriggerButtons";
 import { useEditorStore } from "@/stores/editor/useEditorStore";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { TimelineStepOrder } from "./TimelineStepOrder";
 import TriggerManager from "@/modules/triggers/components/TriggerManager";
 import { Settings, Trash } from "lucide-react";

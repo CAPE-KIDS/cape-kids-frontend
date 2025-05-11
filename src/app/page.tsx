@@ -1,11 +1,11 @@
 "use client";
 
-import RegisterForm from "@/components/RegisterForm";
+import RegisterForm from "@/components/forms/RegisterForm";
 import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
 import { useState } from "react";
 import { loginSchema, type LoginSchemaType } from "@shared/user";
-import { z } from "zod";
+import { toast } from "sonner";
 
 export default function Home() {
   const { login } = useAuth();
@@ -17,8 +17,10 @@ export default function Home() {
     Partial<Record<keyof LoginSchemaType, string>>
   >({});
   const [showRegister, setShowRegister] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [awaiting, setAwaiting] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     const result = loginSchema.safeParse(form);
 
     if (!result.success) {
@@ -32,7 +34,17 @@ export default function Home() {
     }
 
     setErrors({});
-    login(form.email, form.password);
+    setAwaiting(true);
+    const response = await login(form.email, form.password);
+    if (response?.error) {
+      toast.error(response.message);
+      setLoginError(response.message);
+      setAwaiting(false);
+
+      return;
+    }
+    toast.success("Authenticated successfully");
+    setAwaiting(false);
   };
 
   return (
@@ -64,6 +76,7 @@ export default function Home() {
               onChange={(e) => {
                 setForm((prev) => ({ ...prev, email: e.target.value }));
                 setErrors((prev) => ({ ...prev, email: undefined }));
+                setLoginError("");
               }}
             />
             {errors.email && (
@@ -86,6 +99,7 @@ export default function Home() {
               onChange={(e) => {
                 setForm((prev) => ({ ...prev, password: e.target.value }));
                 setErrors((prev) => ({ ...prev, password: undefined }));
+                setLoginError("");
               }}
             />
             {errors.password && (
@@ -95,12 +109,19 @@ export default function Home() {
             )}
           </div>
 
-          <button
-            className="transition-colors mt-8 bg-blue-500 text-white font-semibold px-10 py-4 shadow-2xs cursor-pointer hover:bg-blue-600 mb-10"
-            onClick={handleLogin}
-          >
-            Login
-          </button>
+          <div className="relative">
+            <button
+              className="transition-colors mt-8 bg-blue-500 text-white font-semibold px-10 py-4 shadow-2xs cursor-pointer hover:bg-blue-600 mb-10"
+              onClick={handleLogin}
+            >
+              Login
+            </button>
+            {loginError && (
+              <p className="text-red-500 text-sm absolute top-0">
+                {loginError}
+              </p>
+            )}
+          </div>
 
           <p className="text-gray-500">
             Don’t have an account?{" "}

@@ -15,8 +15,6 @@ import CustomEdge from "./CustomEdge";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
 
 import "../../../../tailwind.config";
-import { TimelineStep } from "../types";
-import { Toaster } from "sonner";
 
 const TimelineEditor = () => {
   const {
@@ -120,8 +118,6 @@ const TimelineEditor = () => {
 
   return (
     <div className="w-full h-[600px] max-h-[calc(100vh-230px)] rounded-md border relative">
-      <Toaster position="top-right" richColors />
-
       <div className="absolute right-1 top-1 flex items-center gap-2">
         <button
           onClick={openPreview}
