@@ -1,7 +1,7 @@
 // stores/useEditorStore.ts
 import { create } from "zustand";
 import { EditorState } from "@/types/editor.types";
-import { StepType, TimelineStep } from "@/modules/timeline/types";
+import { StepType, TimelineStep } from "@shared/timeline";
 import _ from "lodash";
 import { MediaBlock } from "@/modules/media/types";
 import { Trigger } from "@/modules/triggers/types";
@@ -130,6 +130,23 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       };
     });
   },
+  stepFiles: {} as Record<string, File>,
+
+  addStepFile: (stepId, file) => {
+    const { stepFiles } = get();
+    set({
+      stepFiles: {
+        ...stepFiles,
+        [stepId]: file,
+      },
+    });
+  },
+
+  clearStepFiles: (stepId) => {
+    const { stepFiles } = get();
+    const { [stepId]: _, ...rest } = stepFiles;
+    set({ stepFiles: rest });
+  },
 
   calculateRenderPosititon: (steps) => {
     if (steps.length === 0 || !steps) {
@@ -169,7 +186,6 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   mountStep: (timelineId, positions, type, title): TimelineStep => {
     const { blocks } = get();
     const timelineStep: TimelineStep = {
-      id: crypto.randomUUID(),
       timelineId,
       orderIndex: positions.index,
       type,

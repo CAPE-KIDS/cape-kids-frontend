@@ -1,6 +1,6 @@
 // stores/timeline/sidebarStore.ts
 import { create } from "zustand";
-import { TimelineStep } from "@/modules/timeline/types";
+import { TimelineStep } from "@shared/timeline";
 
 interface SidebarState {
   sidebarOpen: boolean;

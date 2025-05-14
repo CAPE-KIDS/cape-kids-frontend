@@ -2,7 +2,7 @@ import { MouseEvent } from "react";
 import { MediaType, MediaBlock } from "../modules/media/types";
 import { LexicalEditor } from "lexical";
 import { Trigger } from "@/modules/triggers/types";
-import { StepType, TimelineStep } from "@/modules/timeline/types";
+import { TimelineStep, StepType } from "@shared/timeline";
 
 export interface EditorContext {
   screen: Screen;
@@ -23,6 +23,7 @@ export interface ToolUIContext {
   inputRef?: React.RefObject<HTMLInputElement | null>;
   setTool: (tool: Tool) => Tool | null;
   addStep: (block: MediaBlock) => void;
+  addStepFile: (stepId: string, file: File) => void;
   resetTool: () => void;
   getRelativePosition: (e: MouseEvent) => { x: number; y: number };
   editor?: LexicalEditor;
@@ -77,6 +78,9 @@ export interface EditorState {
   addTriggerToBlock: (blockId: string | null, trigger: Trigger) => void;
   getAllTriggers: () => Trigger[];
   removeTriggerFromBlock: (blockId: string | null, triggerId: string) => void;
+  stepFiles: Record<string, File>;
+  addStepFile: (stepId: string, file: File) => void;
+  clearStepFiles: (stepId: string) => void;
   mountStep: (
     timelineId: string,
     positions: StepPositions,

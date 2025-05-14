@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import StepLayer from "./StepLayer";
 import { useCanvasStore } from "../store/useCanvasStore";
-import { TimelineStep } from "@/modules/timeline/types";
+import { TimelineStep } from "@shared/timeline";
 import { useSizeObserver } from "@/hooks/useSizeObserver";
 import { useResultsStore } from "@/stores/results/useResultsStore";
 import { useInteractionCapture } from "@/stores/results/useInteractionCapture";

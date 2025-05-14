@@ -16,8 +16,9 @@ import { TimelineStepOrder } from "./TimelineStepOrder";
 import TriggerManager from "@/modules/triggers/components/TriggerManager";
 import { Settings, Trash } from "lucide-react";
 import { useStimuliModal } from "@/stores/timeline/blockTypes/stimuliModalStore";
-import { StepType } from "../types";
+import { StepType } from "@shared/timeline";
 import _ from "lodash";
+import { useAuth } from "@/hooks/useAuth";
 
 const timelineStepSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -65,7 +66,9 @@ export const options: Option[] = [
 ];
 
 const TimelineSidebar = () => {
-  const { steps, sourceData, updateSteps, removeStep } = useTimelineStore();
+  const { token } = useAuth();
+  const { steps, sourceData, updateSteps, removeStep, saveStep } =
+    useTimelineStore();
   const { sidebarOpen, currentStep, closeSidebar } = useTimelineSidebar();
 
   const {
@@ -77,6 +80,7 @@ const TimelineSidebar = () => {
     addStep,
     pushHistory,
     historyStack,
+    stepFiles,
   } = useEditorStore();
 
   const {
@@ -93,9 +97,11 @@ const TimelineSidebar = () => {
 
   const [taskList, setTaskList] = useState<any[]>([]);
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
+    if (!token) return;
+
     const { title, type } = getValues();
-    const timelineId = steps[0]?.timelineId;
+    const timelineId = sourceData.timeline.id;
     const positions = currentStep
       ? {
           index: currentStep.orderIndex,
@@ -105,7 +111,6 @@ const TimelineSidebar = () => {
       : calculateRenderPosititon(steps);
 
     const newStep = mountStep(timelineId, positions, type, title);
-    newStep.id = currentStep?.id || newStep.id;
 
     if (type === "sequential_stimuli") {
       const { config, steps } = useStimuliModal.getState();
@@ -115,8 +120,24 @@ const TimelineSidebar = () => {
       };
     }
 
-    updateSteps(newStep);
-    toast.success(currentStep ? "Step updated!" : "Step created!");
+    if (currentStep) {
+      // const updatedStep = await updatedStep(newStep, token);
+      // updateSteps(updatedStep.data);
+      // toast.success(
+      //   currentStep ? "Step updated sucessfully!" : "Step created sucessfully!"
+      // );
+      // closeSidebar();
+      // clearEditor();
+      return;
+    }
+
+    const savedStep = await saveStep(newStep, token, stepFiles);
+    if (savedStep.error) {
+      toast.error("Error saving step");
+      return;
+    }
+    updateSteps(savedStep.data);
+    toast.success("Step created sucessfully!");
     closeSidebar();
     clearEditor();
   };

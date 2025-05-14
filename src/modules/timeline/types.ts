@@ -1,12 +1,6 @@
 import { MediaBlock } from "../media/types";
 import { Trigger } from "../triggers/types";
-
-export type StepType =
-  | "custom_block"
-  | "task"
-  | "conditional"
-  | "sequential_stimuli"
-  | "simultaneous_stimuli";
+import { TimelineStep, StepType } from "@shared/timeline";
 
 export const StepColors: Record<
   StepType,
@@ -17,10 +11,6 @@ export const StepColors: Record<
 > = {
   task: {
     background: "#5388D8",
-    color: "#FFFFFF",
-  },
-  conditional: {
-    background: "#34C759",
     color: "#FFFFFF",
   },
   sequential_stimuli: {
@@ -37,25 +27,7 @@ export const StepColors: Record<
   },
 } as const;
 
-export interface TimelineStepMetadata {
-  title: string;
-  positionX: number | null;
-  positionY: number | null;
-  blocks?: MediaBlock[] | null;
-  triggers?: Trigger[] | null;
-  config?: StepConfig;
-  group?: StimuliGroup;
-}
-
 export type StepConfig = StimulusStepConfig | StimuliBlockConfig | null;
-
-export interface TimelineStep {
-  id: string;
-  timelineId: string;
-  orderIndex: number | null;
-  type: StepType;
-  metadata: TimelineStepMetadata;
-}
 
 export interface StepConnection {
   id: string;

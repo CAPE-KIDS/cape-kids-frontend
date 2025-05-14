@@ -68,15 +68,17 @@ const TextRenderer: React.FC<{ block: MediaBlock }> = ({ block }) => {
     });
   };
 
+  if (!screen?.width || !screen?.height) return null;
+
   return (
     <Rnd
       position={{
-        x: getAbsoluteSize(block.position?.x || 0, screen.width),
-        y: getAbsoluteSize(block.position?.y || 0, screen.height),
+        x: getAbsoluteSize(block.position?.x || 0, screen?.width),
+        y: getAbsoluteSize(block.position?.y || 0, screen?.height),
       }}
       size={{
-        width: getAbsoluteSize(block.size?.width || 300, screen.width),
-        height: getAbsoluteSize(block.size?.height || 200, screen.height),
+        width: getAbsoluteSize(block.size?.width || 300, screen?.width),
+        height: getAbsoluteSize(block.size?.height || 200, screen?.height),
       }}
       className={`border border-dashed rounded-sm relative ${
         isEditable ? "bg-yellow-50 bg-opacity-10" : "bg-transparent drag-handle"

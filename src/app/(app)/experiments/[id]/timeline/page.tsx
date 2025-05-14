@@ -14,17 +14,36 @@ import TimelineView from "@/modules/timeline/TimelineView";
 import { useParams } from "next/navigation";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
 import StimuliConfigModal from "@/components/blockTypes/sequentialStimuli/SequentialStimuliConfigModal";
+import { useAuth } from "@/hooks/useAuth";
+import { useExperimentsStore } from "@/stores/experiments/experimentsStore";
 
 // Schema de validação
-
 const CreateExperimentsTimeline = () => {
-  const { getExperimentData } = useTimelineStore();
+  const { token } = useAuth();
+  const { formatToTimeline } = useTimelineStore();
+  const { selectedExperiment, setSelectedExperiment, getExperimentById } =
+    useExperimentsStore();
   const params = useParams();
   const experimentId = params.id as string;
 
   useEffect(() => {
-    const data = getExperimentData(experimentId);
-  }, []);
+    if (!token || !experimentId) return;
+
+    if (selectedExperiment) {
+      console.log("selectedExperiment", selectedExperiment);
+      formatToTimeline(selectedExperiment);
+      return;
+    }
+
+    const fetchExperiment = async () => {
+      const experiment = await getExperimentById(experimentId, token);
+      if (experiment) {
+        setSelectedExperiment(experiment.data);
+        formatToTimeline(experiment.data);
+      }
+    };
+    fetchExperiment();
+  }, [token, experimentId, selectedExperiment]);
 
   return (
     <div className="flex flex-col h-full">
@@ -43,7 +62,7 @@ const CreateExperimentsTimeline = () => {
       </PageHeader>
 
       <div className="flex-1 p-6">
-        <TimelineView id={experimentId} />
+        <TimelineView />
       </div>
 
       {/* Submit */}

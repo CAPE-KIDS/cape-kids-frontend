@@ -14,7 +14,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
 import { useTimelineSidebar } from "@/stores/timeline/sidebarStore";
-import { TimelineStep } from "@/modules/timeline/types";
+import { TimelineStep } from "@shared/timeline";
 import { options } from "./TimelineSidebar";
 import { Grip } from "lucide-react";
 

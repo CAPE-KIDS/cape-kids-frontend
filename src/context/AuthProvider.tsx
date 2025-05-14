@@ -9,6 +9,7 @@ import { RegisterSchemaType } from "@shared/user";
 
 type AuthContextType = {
   user: User | null;
+  token: string | null;
   login: (
     email: string,
     password: string
@@ -23,12 +24,21 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("auth_token="))
+      ?.split("=")[1];
+
     if (stored) {
       setUser(JSON.parse(stored));
+    }
+    if (token) {
+      setToken(token);
     }
   }, []);
 
@@ -91,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register }}>
+    <AuthContext.Provider value={{ user, token, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

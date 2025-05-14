@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import TimelineHeader from "./components/TimelineHeader";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
 import TimelineEditor from "./components/TimelineEditor";
@@ -8,7 +8,6 @@ import { useTimelineSidebar } from "@/stores/timeline/sidebarStore";
 
 const TimelineView = () => {
   const { sourceData, loading } = useTimelineStore();
-  const { sidebarOpen, closeSidebar } = useTimelineSidebar();
 
   if (loading) {
     return (

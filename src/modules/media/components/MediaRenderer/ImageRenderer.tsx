@@ -53,6 +53,8 @@ const ImageRenderer = ({ block }: { block: MediaBlock }) => {
     updateStep({ ...newBlock });
   };
 
+  if (!screen?.width || !screen.height) return null;
+
   return (
     <Rnd
       position={{

@@ -1,50 +1,21 @@
-import {
-  StepColors,
-  StepConnection,
-  TimelineStep,
-} from "@/modules/timeline/types";
+import { StepColors, StepConnection } from "@/modules/timeline/types";
 import { create } from "zustand";
 import { Node, Edge } from "@xyflow/react";
-import { update } from "lodash";
+import { API } from "@/utils/api";
+import { ExperimentSchemaType } from "@shared/experiments";
+import { TrainingSchemaType } from "@shared/training";
+import { TaskSchemaType } from "@shared/task";
+import { TimelineStep } from "@shared/timeline";
+import { RestResponseSchemaType } from "@shared/apiResponse";
+import _ from "lodash";
 
-export type StatusType = "draft" | "active" | "closed" | "archived";
-
-export interface Experiment {
-  id: string;
-  creatorId: string;
-  status: StatusType;
-  title: string;
-  description: string;
-  participantTarget: number;
-  allowExtraParticipants: boolean;
-  accessCode: string;
-  timeline: {
-    id: string;
-    steps: TimelineStep[];
-    connections: StepConnection[];
-  };
-}
-
-export interface Training {
-  id: string;
-  scientistId: string;
-  title: string;
-  description: string;
-  status: StatusType;
-  sessionsLimit: number | null;
-  accessCode: string | null;
-}
-
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  createdBy: string;
-  isTemplate: boolean;
-}
-
+type SourceDataType =
+  | ExperimentSchemaType
+  | TaskSchemaType
+  | TrainingSchemaType
+  | null;
 interface TimelineState {
-  sourceData: Experiment | Task | Training | null;
+  sourceData: SourceDataType;
   steps: TimelineStep[];
   connections: StepConnection[];
   nodes: Node[];
@@ -54,11 +25,17 @@ interface TimelineState {
   setTimelineData: (data: any) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  getExperimentById: (id: string) => Promise<Experiment>;
-  getExperimentData: (id: string) => Promise<void>;
+  formatToTimeline: (data?: SourceDataType) => Promise<void>;
   updateSteps: (updatedStep: TimelineStep) => void;
   removeStep: (stepId: string) => void;
   formatNodeAndEdgeData: () => void;
+
+  // requests api
+  saveStep: (
+    step: TimelineStep,
+    token: string,
+    stepFiles?: Record<string, File>
+  ) => Promise<RestResponseSchemaType>;
 }
 
 export const useTimelineStore = create<TimelineState>((set, get) => ({
@@ -73,35 +50,16 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   setTimelineData: (data) => set({ sourceData: data }),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
-
-  getExperimentById: async (id: string) => {
-    return {
-      id,
-      title: "Relationship between sports and executive function",
-      description:
-        "This experiment aims to investigate the relationship between sports and executive function.",
-      creatorId: "1234-5678-9101",
-      status: "draft",
-      participantTarget: 100,
-      allowExtraParticipants: true,
-      accessCode: "5FRS-V4VQ-CHFE",
-      timeline: {
-        id: "1234-5678-9101",
-        steps: [],
-        connections: [],
-      },
-    };
-  },
-
-  getExperimentData: async (id: string) => {
+  formatToTimeline: async (data) => {
     set({ loading: true, error: null });
+    const formatedSourceData = {
+      ...(data?.experiment as ExperimentSchemaType),
+      timeline: data.timeline,
+    };
 
-    const experiment = await get().getExperimentById(id);
-    const sourceData = experiment.timeline;
-
-    set({ sourceData: experiment });
-    set({ steps: sourceData.steps || [] });
-    set({ connections: sourceData.connections || [] });
+    set({ sourceData: formatedSourceData });
+    set({ steps: formatedSourceData?.timeline?.steps || [] });
+    set({ connections: formatedSourceData?.timeline?.connections || [] });
 
     get().formatNodeAndEdgeData();
     set({ loading: false });
@@ -211,5 +169,92 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       nodes: [...formatedNodes],
       edges: [...formatedEdges],
     });
+  },
+
+  // requests api
+
+  saveStep: async (step, token, stepFiles) => {
+    const formData = new FormData();
+
+    const blocks = step.metadata.blocks?.map((block) => {
+      const tmpId = block.id;
+      const hasFile = stepFiles && stepFiles[tmpId];
+
+      return {
+        ...block,
+        data: hasFile ? { fileField: `files[${tmpId}]` } : block.data,
+      };
+    });
+
+    let updatedGroup = step.metadata.group;
+    if (step.metadata.group?.steps?.length) {
+      const updatedGroupSteps = step.metadata.group.steps.map((groupStep) => {
+        const updatedBlocks = groupStep.metadata.blocks?.map((block) => {
+          const tmpId = block.id;
+          const hasFile = stepFiles && stepFiles[tmpId];
+
+          return {
+            ...block,
+            data: hasFile ? { fileField: `files[${tmpId}]` } : block.data,
+          };
+        });
+
+        return {
+          ...groupStep,
+          metadata: {
+            ...groupStep.metadata,
+            blocks: updatedBlocks,
+          },
+        };
+      });
+
+      updatedGroup = {
+        ...step.metadata.group,
+        steps: updatedGroupSteps,
+      };
+    }
+
+    const stepData = {
+      timelineId: step.timelineId,
+      orderIndex: step.orderIndex || null,
+      type: step.type,
+      taskVersionId: step?.taskVersionId || null,
+      metadata: {
+        ...step.metadata,
+        blocks,
+        group: updatedGroup,
+      },
+    };
+
+    formData.append("step", JSON.stringify(stepData));
+
+    if (stepFiles && step.metadata.blocks?.length) {
+      step.metadata.blocks.forEach((block) => {
+        if (block.id && stepFiles[block.id]) {
+          formData.append(`files[${block.id}]`, stepFiles[block.id]);
+        }
+      });
+    }
+
+    if (stepFiles && step.metadata.group?.steps?.length) {
+      step.metadata.group.steps.forEach((groupStep) => {
+        groupStep.metadata.blocks.forEach((block) => {
+          if (block.id && stepFiles[block.id]) {
+            formData.append(`files[${block.id}]`, stepFiles[block.id]);
+          }
+        });
+      });
+    }
+
+    const request = await fetch(API.SAVE_STEP, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const response = await request.json();
+    return response;
   },
 }));

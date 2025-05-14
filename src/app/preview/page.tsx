@@ -3,10 +3,10 @@
 
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { TimelineStep } from "@/modules/timeline/types";
 import CanvasRunner from "@/modules/canvas/components/CanvasRunner";
 import { compileTimeline } from "@/utils/functions";
 import { useResultsStore } from "@/stores/results/useResultsStore";
+import { TimelineStep } from "@shared/timeline";
 
 const PreviewPage = () => {
   const searchParams = useSearchParams();

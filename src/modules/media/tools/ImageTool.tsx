@@ -20,7 +20,7 @@ export const ImageTool: Tool = {
 
     inputRef?.current && inputRef.current.click();
   },
-  onChange: (e, { addStep, screen, resetTool }) => {
+  onChange: (e, { addStep, addStepFile, screen, resetTool }) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const file = files[0];
@@ -36,9 +36,9 @@ export const ImageTool: Tool = {
         const initialY = 0;
         const initialWidth = 300;
         const initialHeight = 200;
-
+        const blockId = crypto.randomUUID();
         const block = {
-          id: crypto.randomUUID(),
+          id: blockId,
           type: ImageTool.type,
           position: {
             x: getRelativeSize(initialX, screen.width),
@@ -56,10 +56,12 @@ export const ImageTool: Tool = {
         } as MediaBlock;
 
         addStep(block);
+        addStepFile(blockId, file);
         resetTool();
       };
       reader.readAsDataURL(file);
     }
+
     e.target.value = "";
   },
 };

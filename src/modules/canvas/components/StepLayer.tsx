@@ -1,5 +1,5 @@
 // modules/canvas/components/StepLayer.tsx
-import { TimelineStep } from "@/modules/timeline/types";
+import { TimelineStep } from "@shared/timeline";
 import { CanvasMediaRenderer } from "./CanvasMediaRenderer";
 import { useEffect, useState } from "react";
 import { useTriggerHandler } from "@/modules/triggers/useTriggerHandler";

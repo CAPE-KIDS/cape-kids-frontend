@@ -1,5 +1,5 @@
 // modules/canvas/state/useCanvasStore.ts
-import { TimelineStep } from "@/modules/timeline/types";
+import { TimelineStep } from "@shared/timeline";
 import { create } from "zustand";
 
 interface Screen {

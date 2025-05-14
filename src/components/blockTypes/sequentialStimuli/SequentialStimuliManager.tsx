@@ -1,5 +1,5 @@
 import DataTable from "@/components/DataTable";
-import { TimelineStep } from "@/modules/timeline/types";
+import { TimelineStep } from "@shared/timeline";
 import { useStimuliModal } from "@/stores/timeline/blockTypes/stimuliModalStore";
 import { capitalize } from "lodash";
 import { PlusIcon } from "lucide-react";

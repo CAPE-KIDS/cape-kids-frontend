@@ -1,57 +1,73 @@
 "use client";
+
 import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Copy } from "lucide-react";
 import DataTable from "@/components/DataTable";
 import SectionHeader from "@/components/SectionHeader";
 import { useRouter } from "nextjs-toploader/app";
-
-// Schema de validação
-const experimentSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  participantTarget: z
-    .number({ invalid_type_error: "Participants limit must be a number" })
-    .min(1, "Must be at least 1"),
-  allowExtraParticipants: z.boolean(),
-  accessCode: z.string().optional(),
-});
-
-type ExperimentFormData = z.infer<typeof experimentSchema>;
+import {
+  CreateExperimentSchemaType,
+  createExperimentSchema,
+} from "@shared/experiments";
+import { API } from "@/utils/api";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { useExperimentsStore } from "@/stores/experiments/experimentsStore";
 
 const CreateExperiments = () => {
   const router = useRouter();
+  const { token } = useAuth();
+  const { createExperiment } = useExperimentsStore();
   const {
     register,
     handleSubmit,
     setValue,
     watch,
     formState: { errors },
-  } = useForm<ExperimentFormData>({
-    resolver: zodResolver(experimentSchema),
+  } = useForm<CreateExperimentSchemaType>({
+    resolver: zodResolver(createExperimentSchema),
     defaultValues: {
-      allowExtraParticipants: false,
+      allowToJoinAfterFull: true,
       accessCode: "",
+      participantTarget: 0,
     },
   });
 
-  const onSubmit = (data: ExperimentFormData) => {
-    router.push("/experiments/1234-5678-9101/timeline");
+  const onSubmit = async (data: CreateExperimentSchemaType) => {
+    if (!token) return;
+    const response = await createExperiment(token, data);
+
+    if (response.error) {
+      toast.error("Error creating experiment");
+      return;
+    }
+    toast.success("Experiment created successfully");
+    router.push(`/experiments/${response.data.id}/timeline`);
   };
 
-  const generateCode = () => {
-    // todo: call api to generate code
-    if (watch("accessCode")) return;
+  const generateCode = async () => {
+    console.log("token", token);
+    if (watch("accessCode") || !token) return;
 
-    const code = Array(3)
-      .fill(0)
-      .map(() => Math.random().toString(36).substring(2, 6).toUpperCase())
-      .join("-");
-    setValue("accessCode", code);
+    const request = await fetch(API.GENERATE_ACCESS_CODE, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const response = await request.json();
+    if (response.error) {
+      toast.error("Error generating access code");
+      return;
+    }
+
+    setValue("accessCode", response.data.accessCode);
+    toast.success("Access code generated");
   };
 
   return (
@@ -78,15 +94,15 @@ const CreateExperiments = () => {
           <div className="space-y-6 p-8">
             {/* Title */}
             <div className="flex flex-col space-y-1">
-              <label className="font-light text-xs text-gray-400">Title</label>
+              <label className="font-light text-xs text-gray-400">Title*</label>
               <input
                 {...register("title")}
                 className="bg-[#EBEFFF] rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
                 placeholder="Experiment title"
               />
-              {errors.title && (
+              {errors.title?.message && (
                 <span className="text-red-500 text-xs">
-                  {errors.title.message}
+                  {errors.title.message.replace("String", "Title")}
                 </span>
               )}
             </div>
@@ -102,16 +118,16 @@ const CreateExperiments = () => {
                 className="bg-[#EBEFFF] rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
                 placeholder="Experiment description"
               />
-              {errors.description && (
+              {errors.description?.message && (
                 <span className="text-red-500 text-xs">
-                  {errors.description.message}
+                  {errors.description.message.replace("String", "Description")}
                 </span>
               )}
             </div>
 
-            {/* Participants Limit and Access Code */}
+            {/* Participants Limit & Access Code */}
             <div className="flex gap-4 items-start max-w-3xl">
-              {/* Participants Limit */}
+              {/* Participant Target */}
               <div className="flex-1 flex flex-col space-y-1">
                 <label className="font-light text-xs text-gray-400">
                   Participant target
@@ -121,9 +137,8 @@ const CreateExperiments = () => {
                   {...register("participantTarget", { valueAsNumber: true })}
                   className="bg-[#EBEFFF] rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
                   placeholder="Number of participants"
-                  min="1"
                 />
-                {errors.participantTarget && (
+                {errors.participantTarget?.message && (
                   <span className="text-red-500 text-xs">
                     {errors.participantTarget.message}
                   </span>
@@ -172,13 +187,13 @@ const CreateExperiments = () => {
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
-                {...register("allowExtraParticipants")}
+                {...register("allowToJoinAfterFull")}
                 className="accent-blue-500"
-                id="allowExtraParticipants"
+                id="allowToJoinAfterFull"
               />
               <label
                 className="text-sm cursor-pointer"
-                htmlFor="allowExtraParticipants"
+                htmlFor="allowToJoinAfterFull"
               >
                 Allow entry after reaching target
               </label>
@@ -188,7 +203,7 @@ const CreateExperiments = () => {
           {/* Divider */}
           <div className="border-t border-indigo-200 my-4 mx-8" />
 
-          {/* Scientist */}
+          {/* Scientists */}
           <div className="px-8 space-y-4 mb-8">
             <SectionHeader
               title="Scientists"
