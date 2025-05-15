@@ -13,4 +13,5 @@ export const API = {
 
   // Timeline
   SAVE_STEP: `${API_URL}/timeline-steps`,
+  SAVE_CONNECTIONS: `${API_URL}/step-connections`,
 };

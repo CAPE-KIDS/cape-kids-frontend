@@ -2,22 +2,23 @@ import { StepColors, StepConnection } from "@/modules/timeline/types";
 import { create } from "zustand";
 import { Node, Edge } from "@xyflow/react";
 import { API } from "@/utils/api";
-import { ExperimentSchemaType } from "@shared/experiments";
+import {
+  ExperimentSchemaType,
+  ExperimentSchemaWithTimelineType,
+} from "@shared/experiments";
 import { TrainingSchemaType } from "@shared/training";
 import { TaskSchemaType } from "@shared/task";
 import { TimelineStep } from "@shared/timeline";
 import { RestResponseSchemaType } from "@shared/apiResponse";
 import _ from "lodash";
+import { useAuthStore } from "../auth/useAuthStore";
+import { StepConnectionSchemaType } from "@shared/stepConnections";
 
-type SourceDataType =
-  | ExperimentSchemaType
-  | TaskSchemaType
-  | TrainingSchemaType
-  | null;
+type SourceDataType = ExperimentSchemaWithTimelineType | null;
 interface TimelineState {
   sourceData: SourceDataType;
   steps: TimelineStep[];
-  connections: StepConnection[];
+  connections: StepConnectionSchemaType[];
   nodes: Node[];
   edges: Edge[];
   loading: boolean;
@@ -28,14 +29,21 @@ interface TimelineState {
   formatToTimeline: (data?: SourceDataType) => Promise<void>;
   updateSteps: (updatedStep: TimelineStep) => void;
   removeStep: (stepId: string) => void;
-  formatNodeAndEdgeData: () => void;
-
+  formatNodes: () => Node[];
+  formatedEdges: () => Edge[];
+  edgesSaved: boolean;
+  setEdgesSaved: (edgesSaved: boolean) => void;
+  directConnections: () => any[];
   // requests api
   saveStep: (
     step: TimelineStep,
     token: string,
     stepFiles?: Record<string, File>
   ) => Promise<RestResponseSchemaType>;
+
+  saveConnections: () => void;
+
+  resetTimeline: () => void;
 }
 
 export const useTimelineStore = create<TimelineState>((set, get) => ({
@@ -46,6 +54,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   edges: [],
   loading: true,
   error: null,
+  edgesSaved: false,
+  setEdgesSaved: (edgesSaved) => set({ edgesSaved }),
 
   setTimelineData: (data) => set({ sourceData: data }),
   setLoading: (loading) => set({ loading }),
@@ -55,18 +65,20 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     const formatedSourceData = {
       ...(data?.experiment as ExperimentSchemaType),
       timeline: data.timeline,
+      connections: data.connections,
     };
 
     set({ sourceData: formatedSourceData });
     set({ steps: formatedSourceData?.timeline?.steps || [] });
-    set({ connections: formatedSourceData?.timeline?.connections || [] });
+    set({ connections: formatedSourceData?.timeline?.step_connections || [] });
 
-    get().formatNodeAndEdgeData();
+    get().formatNodes();
+    get().formatedEdges();
     set({ loading: false });
   },
 
-  updateSteps: (updatedStep: TimelineStep) => {
-    const { steps, connections } = get();
+  updateSteps: (updatedStep) => {
+    const { steps, connections, saveConnections } = get();
 
     const isNewStep = !steps.some((step) => step.id === updatedStep.id);
     const updatedSteps = [
@@ -78,13 +90,14 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
 
     if (isNewStep && steps.length > 0) {
       const lastStep = steps[steps.length - 1];
-
-      updatedConnections.push({
-        id: `${lastStep.id}-${updatedStep.id}`,
-        fromStepId: lastStep.id,
-        toStepId: updatedStep.id,
+      const newConnection = {
+        timelineId: updatedStep.timeline.id,
+        fromStepId: lastStep.id || "",
+        toStepId: updatedStep.id || "",
         condition: "",
-      });
+        id: crypto.randomUUID(),
+      };
+      updatedConnections.push(newConnection);
     }
 
     set({
@@ -92,7 +105,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       connections: updatedConnections,
     });
 
-    get().formatNodeAndEdgeData();
+    get().formatNodes();
+    get().formatedEdges();
   },
 
   removeStep: (stepId: string) => {
@@ -111,28 +125,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     get().formatNodeAndEdgeData();
   },
 
-  updateConnections: () => {
-    const { steps, connections } = get();
-    if (steps.length === 1) {
-      set({ connections: [] });
-      return;
-    }
-
-    if (steps.length === 2) {
-      const connection = {
-        id: "1",
-        fromStepId: `${steps[0].orderIndex}`,
-        toStepId: `${steps[1].orderIndex}`,
-        condition: "",
-      } as StepConnection;
-
-      set({ connections: [connection] });
-      return;
-    }
-  },
-
-  formatNodeAndEdgeData: () => {
-    const { steps, connections } = get();
+  formatNodes: () => {
+    const { steps } = get();
     const formatedNodes = steps.map((step, index) => {
       const stepType = step.type;
 
@@ -154,9 +148,57 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
           color: StepColors[stepType].color,
           borderRadius: 8,
         },
-      };
+      } as Node;
     });
-    const formatedEdges = connections.map((connection) => {
+
+    set({
+      nodes: [...formatedNodes],
+    });
+    return formatedNodes;
+  },
+
+  directConnections: () => {
+    const { sourceData } = get();
+
+    if (!sourceData) return [];
+    const order = [] as any[];
+    sourceData.timeline.steps?.forEach((step: TimelineStep, index) => {
+      if (index === sourceData.timeline.steps.length - 1) return;
+      const object = {
+        id: crypto.randomUUID(),
+        timelineId: sourceData.timeline.id,
+        fromStepId: step.id,
+        toStepId: sourceData?.timeline?.steps[index + 1]?.id,
+        condition: "",
+      };
+      order.push(object);
+    });
+    set({ connections: order });
+    return order;
+  },
+
+  formatedEdges: () => {
+    const {
+      connections,
+      directConnections,
+      saveConnections,
+      edgesSaved,
+      setEdgesSaved,
+    } = get();
+
+    let isToSave = false;
+    let connectionsToUse = connections;
+    if (connectionsToUse.length > 0) {
+      setEdgesSaved(true);
+      isToSave = false;
+    }
+
+    if (!connectionsToUse || connectionsToUse.length === 0) {
+      connectionsToUse = directConnections();
+      isToSave = true;
+    }
+
+    const formatedEdges = connectionsToUse.map((connection) => {
       return {
         id: connection.id,
         source: connection.fromStepId,
@@ -165,10 +207,15 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       };
     });
 
-    set({
-      nodes: [...formatedNodes],
-      edges: [...formatedEdges],
-    });
+    set({ edges: formatedEdges });
+
+    if (!edgesSaved && isToSave) {
+      const response = saveConnections();
+      if (!response.error) {
+        setEdgesSaved(true);
+      }
+    }
+    return formatedEdges;
   },
 
   // requests api
@@ -256,5 +303,35 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
 
     const response = await request.json();
     return response;
+  },
+
+  saveConnections: async () => {
+    const { connections } = get();
+    const { authState } = useAuthStore.getState();
+
+    const request = await fetch(API.SAVE_CONNECTIONS, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${authState.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(connections),
+    });
+
+    const response = await request.json();
+    return response;
+  },
+
+  resetTimeline: () => {
+    set({
+      sourceData: null,
+      steps: [],
+      connections: [],
+      nodes: [],
+      edges: [],
+      loading: true,
+      error: null,
+      edgesSaved: false,
+    });
   },
 }));

@@ -151,24 +151,6 @@ const TimelineSidebar = () => {
     reset();
   };
 
-  const openPreview = () => {
-    const { title, type } = getValues();
-    const timelineId = steps[0]?.timelineId;
-    const step = mountStep(
-      timelineId,
-      calculateRenderPosititon(steps),
-      type,
-      title
-    );
-    if (step.metadata.blocks.length === 0) {
-      toast.error("The screen is empty. Please add at least one block.");
-      return;
-    }
-
-    const win = window.open(`/preview?id=${step.id}`, "_blank");
-    if (win) win.name = JSON.stringify({ steps: [step] });
-  };
-
   useEffect(() => {
     if (!sidebarOpen) {
       reset();

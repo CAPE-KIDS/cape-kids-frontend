@@ -6,8 +6,9 @@ import type { User } from "@/types/User";
 import { API } from "@/utils/api";
 import { RestResponseSchemaType } from "@shared/apiResponse";
 import { RegisterSchemaType } from "@shared/user";
+import { useAuthStore } from "@/stores/auth/useAuthStore";
 
-type AuthContextType = {
+export type AuthContextType = {
   user: User | null;
   token: string | null;
   login: (
@@ -23,6 +24,7 @@ type AuthContextType = {
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const { setAuthState } = useAuthStore();
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
@@ -56,7 +58,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!response.error) {
         document.cookie = `auth_token=${response.data?.token}; path=/`;
         localStorage.setItem("user", JSON.stringify(response.data?.user));
-        setUser(user);
+        setUser(response.data.user);
+        setToken(response.data.token);
         router.push("/dashboard");
       }
       return response;
@@ -100,9 +103,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  return (
-    <AuthContext.Provider value={{ user, token, login, logout, register }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const values = {
+    user,
+    token,
+    login,
+    logout,
+    register,
+  };
+
+  useEffect(() => {
+    setAuthState(values);
+  }, [user, token]);
+
+  return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;
 }

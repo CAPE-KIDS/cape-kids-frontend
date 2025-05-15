@@ -16,32 +16,32 @@ import { useTimelineStore } from "@/stores/timeline/timelineStore";
 import StimuliConfigModal from "@/components/blockTypes/sequentialStimuli/SequentialStimuliConfigModal";
 import { useAuth } from "@/hooks/useAuth";
 import { useExperimentsStore } from "@/stores/experiments/experimentsStore";
+import _ from "lodash";
 
 // Schema de validação
 const CreateExperimentsTimeline = () => {
   const { token } = useAuth();
-  const { formatToTimeline } = useTimelineStore();
+  const { formatToTimeline, edges } = useTimelineStore();
   const { selectedExperiment, setSelectedExperiment, getExperimentById } =
     useExperimentsStore();
   const params = useParams();
   const experimentId = params.id as string;
 
+  const fetchExperiment = async () => {
+    const experiment = await getExperimentById(experimentId, token);
+    if (experiment) {
+      setSelectedExperiment(experiment.data);
+      formatToTimeline(experiment.data);
+    }
+  };
+
   useEffect(() => {
     if (!token || !experimentId) return;
-
     if (selectedExperiment) {
-      console.log("selectedExperiment", selectedExperiment);
       formatToTimeline(selectedExperiment);
       return;
     }
 
-    const fetchExperiment = async () => {
-      const experiment = await getExperimentById(experimentId, token);
-      if (experiment) {
-        setSelectedExperiment(experiment.data);
-        formatToTimeline(experiment.data);
-      }
-    };
     fetchExperiment();
   }, [token, experimentId, selectedExperiment]);
 
