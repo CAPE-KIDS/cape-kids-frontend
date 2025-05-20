@@ -1,4 +1,4 @@
-import ModalBase from "@/components/ModalBase";
+import ModalBase from "@/components/modals/ModalBase";
 import { ScreenEditor } from "@/components/ScreenEditor/ScreenEditor";
 import { Toggle } from "@/components/Toggle";
 import { MediaTypeBlocks } from "@/modules/media/components/MediaTypeBlocks";

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ModalBase from "../../../../components/ModalBase";
+import ModalBase from "../../../../components/modals/ModalBase";
 import { useEditorStore } from "@/stores/editor/useEditorStore";
 import CustomSelect from "@/components/CustomSelect";
 import { random } from "lodash";

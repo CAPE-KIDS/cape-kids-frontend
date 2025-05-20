@@ -18,7 +18,7 @@ const ModalBase: React.FC<ModalBaseProps> = ({
       <div
         className={`bg-white rounded-xl shadow-xl p-6 w-[400px] max-w-[90%] relative ${styles}`}
       >
-        <h2 className="text-lg font-semibold mb-4">{title}</h2>
+        {title && <h2 className="text-lg font-semibold mb-4">{title}</h2>}
         <button
           onClick={onClose}
           className="absolute top-3 right-4 text-gray-500 hover:text-black cursor-pointer"

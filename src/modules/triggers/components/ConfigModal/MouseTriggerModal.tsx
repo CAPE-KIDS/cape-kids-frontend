@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ModalBase from "../../../../components/ModalBase";
+import ModalBase from "../../../../components/modals/ModalBase";
 import { useEditorStore } from "@/stores/editor/useEditorStore";
 import CustomSelect, { Option } from "@/components/CustomSelect";
 import { MediaBlock } from "@/modules/media/types";

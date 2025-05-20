@@ -5,12 +5,14 @@ import React, { useEffect } from "react";
 import { useExperimentsStore } from "@/stores/experiments/experimentsStore";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
+import NProgress from "nprogress";
 
 const Experiments = () => {
   const router = useRouter();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { experiments, getUserExperiments } = useExperimentsStore();
   const [loading, setLoading] = React.useState(true);
+
   useEffect(() => {
     if (!token) return;
     const fetchExperiments = async () => {
@@ -31,14 +33,16 @@ const Experiments = () => {
           />
         </div>
 
-        <div className="button">
-          <Link
-            className="cursor-pointer bg-blue-500 text-white rounded-lg px-4 py-3 hover:bg-blue-600 transition duration-200"
-            href={"/experiments/create"}
-          >
-            Create Experiment
-          </Link>
-        </div>
+        {user?.profile.profileType !== "participant" && (
+          <div className="button">
+            <Link
+              className="cursor-pointer bg-blue-500 text-white rounded-lg px-4 py-3 hover:bg-blue-600 transition duration-200"
+              href={"/experiments/create"}
+            >
+              Create Experiment
+            </Link>
+          </div>
+        )}
       </PageHeader>
 
       <div>
@@ -48,17 +52,26 @@ const Experiments = () => {
           </div>
         )}
 
-        {!loading && experiments.length === 0 && (
-          <div className="p-6">
-            <p className="text-gray-500">No experiments found</p>
-            <Link
-              className="cursor-pointer font-semibold text-blue-500 mt-4 block"
-              href={"/experiments/create"}
-            >
-              Create your first experiment
-            </Link>
-          </div>
-        )}
+        {!loading &&
+          experiments.length === 0 &&
+          (user?.profile.profileType === "participant" ? (
+            <div className="p-6">
+              <p className="text-gray-500">
+                You are not part of any experiment. Please contact the
+                experiment owner to join.
+              </p>
+            </div>
+          ) : (
+            <div className="p-6">
+              <p className="text-gray-500">No experiments found</p>
+              <Link
+                className="cursor-pointer font-semibold text-blue-500 mt-4 block"
+                href={"/experiments/create"}
+              >
+                Create your first experiment
+              </Link>
+            </div>
+          ))}
 
         {!loading && experiments.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
@@ -69,20 +82,29 @@ const Experiments = () => {
               >
                 <h2 className="text-lg font-semibold">{e.experiment.title}</h2>
                 <p className="text-gray-500">{e.experiment.description}</p>
-                <button
-                  type="button"
-                  href={`/experiments/${e.experiment.id}/timeline`}
-                  className="text-blue-500 hover:underline cursor-pointer"
-                  onClick={() => {
-                    useExperimentsStore.getState().setSelectedExperiment(e);
-
-                    setTimeout(() => {
-                      router.push(`/experiments/${e.experiment.id}/timeline`);
-                    }, 100);
-                  }}
-                >
-                  View Timeline
-                </button>
+                {user?.profile.profileType === "participant" ? (
+                  <Link
+                    className="cursor-pointer text-blue-500 mt-4 block"
+                    href={`/experiments/${e.experiment.id}/play`}
+                    target="_blank"
+                  >
+                    View Experiment
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    href={`/experiments/${e.experiment.id}/timeline`}
+                    className="text-blue-500 hover:underline cursor-pointer"
+                    onClick={() => {
+                      setTimeout(() => {
+                        NProgress.start();
+                        router.push(`/experiments/${e.experiment.id}/timeline`);
+                      }, 100);
+                    }}
+                  >
+                    View Timeline
+                  </button>
+                )}
               </div>
             ))}
           </div>

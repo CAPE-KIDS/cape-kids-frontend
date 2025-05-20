@@ -26,7 +26,7 @@ export function middleware(request: NextRequest) {
 
   if (isExpired) {
     redirect = true;
-    const response = NextResponse.redirect(new URL("/", request.url));
+    const response = NextResponse.redirect(new URL("/", request.url), 307);
     response.cookies.set("auth_token", "", { path: "/", maxAge: 0 });
     return response;
   }

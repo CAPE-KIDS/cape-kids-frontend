@@ -25,8 +25,8 @@ const TimelineView = () => {
   return (
     <div>
       <TimelineHeader
-        title={sourceData?.title || ""}
-        key={sourceData?.id || ""}
+        title={sourceData?.experiment.title || ""}
+        key={sourceData?.experiment.id || ""}
         onAddStep={() => useTimelineSidebar.getState().openSidebar(null)}
       />
       <TimelineEditor />

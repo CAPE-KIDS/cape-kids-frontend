@@ -1,37 +1,57 @@
 import { create } from "zustand";
 import { API } from "@/utils/api";
-import { ExperimentSchemaType } from "@shared/experiments";
+import { ExperimentSchemaWithTimelineType } from "@shared/experiments";
 import { toast } from "sonner";
+import { RestResponseSchemaType } from "@shared/apiResponse";
+import { useAuthStore } from "../auth/useAuthStore";
+import { ParticipantSchemaType } from "@shared/user";
 
 interface ExperimentsState {
-  experiments: ExperimentSchemaType[];
-  setExperiments: (experiments: ExperimentSchemaType[]) => void;
+  experiments: ExperimentSchemaWithTimelineType[];
+  setExperiments: (experiments: ExperimentSchemaWithTimelineType[]) => void;
   createExperiment: (
     token: string,
-    data: ExperimentSchemaType
-  ) => Promise<ExperimentSchemaType | null>;
-  getUserExperiments: (token: string) => Promise<ExperimentSchemaType[]>;
-  getExperimentById: (
-    id: string,
+    data: ExperimentSchemaWithTimelineType
+  ) => Promise<ExperimentSchemaWithTimelineType | null>;
+  getUserExperiments: (
     token: string
-  ) => Promise<ExperimentSchemaType>;
-  selectedExperiment: ExperimentSchemaType | null;
-  setSelectedExperiment: (experiment: ExperimentSchemaType | null) => void;
+  ) => Promise<ExperimentSchemaWithTimelineType[]>;
+  getExperimentById: (id: string) => Promise<RestResponseSchemaType>;
+  selectedExperiment: ExperimentSchemaWithTimelineType | null;
+  selectedExperimentParticipants: ParticipantSchemaType[];
+  setSelectedExperiment: (
+    experiment: ExperimentSchemaWithTimelineType | null
+  ) => void;
+  joinExperiment: (
+    experimentId: string,
+    userId: string,
+    accessCode: string
+  ) => Promise<RestResponseSchemaType>;
+  addParticipantToExperiment: (
+    experimentId: string,
+    userId: string
+  ) => Promise<RestResponseSchemaType>;
+  getExperimentParticipants: (
+    experimentId: string
+  ) => Promise<RestResponseSchemaType>;
   clearExperiments: () => void;
 }
 export const useExperimentsStore = create<ExperimentsState>((set, get) => ({
   experiments: [],
-  setExperiments: (experiments: ExperimentSchemaType[]) => {
+  setExperiments: (experiments: ExperimentSchemaWithTimelineType[]) => {
     set({ experiments });
   },
   selectedExperiment: null,
-  setSelectedExperiment: (experiment: ExperimentSchemaType | null) => {
+  selectedExperimentParticipants: [],
+  setSelectedExperiment: (
+    experiment: ExperimentSchemaWithTimelineType | null
+  ) => {
     set({ selectedExperiment: experiment });
   },
   createExperiment: async (
     token: string,
-    data: ExperimentSchemaType
-  ): Promise<ExperimentSchemaType | null> => {
+    data: ExperimentSchemaWithTimelineType
+  ): Promise<ExperimentSchemaWithTimelineType | null> => {
     const request = await fetch(API.CREATE_EXPERIMENT, {
       method: "POST",
       headers: {
@@ -78,16 +98,81 @@ export const useExperimentsStore = create<ExperimentsState>((set, get) => ({
     }
   },
 
-  getExperimentById: async (id: string, token: string) => {
+  getExperimentById: async (id: string) => {
+    const { authState } = useAuthStore.getState();
     const request = await fetch(`${API.EXPERIMENT_BY_ID(id)}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${authState.token}`,
       },
     });
 
     const response = await request.json();
+    return response;
+  },
+
+  joinExperiment: async (
+    experimentId: string,
+    userId: string,
+    accessCode: string
+  ) => {
+    const { authState } = useAuthStore.getState();
+
+    const request = await fetch(API.JOIN_EXPERIMENT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authState.token}`,
+      },
+      body: JSON.stringify({
+        experimentId,
+        userId,
+        accessCode,
+      }),
+    });
+
+    const response = await request.json();
+    return response;
+  },
+
+  addParticipantToExperiment: async (experimentId: string, userId: string) => {
+    const { authState } = useAuthStore.getState();
+
+    const request = await fetch(API.ADD_EXPERIMENT_PARTICIPANT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authState.token}`,
+      },
+      body: JSON.stringify({
+        experimentId,
+        userId,
+      }),
+    });
+
+    const response = await request.json();
+    return response;
+  },
+
+  getExperimentParticipants: async (experimentId: string) => {
+    const { authState } = useAuthStore.getState();
+
+    const request = await fetch(
+      `${API.GET_EXPERIMENT_PARTICIPANTS(experimentId)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authState.token}`,
+        },
+      }
+    );
+
+    const response = await request.json();
+    if (!response.error) {
+      set({ selectedExperimentParticipants: response.data });
+    }
     return response;
   },
   clearExperiments: () => set({ experiments: [], selectedExperiment: null }),

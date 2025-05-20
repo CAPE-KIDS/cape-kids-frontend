@@ -8,14 +8,19 @@ import {
 } from "@shared/experiments";
 import { TrainingSchemaType } from "@shared/training";
 import { TaskSchemaType } from "@shared/task";
-import { TimelineStep } from "@shared/timeline";
+import { TimelineSchemaType, TimelineStep } from "@shared/timeline";
 import { RestResponseSchemaType } from "@shared/apiResponse";
 import _ from "lodash";
 import { useAuthStore } from "../auth/useAuthStore";
 import { StepConnectionSchemaType } from "@shared/stepConnections";
+import { toast } from "sonner";
+
+let debouncedUpdate: (...args: any[]) => void;
 
 type SourceDataType = ExperimentSchemaWithTimelineType | null;
 interface TimelineState {
+  timelineId: string;
+  timeline: TimelineSchemaType;
   sourceData: SourceDataType;
   steps: TimelineStep[];
   connections: StepConnectionSchemaType[];
@@ -28,12 +33,11 @@ interface TimelineState {
   setError: (error: string | null) => void;
   formatToTimeline: (data?: SourceDataType) => Promise<void>;
   updateSteps: (updatedStep: TimelineStep) => void;
-  removeStep: (stepId: string) => void;
+  removeStep: (stepId: string) => Promise<void>;
   formatNodes: () => Node[];
   formatedEdges: () => Edge[];
   edgesSaved: boolean;
   setEdgesSaved: (edgesSaved: boolean) => void;
-  directConnections: () => any[];
   // requests api
   saveStep: (
     step: TimelineStep,
@@ -42,11 +46,18 @@ interface TimelineState {
   ) => Promise<RestResponseSchemaType>;
 
   saveConnections: () => void;
-
+  getTimelineBySourceId: (sourceId: string) => Promise<RestResponseSchemaType>;
+  recalculateOrderFromEdges: (
+    edges: Edge[],
+    nodes: Node[]
+  ) => { id: string; orderIndex: number }[];
+  updateEdgesAndNodes: (edges: Edge[], nodes: Node[]) => void;
   resetTimeline: () => void;
 }
 
 export const useTimelineStore = create<TimelineState>((set, get) => ({
+  timelineId: "",
+  timeline: {} as TimelineSchemaType,
   sourceData: null,
   steps: [],
   connections: [],
@@ -62,16 +73,11 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   setError: (error) => set({ error }),
   formatToTimeline: async (data) => {
     set({ loading: true, error: null });
-    const formatedSourceData = {
-      ...(data?.experiment as ExperimentSchemaType),
-      timeline: data.timeline,
-      connections: data.connections,
-    };
-
-    set({ sourceData: formatedSourceData });
-    set({ steps: formatedSourceData?.timeline?.steps || [] });
-    set({ connections: formatedSourceData?.timeline?.step_connections || [] });
-
+    set({ sourceData: data });
+    set({ steps: data?.timeline?.steps || [] });
+    set({ connections: data?.timeline?.step_connections || [] });
+    set({ timelineId: data?.timeline?.id || "" });
+    set({ timeline: data?.timeline || {} });
     get().formatNodes();
     get().formatedEdges();
     set({ loading: false });
@@ -109,8 +115,27 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     get().formatedEdges();
   },
 
-  removeStep: (stepId: string) => {
+  removeStep: async (stepId: string) => {
     const { steps, connections } = get();
+    set({ loading: true });
+
+    const request = await fetch(API.DELETE_STEP(stepId), {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${useAuthStore.getState().authState.token}`,
+      },
+    });
+    const response = await request.json();
+    if (response.error) {
+      toast.success(response.error);
+      set({ error: response.error });
+      set({ loading: false });
+      return;
+    }
+
+    set({ error: null });
+    set({ loading: false });
+    toast.success("Step deleted successfully");
     const updatedSteps = steps.filter((step) => step.id !== stepId);
 
     const updatedConnections = connections.filter(
@@ -122,21 +147,32 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       connections: updatedConnections,
     });
 
-    get().formatNodeAndEdgeData();
+    get().formatNodes();
+    get().formatedEdges();
   },
 
   formatNodes: () => {
     const { steps } = get();
-    const formatedNodes = steps.map((step, index) => {
+
+    const nodeWidth = 180;
+    const nodeHeight = 100;
+    const verticalSpacing = 50;
+    const horizontalSpacing = 100;
+    const groupSize = 3;
+    const stepsOrderedByIndex = _.orderBy(steps, ["orderIndex"], ["asc"]);
+    const formatedNodes = stepsOrderedByIndex.map((step, index) => {
+      const groupIndex = Math.floor(index / groupSize);
+      const positionInGroup = index % groupSize;
+
+      const x = groupIndex * (nodeWidth + horizontalSpacing);
+      const y = positionInGroup * (nodeHeight + verticalSpacing);
+
       const stepType = step.type;
 
       return {
         id: step.id,
-        type: "custom", // related to the CustomNode component not to the type of step
-        position: {
-          x: step.metadata.positionX,
-          y: step.metadata.positionY,
-        },
+        type: "custom",
+        position: { x, y },
         data: {
           label: step.metadata.title,
           step: step.orderIndex,
@@ -154,73 +190,47 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     set({
       nodes: [...formatedNodes],
     });
+
     return formatedNodes;
   },
 
-  directConnections: () => {
-    const { sourceData } = get();
-
-    if (!sourceData) return [];
-    const order = [] as any[];
-    sourceData.timeline.steps?.forEach((step: TimelineStep, index) => {
-      if (index === sourceData.timeline.steps.length - 1) return;
-      const object = {
-        id: crypto.randomUUID(),
-        timelineId: sourceData.timeline.id,
-        fromStepId: step.id,
-        toStepId: sourceData?.timeline?.steps[index + 1]?.id,
-        condition: "",
-      };
-      order.push(object);
-    });
-    set({ connections: order });
-    return order;
-  },
-
   formatedEdges: () => {
-    const {
-      connections,
-      directConnections,
-      saveConnections,
-      edgesSaved,
-      setEdgesSaved,
-    } = get();
-
-    let isToSave = false;
-    let connectionsToUse = connections;
-    if (connectionsToUse.length > 0) {
-      setEdgesSaved(true);
-      isToSave = false;
+    const { connections, timeline } = get();
+    console.log("timeline", timeline);
+    console.log("sourceData", get().sourceData);
+    if (!connections.length) {
+      console.warn(
+        "Nenhuma conexão carregada do backend. Evitando fallback automático."
+      );
+      set({ edges: [] });
+      return [];
     }
 
-    if (!connectionsToUse || connectionsToUse.length === 0) {
-      connectionsToUse = directConnections();
-      isToSave = true;
-    }
-
-    const formatedEdges = connectionsToUse.map((connection) => {
-      return {
-        id: connection.id,
-        source: connection.fromStepId,
-        target: connection.toStepId,
-        type: "custom", // related to the CustomEdge component not to the type of step
-      };
-    });
+    const formatedEdges = connections.map((connection) => ({
+      id: connection.id,
+      source: connection.fromStepId,
+      target: connection.toStepId,
+      type: "custom",
+    })) as Edge[];
 
     set({ edges: formatedEdges });
-
-    if (!edgesSaved && isToSave) {
-      const response = saveConnections();
-      if (!response.error) {
-        setEdgesSaved(true);
-      }
-    }
     return formatedEdges;
   },
 
   // requests api
 
   saveStep: async (step, token, stepFiles) => {
+    const { sourceData, timelineId, getTimelineBySourceId } = get();
+    let timelineDataId = timelineId;
+    if (!timelineDataId) {
+      const response = await getTimelineBySourceId(sourceData?.id as string);
+      if (response.error) {
+        set({ error: response.message });
+        set({ loading: false });
+        return;
+      }
+      timelineDataId = response.data.id;
+    }
     const formData = new FormData();
 
     const blocks = step.metadata.blocks?.map((block) => {
@@ -262,7 +272,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     }
 
     const stepData = {
-      timelineId: step.timelineId,
+      timelineId: timelineDataId,
       orderIndex: step.orderIndex || null,
       type: step.type,
       taskVersionId: step?.taskVersionId || null,
@@ -320,6 +330,89 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
 
     const response = await request.json();
     return response;
+  },
+
+  getTimelineBySourceId: async (sourceId: string) => {
+    const request = await fetch(API.GET_TIMELINE_ID_BY_SOURCE_ID(sourceId), {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${useAuthStore.getState().authState.token}`,
+      },
+    });
+    const response = await request.json();
+
+    return response;
+  },
+
+  recalculateOrderFromEdges(edges: Edge[], nodes: Node[]) {
+    const nodeMap = _.keyBy(nodes, "id");
+    const edgesMap = _.groupBy(edges, "source");
+
+    const visited = new Set<string>();
+    const ordered: { id: string; orderIndex: number }[] = [];
+    let index = 1;
+
+    function visit(nodeId: string) {
+      if (visited.has(nodeId)) return;
+      visited.add(nodeId);
+      ordered.push({ id: nodeId, orderIndex: index++ });
+      const nextEdges = edgesMap[nodeId] || [];
+      nextEdges.forEach((e) => visit(e.target));
+    }
+
+    const targetIds = new Set(edges.map((e) => e.target));
+    const startNodes = nodes.filter((n) => !targetIds.has(n.id));
+
+    const nodesToVisit = startNodes.length ? startNodes : nodes;
+
+    nodesToVisit.forEach((n) => visit(n.id));
+
+    nodes.forEach((n) => {
+      if (!visited.has(n.id)) {
+        ordered.push({ id: n.id, orderIndex: index++ });
+      }
+    });
+
+    return ordered;
+  },
+
+  updateEdgesAndNodes: (edges: Edge[], nodes: Node[]) => {
+    if (!debouncedUpdate) {
+      debouncedUpdate = _.debounce(async (edges: Edge[], nodes: Node[]) => {
+        const { timelineId } = get();
+        const updatedEdges = edges.map((edge) => ({
+          id: edge.id.includes("xy-edge") ? null : edge.id,
+          fromStepId: edge.source,
+          toStepId: edge.target,
+          condition: "",
+        }));
+
+        const ordered = get().recalculateOrderFromEdges(edges, nodes);
+
+        const request = await fetch(API.UPDATE_CONNECTIONS, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${useAuthStore.getState().authState.token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            timelineId,
+            steps: ordered,
+            connections: updatedEdges,
+          }),
+        });
+
+        const response = await request.json();
+        if (response.error) {
+          set({ error: response.message });
+          return;
+        }
+
+        set({ error: null });
+      }, 100);
+    }
+
+    debouncedUpdate(edges, nodes);
   },
 
   resetTimeline: () => {

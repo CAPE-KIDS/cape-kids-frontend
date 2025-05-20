@@ -67,7 +67,7 @@ export const options: Option[] = [
 
 const TimelineSidebar = () => {
   const { token } = useAuth();
-  const { steps, sourceData, updateSteps, removeStep, saveStep } =
+  const { steps, sourceData, updateSteps, removeStep, saveStep, timelineId } =
     useTimelineStore();
   const { sidebarOpen, currentStep, closeSidebar } = useTimelineSidebar();
 
@@ -101,7 +101,6 @@ const TimelineSidebar = () => {
     if (!token) return;
 
     const { title, type } = getValues();
-    const timelineId = sourceData.timeline.id;
     const positions = currentStep
       ? {
           index: currentStep.orderIndex,
@@ -142,10 +141,10 @@ const TimelineSidebar = () => {
     clearEditor();
   };
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
     if (!currentStep) return;
-    removeStep(currentStep.id);
-    toast.success("Step removed!");
+
+    await removeStep(currentStep.id);
     closeSidebar();
     clearEditor();
     reset();

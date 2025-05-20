@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import ModalBase from "../../ModalBase";
+import ModalBase from "../../modals/ModalBase";
 import { useStimuliModal } from "@/stores/timeline/blockTypes/stimuliModalStore";
 import { MediaTypeBlocks } from "@/modules/media/components/MediaTypeBlocks";
 import SequentialStimuliConfigForm from "./SequentialStimuliConfigForm";

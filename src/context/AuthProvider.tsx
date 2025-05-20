@@ -2,14 +2,13 @@
 
 import { createContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { User } from "@/types/User";
 import { API } from "@/utils/api";
 import { RestResponseSchemaType } from "@shared/apiResponse";
-import { RegisterSchemaType } from "@shared/user";
+import { RegisterSchemaType, UserSchemaType } from "@shared/user";
 import { useAuthStore } from "@/stores/auth/useAuthStore";
 
 export type AuthContextType = {
-  user: User | null;
+  user: UserSchemaType | null;
   token: string | null;
   login: (
     email: string,
@@ -78,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     localStorage.removeItem("user");
     setUser(null);
-    router.push("/");
+    window.location.href = "/";
   };
 
   const register = async (data: RegisterSchemaType) => {

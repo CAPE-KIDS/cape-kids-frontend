@@ -22,16 +22,20 @@ const TimelineEditor = () => {
     edges: timelineEdges,
     steps,
     sourceData,
+    updateEdgesAndNodes,
   } = useTimelineStore();
   const [nodes, setNodes, onNodesChange] = useNodesState(timelineNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(timelineEdges);
 
-  const onConnect = (params: Connection) => {
+  const onConnect = async (params: Connection) => {
     setEdges((eds) => {
       const filtered = eds.filter(
         (e) => e.source !== params.source && e.target !== params.target
       );
-      return addEdge({ ...params, type: "custom" }, filtered);
+      const updatedEdges = addEdge({ ...params, type: "custom" }, filtered);
+      updateEdgesAndNodes(updatedEdges, nodes);
+
+      return updatedEdges;
     });
   };
 

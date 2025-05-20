@@ -1,5 +1,5 @@
 import React from "react";
-import ModalBase from "../../../../components/ModalBase";
+import ModalBase from "../../../../components/modals/ModalBase";
 
 interface Props {
   onClose: () => void;

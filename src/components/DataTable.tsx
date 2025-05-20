@@ -7,7 +7,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { MoreVertical } from "lucide-react";
+import { CirclePlus, MoreVertical } from "lucide-react";
 
 type Header = {
   key: string;
@@ -23,6 +23,8 @@ type DataTableProps = {
   rows: Row[];
   withQuickActions?: boolean;
   actions?: { label: string; onClick: (row: Row) => void }[];
+  withAddButton?: boolean;
+  addAction?: (id: string | number) => void;
   onReorder?: (newOrder: (string | number)[]) => void;
 };
 
@@ -32,6 +34,8 @@ const DataTable: React.FC<DataTableProps> = ({
   withQuickActions = false,
   actions = [],
   onReorder,
+  withAddButton = false,
+  addAction,
 }) => {
   const [openRowId, setOpenRowId] = useState<string | number | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -112,6 +116,8 @@ const DataTable: React.FC<DataTableProps> = ({
                       openRowId={openRowId}
                       setOpenRowId={setOpenRowId}
                       dropdownRef={dropdownRef}
+                      withAddButton={withAddButton}
+                      addAction={addAction}
                     />
                   );
                 })}
@@ -134,6 +140,8 @@ type DataRowProps = {
   openRowId: string | number | null;
   setOpenRowId: (id: string | number | null) => void;
   dropdownRef: React.RefObject<HTMLDivElement>;
+  withAddButton: boolean;
+  addAction: (id: string | number) => void;
 };
 
 const DataRow: React.FC<DataRowProps> = ({
@@ -144,6 +152,8 @@ const DataRow: React.FC<DataRowProps> = ({
   openRowId,
   setOpenRowId,
   dropdownRef,
+  withAddButton,
+  addAction,
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: row.id });
@@ -199,6 +209,23 @@ const DataRow: React.FC<DataRowProps> = ({
                 ))}
               </div>
             )}
+          </div>
+        </td>
+      )}
+
+      {withAddButton && (
+        <td className="px-4 py-3 text-right">
+          <div
+            className="inline-block"
+            ref={openRowId === row.id ? dropdownRef : null}
+          >
+            <button
+              type="button"
+              onClick={() => addAction(row.id)}
+              className="text-gray-400 hover:text-gray-600 cursor-pointer"
+            >
+              <CirclePlus size={16} />
+            </button>
           </div>
         </td>
       )}

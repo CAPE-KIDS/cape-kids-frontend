@@ -50,7 +50,6 @@ const CreateExperiments = () => {
   };
 
   const generateCode = async () => {
-    console.log("token", token);
     if (watch("accessCode") || !token) return;
 
     const request = await fetch(API.GENERATE_ACCESS_CODE, {
