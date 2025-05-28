@@ -223,7 +223,7 @@ const ExperimentParticipants = () => {
               {
                 label: "Remove",
                 onClick: async (row) =>
-                  await removeParticipantFromExperiment(row.id),
+                  await removeParticipantFromExperiment(`${row.id}`),
               },
             ]}
             onReorder={(newOrder) => console.log("Reordered: ", newOrder)}

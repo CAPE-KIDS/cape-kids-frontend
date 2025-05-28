@@ -51,7 +51,9 @@ const CreateExperimentsTimeline = () => {
 
     fetchTasks();
 
-    const selected = experiments.find((exp) => exp.id === experimentId);
+    const selected = experiments.find(
+      (exp) => exp.experiment.id === experimentId
+    );
 
     if (selected) {
       formatToTimeline(selected);

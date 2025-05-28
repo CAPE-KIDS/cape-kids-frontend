@@ -99,7 +99,6 @@ const Experiments = () => {
                 ) : (
                   <button
                     type="button"
-                    href={`/experiments/${e.experiment.id}/timeline`}
                     className="text-blue-500 hover:underline cursor-pointer"
                     onClick={() => {
                       setTimeout(() => {

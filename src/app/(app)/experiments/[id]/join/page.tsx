@@ -55,7 +55,7 @@ const ExperimentParticipantJoin = () => {
   const handleJoin = async () => {
     if (!authState.user?.id) return;
 
-    if (accessCode === selectedExperiment.experiment.accessCode) {
+    if (accessCode === selectedExperiment?.experiment.accessCode) {
       const response = await joinExperiment(
         experimentId,
         authState.user.id,

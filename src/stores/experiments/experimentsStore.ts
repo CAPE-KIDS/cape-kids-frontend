@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { API } from "@/utils/api";
-import { ExperimentSchemaWithTimelineType } from "@shared/experiments";
+import {
+  CreateExperimentSchemaType,
+  ExperimentSchemaWithTimelineType,
+} from "@shared/experiments";
 import { toast } from "sonner";
 import { RestResponseSchemaType } from "@shared/apiResponse";
 import { useAuthStore } from "../auth/useAuthStore";
@@ -11,8 +14,8 @@ interface ExperimentsState {
   setExperiments: (experiments: ExperimentSchemaWithTimelineType[]) => void;
   createExperiment: (
     token: string,
-    data: ExperimentSchemaWithTimelineType
-  ) => Promise<ExperimentSchemaWithTimelineType | null>;
+    data: CreateExperimentSchemaType
+  ) => Promise<RestResponseSchemaType>;
   getUserExperiments: (
     token: string
   ) => Promise<ExperimentSchemaWithTimelineType[]>;
@@ -48,10 +51,7 @@ export const useExperimentsStore = create<ExperimentsState>((set, get) => ({
   ) => {
     set({ selectedExperiment: experiment });
   },
-  createExperiment: async (
-    token: string,
-    data: ExperimentSchemaWithTimelineType
-  ): Promise<ExperimentSchemaWithTimelineType | null> => {
+  createExperiment: async (token, data) => {
     const request = await fetch(API.CREATE_EXPERIMENT, {
       method: "POST",
       headers: {

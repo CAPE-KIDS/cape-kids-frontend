@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 let debouncedUpdate: (...args: any[]) => void;
 
-type SourceDataType = ExperimentSchemaWithTimelineType | null;
+type SourceDataType = ExperimentSchemaWithTimelineType | TaskSchemaType | null;
 interface TimelineState {
   timelineId: string;
   timeline: TimelineSchemaType;

@@ -18,13 +18,13 @@ import NProgress from "nprogress";
 // Schema de validação
 const CreateTasksTimeline = () => {
   const { token } = useAuth();
-  const { formatToTimeline, edges, steps, setLoading } = useTimelineStore();
+  const { formatToTimeline, edges, steps, setLoading, resetTimeline } =
+    useTimelineStore();
   const { selectedTask, setSelectedTask, getTaskById, tasks, setTasks } =
     useTasksStore();
   const router = useRouter();
   const params = useParams();
   const taskId = params.id as string;
-  const [fetched, setFetched] = useState(false);
   const { authState } = useAuthStore();
   const [localSteps, setLocalSteps] = useState<TimelineStep[]>(steps);
 
@@ -33,22 +33,20 @@ const CreateTasksTimeline = () => {
     if (task) {
       setSelectedTask(task.data);
       formatToTimeline(task.data);
-      setFetched(true);
     }
   };
 
   useEffect(() => {
     if (!authState.token) return;
-    const selected = tasks.find((task) => task.id === taskId);
-
-    if (selected) {
-      formatToTimeline(selected);
-      return;
-    }
 
     fetchTask();
-    return;
   }, [taskId, authState]);
+
+  useEffect(() => {
+    return () => {
+      resetTimeline();
+    };
+  }, []);
 
   const refreshTask = async () => {
     setLoading(true);

@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { API } from "@/utils/api";
-import { TaskSchemaWithTimelineType } from "@shared/tasks";
+import {
+  CreateTaskSchemaType,
+  TaskSchemaWithTimelineType,
+} from "@shared/tasks";
 import { toast } from "sonner";
 import { RestResponseSchemaType } from "@shared/apiResponse";
 import { useAuthStore } from "../auth/useAuthStore";
@@ -9,9 +12,7 @@ import { ParticipantSchemaType } from "@shared/user";
 interface TasksState {
   tasks: TaskSchemaWithTimelineType[];
   setTasks: (tasks: TaskSchemaWithTimelineType[]) => void;
-  createTask: (
-    data: TaskSchemaWithTimelineType
-  ) => Promise<RestResponseSchemaType>;
+  createTask: (data: CreateTaskSchemaType) => Promise<RestResponseSchemaType>;
   getUserTasks: (token: string) => Promise<RestResponseSchemaType>;
   getTaskById: (id: string) => Promise<RestResponseSchemaType>;
   selectedTask: TaskSchemaWithTimelineType | null;
@@ -30,9 +31,7 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   setSelectedTask: (task: TaskSchemaWithTimelineType | null) => {
     set({ selectedTask: task });
   },
-  createTask: async (
-    data: TaskSchemaWithTimelineType
-  ): Promise<TaskSchemaWithTimelineType> => {
+  createTask: async (data) => {
     const { authState } = useAuthStore.getState();
     const request = await fetch(API.CREATE_TASK, {
       method: "POST",
