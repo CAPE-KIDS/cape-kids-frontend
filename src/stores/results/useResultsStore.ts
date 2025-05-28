@@ -12,6 +12,7 @@ export interface Interaction {
 
 export interface StepResult {
   stepId: string;
+  timelineStepId?: string;
   stepType: string;
   startedAt: number;
   completedAt?: number;
@@ -22,29 +23,48 @@ export interface StepResult {
 interface ResultsState {
   results: StepResult[];
   currentResult: StepResult | null;
+  wrongCount: number;
+  addWrongCount: () => void;
+  resetWrongCount: () => void;
   activeResultId: string | null;
+  isLastCorrect: boolean | null;
+  setIsLastCorrect: (isCorrect: boolean | null) => void;
   startTime: number | null;
   showTryAgain: boolean;
   showTryAgainTimeout: NodeJS.Timeout | null;
   setShowTryAgain: (delay: number) => void;
-  startStepResult: (stepId: string, stepType: string) => void;
+  startStepResult: (
+    stepId: string,
+    timelineId: string,
+    stepType: string
+  ) => void;
   completeStepResult: () => void;
-  updateCurrentResult: (patch: Partial<StepResult>) => void;
+  updateCurrentResult: (
+    patch: Partial<StepResult>,
+    callback?: () => void
+  ) => void;
   captureInteraction: (interaction: Interaction) => void;
   clearResults: () => void;
+  setCurrentResultRightResponse: () => void;
 }
 
 export const useResultsStore = create<ResultsState>((set, get) => ({
   results: [],
   currentResult: null,
+  wrongCount: 0,
+  isLastCorrect: null,
+  setIsLastCorrect: (isCorrect) => {
+    set({ isLastCorrect: isCorrect });
+  },
   activeResultId: null,
   startTime: null,
   showTryAgain: false,
   showTryAgainTimeout: null,
-  startStepResult: (stepId, stepType) => {
+  startStepResult: (stepId, timelineId, stepType) => {
     const now = Date.now();
     const newResult: StepResult = {
       stepId,
+      timelineStepId: timelineId,
       stepType,
       startedAt: now,
       interactions: [],
@@ -57,6 +77,14 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
     });
   },
 
+  addWrongCount: () => {
+    set((state) => ({
+      wrongCount: state.wrongCount + 1,
+    }));
+  },
+  resetWrongCount: () => {
+    set({ wrongCount: 0 });
+  },
   completeStepResult: () => {
     const { currentResult, results } = get();
 
@@ -75,8 +103,20 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
       startTime: null,
     });
   },
+  setCurrentResultRightResponse: () => {
+    set((state) => {
+      if (!state.currentResult) return {};
+      console.log("Setting current result as correct");
+      return {
+        currentResult: {
+          ...state.currentResult,
+          isCorrect: true,
+        },
+      };
+    });
+  },
 
-  updateCurrentResult: (partial) => {
+  updateCurrentResult: (partial, callback) => {
     set((state) => {
       if (!state.currentResult) return {};
 
@@ -87,6 +127,7 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
         },
       };
     });
+    callback && callback();
   },
 
   captureInteraction: (interaction) => {

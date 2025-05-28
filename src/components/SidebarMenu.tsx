@@ -13,10 +13,12 @@ import {
   CircleUser,
   LogOut,
   ChevronLeft,
+  ClipboardList,
 } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/router";
+import { useAuthStore } from "@/stores/auth/useAuthStore";
 
 type MenuItemProps = {
   title: string;
@@ -24,16 +26,8 @@ type MenuItemProps = {
   url: string;
   onClick?: () => void;
   collapsed: boolean;
+  adminOnly?: boolean;
 };
-
-const menuItems = [
-  { title: "Dashboard", icon: LayoutDashboard, url: "/dashboard" },
-  { title: "Experiments", icon: Microscope, url: "/experiments" },
-  { title: "Trainings", icon: Brain, url: "/trainings" },
-  { title: "Participants", icon: Users, url: "/participants" },
-  { title: "Reports", icon: FileChartColumn, url: "/reports" },
-  { title: "Settings", icon: Settings, url: "/settings" },
-];
 
 function MenuItem({
   title,
@@ -41,7 +35,9 @@ function MenuItem({
   url,
   onClick,
   collapsed,
+  adminOnly = false,
 }: MenuItemProps) {
+  const { authState } = useAuthStore();
   const pathname = usePathname();
   const isActive = pathname.startsWith(url);
 
@@ -50,6 +46,9 @@ function MenuItem({
       ? "bg-blue-700 text-white font-semibold"
       : "text-white hover:bg-blue-600"
   } ${collapsed && "overflow-hidden w-12"}`;
+
+  if (authState.user?.profile.profileType === "participant" && adminOnly)
+    return null;
 
   if (onClick) {
     return (
@@ -85,7 +84,18 @@ function MenuItem({
 
 export default function SidebarMenu() {
   const [collapsed, setCollapsed] = useState(false);
-  const { logout } = useAuth();
+  const { authState } = useAuthStore();
+
+  const menuItems = [
+    { title: "Dashboard", icon: LayoutDashboard, url: "/dashboard" },
+    { title: "Experiments", icon: Microscope, url: "/experiments" },
+    { title: "Trainings", icon: Brain, url: "/trainings" },
+    { title: "Tasks", icon: ClipboardList, url: "/tasks", adminOnly: true },
+    { title: "Participants", icon: Users, url: "/participants" },
+    { title: "Reports", icon: FileChartColumn, url: "/reports" },
+    { title: "Settings", icon: Settings, url: "/settings" },
+  ];
+
   const configItems = [
     { title: "Account", icon: CircleUser, url: "/account" },
     {
@@ -93,7 +103,7 @@ export default function SidebarMenu() {
       icon: LogOut,
       url: "/logout",
       onClick: () => {
-        logout();
+        authState.logout();
       },
     },
   ];

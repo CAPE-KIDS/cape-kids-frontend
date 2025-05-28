@@ -1,40 +1,108 @@
-import React, { useEffect, useState } from "react";
+"use client";
+
+import React, { useEffect, useRef, useState } from "react";
 import { useCanvasStore } from "../store/useCanvasStore";
 import { StepResult, useResultsStore } from "@/stores/results/useResultsStore";
 import { Tooltip } from "@/components/Tooltip";
+import { useAuthStore } from "@/stores/auth/useAuthStore";
+import { usePathname } from "next/navigation";
+import { API } from "@/utils/api";
+import { toast } from "sonner";
 
 const SaveScreen = () => {
-  const { steps, activeStepId } = useCanvasStore();
+  const { authState } = useAuthStore();
+  const path = usePathname();
+  const { steps } = useCanvasStore();
   const { results } = useResultsStore();
-  const [status, setStatus] = useState<"saving" | "done">("saving");
+
+  const [status, setStatus] = useState<"saving" | "done" | null>(null);
   const [filteredResults, setFilteredResults] = useState<StepResult[]>([]);
+
+  const hasSavedRef = useRef(false);
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   const filteredSteps = steps.filter(
     (s) =>
-      s.metadata?.blocks?.[0]?.type !== "feedback" &&
-      s.metadata?.blocks?.[0]?.type !== "save"
+      !s.metadata?.blocks?.some(
+        (b) => b.type === "feedback" || b.type === "save"
+      )
   );
 
-  useEffect(() => {
-    if (results.length !== filteredSteps.length) return;
+  const saveResults = async () => {
+    if (hasSavedRef.current) return;
+    hasSavedRef.current = true;
+    setStatus("saving");
 
-    const timeout = setTimeout(() => {
-      setStatus("done");
+    const allResults = results.filter((result) => {
+      const step = filteredSteps.find((s) => s.id === result.stepId);
 
-      const filteredResults = results.filter((result) => {
-        const step = filteredSteps.find((s) => s.id === result.stepId);
-        return step && step.metadata?.blocks?.[0]?.type !== "inter_stimulus";
-      });
-      setFilteredResults(filteredResults);
-
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch((err) => {
-          console.warn("Falha ao sair do modo fullscreen:", err);
-        });
+      if (step?.type === "multi_trigger_stimuli") {
+        const hasMultipleTriggers = step?.metadata?.blocks?.some(
+          (block) => block.triggers && block.triggers.length > 1
+        );
+        if (!hasMultipleTriggers) return false;
       }
-    }, 2000);
 
-    return () => clearTimeout(timeout);
+      return step && step.metadata?.blocks?.[0]?.type !== "inter_stimulus";
+    });
+
+    const formatedResults = allResults.map((result) => ({
+      timelineStepId: result.timelineStepId,
+      startedAt: result.startedAt,
+      completedAt: result.completedAt,
+      metadata: {
+        stepType: result.stepType,
+        isCorrect: result.isCorrect,
+        interactions: result.interactions,
+      },
+    }));
+
+    if (!path.includes("preview")) {
+      try {
+        const request = await fetch(API.SAVE_RESULTS, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authState.token}`,
+          },
+          body: JSON.stringify(formatedResults),
+        });
+
+        const response = await request.json();
+
+        if (response.error) {
+          toast("Erro ao salvar resultados:", {
+            description: response.message,
+          });
+        } else if (response.data) {
+          toast("Resultados salvos com sucesso!");
+        } else {
+          toast("Nenhum resultado para salvar.");
+        }
+      } catch (err) {
+        console.error(err);
+        toast("Erro ao salvar resultados.");
+      }
+    }
+
+    setFilteredResults(allResults);
+    setStatus("done");
+
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch((err) => {
+        console.warn("Falha ao sair do modo fullscreen:", err);
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!results || results.length === 0 || hasSavedRef.current) return;
+
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    debounceTimer.current = setTimeout(() => {
+      saveResults();
+    }, 1000);
   }, [results]);
 
   const renderTable = () => (
@@ -55,37 +123,33 @@ const SaveScreen = () => {
             const endedByTimeout = last?.type === "timer";
             const duration = step.completedAt - step.startedAt;
             return (
-              <tr key={step.stepId} className="text-sm">
+              <tr key={`${step.stepId}-${i}`} className="text-sm">
                 <td className="border p-2">#{i + 1}</td>
                 <td className="border p-2">{duration}ms</td>
                 <td className="border p-2">
                   {step.interactions.length === 0
                     ? "Nenhuma"
                     : step.interactions
-                        .map((ia, idx) => {
-                          if (ia.type === "click") {
+                        .map((ia) => {
+                          if (ia.type === "click")
                             return `Click - Target: ${ia.target}`;
-                          } else if (ia.type === "keydown") {
+                          if (ia.type === "keydown")
                             return `(Keypress) ${ia.key}`;
-                          } else if (ia.type === "timer") {
-                            return `(timer)`;
-                          } else if (ia.type === "trigger") {
-                            return `Trigger`;
-                          } else {
-                            return ia.type;
-                          }
+                          if (ia.type === "timer") return `(timer)`;
+                          if (ia.type === "trigger") return `Trigger`;
+                          return ia.type;
                         })
                         .join(", ")}
                 </td>
                 <td className="border p-2">
-                  {endedByTimeout ? "Timeout" : `Participant`}
+                  {endedByTimeout ? "Timeout" : "Participant"}
                 </td>
                 <td className="border p-2">
                   {step.stepType === "custom_block" ? (
                     <div>
                       Not evaluated{" "}
                       <Tooltip>
-                        Results area evaluated only for stimulus and tasks.
+                        Results are evaluated only for stimulus and tasks.
                       </Tooltip>
                     </div>
                   ) : step.isCorrect ? (
@@ -109,14 +173,19 @@ const SaveScreen = () => {
       data-block-id="SaveScreen"
     >
       {status === "saving" ? (
-        <p className="text-xl font-medium">Saving results...</p>
-      ) : (
+        <div className="flex flex-col items-center gap-2">
+          <div className="animate-spin h-6 w-6 border-4 border-gray-300 border-t-black rounded-full" />
+          <p className="text-xl font-medium">Salvando resultados...</p>
+        </div>
+      ) : status === "done" ? (
         <>
-          <p className="text-xl font-medium">✅ Results saved successfully!</p>
-          <p className="mt-2 text-gray-600">You can close this window.</p>
+          <p className="text-xl font-medium">
+            ✅ Resultados salvos com sucesso!
+          </p>
+          <p className="mt-2 text-gray-600">Você já pode fechar essa janela.</p>
           {renderTable()}
         </>
-      )}
+      ) : null}
     </div>
   );
 };

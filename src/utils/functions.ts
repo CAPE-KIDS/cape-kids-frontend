@@ -1,11 +1,9 @@
 import { MediaBlock } from "@/modules/media/types";
-import {
-  StimuliBlockConfig,
-  StimuliGroup,
-  TimelineStep,
-} from "@/modules/timeline/types";
+import { StimuliBlockConfig, StimuliGroup } from "@/modules/timeline/types";
 import { Trigger } from "@/modules/triggers/types";
-import _, { has } from "lodash";
+import { TimelineStep } from "@shared/timeline";
+import _ from "lodash";
+import { API } from "@/utils/api";
 
 export const getRelativeSize = (px: number, total: number) => {
   return (px / total) * 100;
@@ -15,71 +13,153 @@ export const getAbsoluteSize = (px: number, total: number) => {
   return (px * total) / 100;
 };
 
-export const compileTimeline = (steps: TimelineStep[]): TimelineStep[] => {
-  steps.sort((a, b) => a.orderIndex - b.orderIndex);
+export const preloadImagesFromTimeline = async (
+  steps: TimelineStep[]
+): Promise<void> => {
+  const imageUrls = new Set<string>();
+
+  for (const step of steps) {
+    const blocks = step.metadata?.blocks || [];
+
+    for (const block of blocks) {
+      if (block.type === "image" && block.data?.src) {
+        imageUrls.add(block.data.src);
+      }
+    }
+  }
+
+  console.log("Preloading images:", Array.from(imageUrls));
+  await Promise.all(
+    Array.from(imageUrls).map(
+      (src) =>
+        new Promise<void>((resolve) => {
+          const img = new Image();
+          img.src = src;
+          img.onload = () => resolve();
+          img.onerror = () => {
+            console.warn("Failed to preload image:", src);
+            resolve();
+          };
+        })
+    )
+  );
+};
+
+export const compileTimeline = async (
+  steps: TimelineStep[],
+  isSubTimeline: boolean = false
+): Promise<TimelineStep[]> => {
+  steps.sort((a, b) => {
+    if (a.orderIndex && b.orderIndex) {
+      return a.orderIndex - b.orderIndex;
+    }
+    return 0;
+  });
 
   const compiled = [] as TimelineStep[];
 
-  steps.forEach((step) => {
+  for (const step of steps) {
     const hasGroup =
-      (step.metadata?.group?.steps && step.metadata.group.steps.length > 0) ||
-      false;
+      step.metadata?.group?.steps && step.metadata.group.steps.length > 0;
+
+    if (step.type === "task") {
+      const request = await fetch(API.GET_TASK_BY_ID(step.metadata?.taskId));
+      const response = await request.json();
+
+      if (!response || response.error) {
+        console.warn(
+          "Task not found or invalid response:",
+          step.metadata?.taskId
+        );
+        continue;
+      }
+
+      const compiledSubSteps = await compileTimeline(
+        response.data.timeline.steps,
+        true
+      );
+      compiled.push(...compiledSubSteps);
+      continue;
+    }
 
     if (hasGroup) {
       const config = step.metadata?.group.config as StimuliBlockConfig;
       const isRandomized = config.randomize || false;
       const groupSteps = step.metadata.group?.steps;
-      const formattedSteps = isRandomized ? _.shuffle(groupSteps) : groupSteps;
 
-      formattedSteps?.forEach((childSteps, index) => {
-        const newStep = {
-          ...step,
-          id: crypto.randomUUID(),
-          orderIndex: compiled.length + 1,
-          metadata: {
-            ...childSteps.metadata,
-            blocks: childSteps.metadata.blocks,
-            group: undefined,
-          },
-        } as TimelineStep;
+      for (let i = 0; i < config.trials; i++) {
+        const formattedSteps = isRandomized
+          ? _.shuffle(groupSteps)
+          : groupSteps;
 
-        const parsedStep = handleStimuliDurationConfig(newStep);
-        compiled.push(parsedStep);
+        for (const childSteps of formattedSteps || []) {
+          const newStep: TimelineStep = {
+            ...step,
+            id: crypto.randomUUID(),
+            orderIndex: compiled.length + 1,
+            metadata: {
+              ...childSteps.metadata,
+              blocks: childSteps.metadata.blocks,
+              group: undefined,
+              config: {
+                ...config,
+                ...childSteps.metadata.config,
+              },
+            },
+            step_id: step?.id,
+          };
 
-        // Feedback step
-        if (config.feedbackDuration) {
-          const feedbackStep = createFeedback(
-            newStep.id,
-            config.feedbackDuration
-          );
-          compiled.push(feedbackStep);
+          const parsedStep = handleStimuliDurationConfig(newStep);
+          compiled.push(parsedStep);
+
+          // Feedback step
+          if (config.feedbackDuration) {
+            const showFeedback =
+              childSteps.type !== "multi_trigger_stimuli" ||
+              childSteps.metadata.blocks.some(
+                (block) => block.triggers && block.triggers.length > 1
+              );
+
+            if (showFeedback) {
+              const feedbackStep = createFeedback(
+                newStep.id,
+                config.feedbackDuration
+              );
+              compiled.push(feedbackStep);
+            }
+          }
+
+          // Inter Stimulus Interval step
+          const hasInterStimulusInterval =
+            childSteps.metadata.config?.interStimulusInterval > 0;
+
+          if (hasInterStimulusInterval) {
+            const interStimulusStep = createInterStimulusStep(
+              childSteps.metadata.config?.interStimulusInterval,
+              compiled.length + 1
+            );
+            compiled.push(interStimulusStep);
+          }
         }
-
-        // Inter Stimulus Interval step
-        const hasInterStimulusInterval =
-          childSteps.metadata.config?.interStimulusInterval > 0;
-
-        if (hasInterStimulusInterval) {
-          const interStimulusStep = createInterStimulusStep(
-            childSteps.metadata.config?.interStimulusInterval,
-            compiled.length + 1
-          );
-          compiled.push(interStimulusStep);
-        }
-      });
+      }
     } else {
       const parsedStep = {
         ...handleStimuliDurationConfig(step),
         orderIndex: compiled.length + 1,
+        step_id: step?.id,
       };
 
       compiled.push(parsedStep);
     }
-  });
+  }
 
-  const saveStep = createSaveStep();
-  compiled.push(saveStep);
+  if (!isSubTimeline) {
+    const saveStep = createSaveStep();
+    compiled.push(saveStep);
+  }
 
+  console.log("compiled timeline steps:", compiled);
+  await preloadImagesFromTimeline(compiled);
   return compiled;
 };
 

@@ -72,7 +72,11 @@ export const CanvasMediaRenderer: React.FC<{ block: MediaBlock }> = ({
     left: `${getAbsoluteSize(block.position.x, screen?.width)}px`,
     top: `${getAbsoluteSize(block.position.y, screen?.height)}px`,
     width: `${getAbsoluteSize(block.size.width, screen?.width)}px`,
-    height: `auto`,
+    height: `${
+      block.size?.height
+        ? getAbsoluteSize(block.size?.height, screen?.width) + "px"
+        : "auto"
+    }`,
     ...block.data,
     fontSize: `${fontSize}px`,
     zIndex: 100,

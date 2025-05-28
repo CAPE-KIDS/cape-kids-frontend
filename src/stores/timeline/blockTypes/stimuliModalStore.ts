@@ -50,6 +50,7 @@ export const useStimuliModal = create<StimuliModalState>((set, get) => ({
     feedbackDuration: null,
     randomize: false,
     advanceOnWrong: true,
+    isPractice: false,
   },
   steps: [],
   openModal: () => set({ open: true }),
@@ -68,7 +69,8 @@ export const useStimuliModal = create<StimuliModalState>((set, get) => ({
     })),
 
   mountStimulusStep: (blocks, title, overrideConfig?): TimelineStep => {
-    const { trials, stimulusDuration, interStimulusInterval } = get().config;
+    const { trials, isPractice, stimulusDuration, interStimulusInterval } =
+      get().config;
 
     const step: TimelineStep = {
       id: crypto.randomUUID(),
@@ -87,6 +89,7 @@ export const useStimuliModal = create<StimuliModalState>((set, get) => ({
           stimulusDuration: overrideConfig?.overrideStimulus
             ? overrideConfig.stimulusDuration
             : stimulusDuration,
+
           displayRate: overrideConfig?.displayRate || 1,
           interStimulusInterval: overrideConfig?.overrideInterStimulusTime
             ? overrideConfig.interStimulusTime
@@ -185,6 +188,7 @@ export const useStimuliModal = create<StimuliModalState>((set, get) => ({
       editingStep: null,
       config: {
         trials: 1,
+        isPractice: false,
         stimulusDuration: null,
         interStimulusInterval: null,
         feedbackDuration: null,

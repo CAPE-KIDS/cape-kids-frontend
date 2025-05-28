@@ -1,13 +1,18 @@
+import LevelConfigModal from "@/components/modals/LevelConfigModal";
+import ModalBase from "@/components/modals/ModalBase";
 import { Toggle } from "@/components/Toggle";
 import { Tooltip } from "@/components/Tooltip";
 import { StimuliBlockConfig } from "@/modules/timeline/types";
-import { useStimuliModal } from "@/stores/timeline/blockTypes/stimuliModalStore";
-import React from "react";
+import { useMultiTriggerStimuliModal } from "@/stores/timeline/blockTypes/multiTriggerStimuliStore";
+import { Settings } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-const SequentialStimuliConfigForm = () => {
+const MultiTriggerStimuliConfigForm = () => {
   const { open, config, setConfig, updateStimulusStepsConfigField } =
-    useStimuliModal();
+    useMultiTriggerStimuliModal();
+
+  const [showLevelModal, setShowLevelModal] = useState(false);
 
   if (!open) return null;
 
@@ -18,6 +23,10 @@ const SequentialStimuliConfigForm = () => {
     setConfig({ [field]: value });
     updateStimulusStepsConfigField(field, value);
   };
+
+  useEffect(() => {
+    console.log("current config", config);
+  }, [config]);
 
   return (
     <div className="flex w-full gap-16 border-b border-gray-300 pb-4">
@@ -99,6 +108,54 @@ const SequentialStimuliConfigForm = () => {
                   handleChange("interStimulusInterval", Number(e.target.value))
                 }
                 className="w-full border rounded px-2 py-1 mt-1 flex-1"
+              />
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex min-w-[181px]">
+            Level
+            <Tooltip>Enable settings for handle with level</Tooltip>
+          </div>
+          <div className="flex gap-2 items-center flex-1">
+            <Toggle
+              checked={config.isLevel !== false}
+              onChange={() => {
+                if (!config.isLevel) {
+                  handleChange("isLevel", true);
+                } else {
+                  handleChange("isLevel", false);
+                  handleChange("level", {
+                    level: "",
+                    repeatAmount: undefined,
+                    onWrongAnswer: undefined,
+                    repeatOnWrong: undefined,
+                    goToStepId: undefined,
+                  });
+                }
+              }}
+            />
+
+            {config.isLevel ? (
+              <button
+                className="w-full border rounded px-2 py-1 mt-1 flex-1 cursor-pointer flex items-center justify-center gap-1"
+                onClick={() => setShowLevelModal(true)}
+              >
+                <span>Settings</span>
+                <Settings className="inline ml-1 h-4 w-4" />
+              </button>
+            ) : (
+              <div className="w-full border rounded px-2 py-1 mt-1 flex-1">
+                Disabled
+              </div>
+            )}
+
+            {showLevelModal && (
+              <LevelConfigModal
+                setShowLevelModal={setShowLevelModal}
+                config={config}
+                setConfig={setConfig}
               />
             )}
           </div>
@@ -200,4 +257,4 @@ const SequentialStimuliConfigForm = () => {
   );
 };
 
-export default SequentialStimuliConfigForm;
+export default MultiTriggerStimuliConfigForm;

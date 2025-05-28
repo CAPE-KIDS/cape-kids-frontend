@@ -44,6 +44,7 @@ const StepLayer = ({ step, visible, started }: StepLayerProps) => {
       <div
         className="w-full h-full flex items-center justify-center"
         data-block-id="Screen"
+        data-active-id={activeStepId}
       >
         {step.metadata.blocks?.map((block) => (
           <CanvasMediaRenderer block={block} key={block.id} />

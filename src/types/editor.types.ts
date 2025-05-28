@@ -50,7 +50,7 @@ export interface Tool {
   onKeyDown?: (e: KeyboardEvent, ctx: EditorContext) => void;
 }
 
-export type EditorContextType = "main" | "stimuli";
+export type EditorContextType = "main" | "stimuli" | "multi_trigger_stimuli";
 export interface HistorySnapshot {
   stepType: StepType;
   blocks: MediaBlock[];

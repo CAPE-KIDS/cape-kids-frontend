@@ -6,12 +6,14 @@ import { useExperimentsStore } from "@/stores/experiments/experimentsStore";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
+import { useTimelineStore } from "@/stores/timeline/timelineStore";
 
 const Experiments = () => {
   const router = useRouter();
   const { token, user } = useAuth();
   const { experiments, getUserExperiments } = useExperimentsStore();
   const [loading, setLoading] = React.useState(true);
+  const { getTasks } = useTimelineStore();
 
   useEffect(() => {
     if (!token) return;
@@ -19,7 +21,11 @@ const Experiments = () => {
       await getUserExperiments(token);
       setLoading(false);
     };
+    const fetchTasks = async () => {
+      await getTasks();
+    };
     fetchExperiments();
+    fetchTasks();
   }, [token]);
 
   return (

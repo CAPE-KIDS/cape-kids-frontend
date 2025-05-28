@@ -19,14 +19,14 @@ const TimelineView = () => {
   }
 
   if (!sourceData) {
-    return <div>No experiment data found</div>;
+    return <div>No data found</div>;
   }
 
   return (
     <div>
       <TimelineHeader
-        title={sourceData?.experiment.title || ""}
-        key={sourceData?.experiment.id || ""}
+        title={sourceData?.title || ""}
+        key={sourceData?.id || ""}
         onAddStep={() => useTimelineSidebar.getState().openSidebar(null)}
       />
       <TimelineEditor />

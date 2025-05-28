@@ -59,39 +59,42 @@ const TriggerManager: React.FC = () => {
         <p className="text-sm text-gray-500">No triggers added.</p>
       )}
 
-      {allTriggers.map((trigger) => (
-        <div
-          key={trigger.id}
-          className="flex items-center justify-between bg-gray-100 rounded-md px-3 py-2 text-sm"
-        >
-          <div className="flex flex-col">
-            <span>
-              <strong>{trigger.blockLabel}</strong>
-              {trigger.blockData ? `: "${trigger.blockData}"` : ""}
-            </span>
-            <span>
-              {trigger.metadata.type} <code>{trigger.metadata.key || ""}</code>{" "}
-              → <strong>{trigger.metadata.action}</strong>
-            </span>
-          </div>
-          <div className="flex gap-2">
-            {/* <button
+      <div className="max-h-[200px] overflow-y-auto flex flex-col gap-2">
+        {allTriggers.map((trigger) => (
+          <div
+            key={trigger.id}
+            className="flex items-center justify-between bg-gray-100 rounded-md px-3 py-2 text-sm"
+          >
+            <div className="flex flex-col">
+              <span>
+                <strong>{trigger.blockLabel}</strong>
+                {trigger.blockData ? `: "${trigger.blockData}"` : ""}
+              </span>
+              <span>
+                {trigger.metadata.type}{" "}
+                <code>{trigger.metadata.key || ""}</code> →{" "}
+                <strong>{trigger.metadata.action}</strong>
+              </span>
+            </div>
+            <div className="flex gap-2">
+              {/* <button
               title="Edit trigger"
               className="text-blue-500 hover:text-blue-700"
               onClick={() => alert("Editing not yet implemented")}
             >
               <Pencil size={16} />
             </button> */}
-            <button
-              title="Delete trigger"
-              className="text-red-500 hover:text-red-700 cursor-pointer"
-              onClick={() => handleRemove(trigger)}
-            >
-              <Trash2 size={16} />
-            </button>
+              <button
+                title="Delete trigger"
+                className="text-red-500 hover:text-red-700 cursor-pointer"
+                onClick={() => handleRemove(trigger)}
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };

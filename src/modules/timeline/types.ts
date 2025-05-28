@@ -1,5 +1,5 @@
 import { MediaBlock } from "../media/types";
-import { Trigger } from "../triggers/types";
+import { Trigger, TriggerActionType } from "../triggers/types";
 import { TimelineStep, StepType } from "@shared/timeline";
 
 export const StepColors: Record<
@@ -17,8 +17,8 @@ export const StepColors: Record<
     background: "#8F1D99",
     color: "#FFFFFF",
   },
-  simultaneous_stimuli: {
-    background: "#1D8499",
+  multi_trigger_stimuli: {
+    background: "#FF8C00",
     color: "#FFFFFF",
   },
   custom_block: {
@@ -36,6 +36,13 @@ export interface StepConnection {
   condition: string | null;
 }
 
+interface LevelConfig {
+  level: string;
+  repeatOnWrong?: boolean;
+  repeatAmount?: number;
+  onWrongAnswer?: TriggerActionType;
+  goToStepId?: string;
+}
 // Step types specific
 export interface StimuliBlockConfig {
   trials: number;
@@ -46,6 +53,9 @@ export interface StimuliBlockConfig {
   displayRate?: number;
   overrideStimulus?: boolean;
   advanceOnWrong: boolean;
+  isPractice: boolean;
+  isLevel?: boolean;
+  level?: LevelConfig;
 }
 
 export interface StimulusStepConfig {

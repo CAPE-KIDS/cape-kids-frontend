@@ -16,19 +16,14 @@ import { TimelineStepOrder } from "./TimelineStepOrder";
 import TriggerManager from "@/modules/triggers/components/TriggerManager";
 import { Settings, Trash } from "lucide-react";
 import { useStimuliModal } from "@/stores/timeline/blockTypes/stimuliModalStore";
-import { StepType } from "@shared/timeline";
-import _ from "lodash";
+import { useMultiTriggerStimuliModal } from "@/stores/timeline/blockTypes/multiTriggerStimuliStore";
+import { StepType, stepTypeEnum } from "@shared/timeline";
+import _, { get } from "lodash";
 import { useAuth } from "@/hooks/useAuth";
 
 const timelineStepSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  type: z.enum([
-    "custom_block",
-    "task",
-    "conditional",
-    "sequential_stimuli",
-    "simultaneous_stimuli",
-  ]),
+  type: stepTypeEnum,
   task: z.string().optional(),
 });
 type TimelineStepFormData = z.infer<typeof timelineStepSchema>;
@@ -57,18 +52,36 @@ export const options: Option[] = [
     },
     showScreen: false,
   },
+  // {
+  //   value: "simultaneous_stimuli",
+  //   label: "Simultaneous Stimuli",
+  //   color: "#1D8499",
+  //   showScreen: false,
+  // },
   {
-    value: "simultaneous_stimuli",
-    label: "Simultaneous Stimuli",
-    color: "#1D8499",
+    value: "multi_trigger_stimuli",
+    label: "Multi Trigger Stimuli",
+    color: "#FF8C00",
+    onSelect: () => {
+      const { openModal } = useMultiTriggerStimuliModal.getState();
+      openModal();
+    },
     showScreen: false,
   },
 ];
 
 const TimelineSidebar = () => {
   const { token } = useAuth();
-  const { steps, sourceData, updateSteps, removeStep, saveStep, timelineId } =
-    useTimelineStore();
+  const {
+    steps,
+    sourceData,
+    updateSteps,
+    removeStep,
+    saveStep,
+    timelineId,
+    resetTimeline,
+    tasks,
+  } = useTimelineStore();
   const { sidebarOpen, currentStep, closeSidebar } = useTimelineSidebar();
 
   const {
@@ -95,8 +108,6 @@ const TimelineSidebar = () => {
     resolver: zodResolver(timelineStepSchema),
   });
 
-  const [taskList, setTaskList] = useState<any[]>([]);
-
   const onSubmit = async () => {
     if (!token) return;
 
@@ -119,7 +130,20 @@ const TimelineSidebar = () => {
       };
     }
 
+    if (type === "multi_trigger_stimuli") {
+      const { config, steps } = useMultiTriggerStimuliModal.getState();
+      newStep.metadata.group = {
+        config,
+        steps,
+      };
+    }
+
+    if (type === "task") {
+      newStep.metadata.taskId = watch("task");
+    }
+
     if (currentStep) {
+      console.log("newStep", newStep);
       // const updatedStep = await updatedStep(newStep, token);
       // updateSteps(updatedStep.data);
       // toast.success(
@@ -139,6 +163,8 @@ const TimelineSidebar = () => {
     toast.success("Step created sucessfully!");
     closeSidebar();
     clearEditor();
+
+    reset();
   };
 
   const handleRemove = async () => {
@@ -147,6 +173,7 @@ const TimelineSidebar = () => {
     await removeStep(currentStep.id);
     closeSidebar();
     clearEditor();
+    resetTimeline();
     reset();
   };
 
@@ -167,6 +194,27 @@ const TimelineSidebar = () => {
         setValue("task", currentStep.metadata.taskId || "");
       }
 
+      if (currentStep.metadata.group) {
+        const { config, steps } = currentStep.metadata.group;
+
+        if (currentStep.type === "multi_trigger_stimuli") {
+          const { setConfig } = useMultiTriggerStimuliModal.getState();
+          setConfig(config);
+          useMultiTriggerStimuliModal.setState({
+            steps,
+          });
+        }
+
+        if (currentStep.type === "sequential_stimuli") {
+          const { setConfig } = useStimuliModal.getState();
+
+          setConfig(config);
+          useStimuliModal.setState({
+            steps,
+          });
+        }
+      }
+
       clearEditor();
       (currentStep.metadata.blocks || []).forEach((block) => {
         addStep(block);
@@ -179,21 +227,18 @@ const TimelineSidebar = () => {
   useEffect(() => {
     const type = watch("type");
 
-    if (type === "task") {
-      setTaskList([
-        { id: "1", name: "Flanker Task" },
-        { id: "2", name: "Go/No go" },
-        { id: "3", name: "N-back digit span" },
-      ]);
-    } else {
-      setTaskList([]);
-      setValue("task", "");
-    }
-
     if (type === "sequential_stimuli") {
       useEditorStore.setState({
         blocks: [],
         editorContext: "stimuli",
+      });
+      return;
+    }
+
+    if (type === "multi_trigger_stimuli") {
+      useEditorStore.setState({
+        blocks: [],
+        editorContext: "multi_trigger_stimuli",
       });
       return;
     }
@@ -217,6 +262,10 @@ const TimelineSidebar = () => {
       selectedModal.onSelect();
     }
   };
+
+  useEffect(() => {
+    console.log("tasks", tasks);
+  }, [tasks]);
 
   return (
     <ResizableSidebar
@@ -292,10 +341,12 @@ const TimelineSidebar = () => {
                 <CustomSelect
                   value={watch("task") || null}
                   onChange={(val) => setValue("task", val)}
-                  options={taskList.map((task) => ({
-                    value: task.id,
-                    label: task.name,
-                  }))}
+                  options={tasks.map((t) => {
+                    return {
+                      value: t.task.id,
+                      label: t.task.title,
+                    };
+                  })}
                 />
               </div>
             )}

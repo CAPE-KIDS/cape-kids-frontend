@@ -5,6 +5,7 @@ import { MediaTypeBlocks } from "@/modules/media/components/MediaTypeBlocks";
 import TriggerButtons from "@/modules/triggers/components/TriggerButtons";
 import TriggerManager from "@/modules/triggers/components/TriggerManager";
 import { useEditorStore } from "@/stores/editor/useEditorStore";
+import { useMultiTriggerStimuliModal } from "@/stores/timeline/blockTypes/multiTriggerStimuliStore";
 import { useStimuliModal } from "@/stores/timeline/blockTypes/stimuliModalStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -17,16 +18,16 @@ const formSchema = z.object({
 });
 type ExperimentFormData = z.infer<typeof formSchema>;
 
-const SequentialStimuliEditorModal = () => {
+const MultiTriggerStimuliEditorModal = () => {
   const {
-    stimulusEditorOpen,
-    closeStimulusEditorModal,
+    multiTriggerStimulusEditorOpen,
+    closeMultiTriggerStimulusEditorModal,
     config,
     mountStimulusStep,
     editingStep,
     setEditingStep,
     updateStimulusStep,
-  } = useStimuliModal();
+  } = useMultiTriggerStimuliModal();
 
   const { blocks, clearEditor, addStep } = useEditorStore();
 
@@ -47,11 +48,18 @@ const SequentialStimuliEditorModal = () => {
     stimulusDuration: config.stimulusDuration || 2000,
     overrideInterStimulusInterval: false,
     interStimulusInterval: config.interStimulusInterval || 1000,
+    isLevel: config.isLevel || false,
+    level: config.level || {
+      level: "1",
+      repeatOnWrong: false,
+      repeatAmount: 1,
+      onWrongAnswer: "goToNextStep",
+    },
   });
 
   useEffect(() => {
+    console.log("Editing step:", editingStep);
     if (editingStep) {
-      console.log("editingStep", editingStep.metadata);
       const { title, config: stepConfig } = editingStep.metadata;
 
       setValue("title", title);
@@ -68,6 +76,13 @@ const SequentialStimuliEditorModal = () => {
           stepConfig?.overrideInterStimulusInterval ?? false,
         interStimulusInterval:
           stepConfig?.interStimulusInterval ?? config.interStimulusInterval,
+        isLevel: stepConfig?.isLevel ?? false,
+        level: stepConfig?.level || {
+          level: "1",
+          repeatOnWrong: false,
+          repeatAmount: 1,
+          onWrongAnswer: "goToNextStep",
+        },
       });
     }
   }, [editingStep]);
@@ -84,6 +99,13 @@ const SequentialStimuliEditorModal = () => {
       stimulusDuration: config.stimulusDuration || 2000,
       overrideInterStimulusInterval: false,
       interStimulusInterval: config.interStimulusInterval || 1000,
+      isLevel: config.isLevel || false,
+      level: config.level || {
+        level: "1",
+        repeatOnWrong: false,
+        repeatAmount: 1,
+        onWrongAnswer: "goToNextStep",
+      },
     });
   };
 
@@ -127,20 +149,20 @@ const SequentialStimuliEditorModal = () => {
       mountStimulusStep(blocks, title, overrideConfig);
     }
 
-    closeStimulusEditorModal();
+    closeMultiTriggerStimulusEditorModal();
     clearEditor();
     reset();
     resetOverrideConfig();
     toast.success("Stimuli saved successfully.");
   });
 
-  if (!stimulusEditorOpen) return null;
+  if (!multiTriggerStimulusEditorOpen) return null;
 
   return (
     <ModalBase
       title="Stimuli creation"
       onClose={() => {
-        closeStimulusEditorModal();
+        closeMultiTriggerStimulusEditorModal();
         setEditingStep(null);
         clearEditor();
         resetOverrideConfig();
@@ -264,7 +286,7 @@ const SequentialStimuliEditorModal = () => {
         <button
           type="button"
           onClick={() => {
-            closeStimulusEditorModal();
+            closeMultiTriggerStimulusEditorModal();
             setEditingStep(null);
             clearEditor();
             resetOverrideConfig();
@@ -285,4 +307,4 @@ const SequentialStimuliEditorModal = () => {
   );
 };
 
-export default SequentialStimuliEditorModal;
+export default MultiTriggerStimuliEditorModal;

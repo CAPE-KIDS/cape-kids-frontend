@@ -7,6 +7,7 @@ import { capitalize, random } from "lodash";
 import { Trigger } from "../../types";
 import { TriggerActionsRegistry } from "../../TriggerActionsRegistry";
 import KeyCaptureInput from "@/components/KeyCaptureInput";
+import { toast } from "sonner";
 
 interface Props {
   onClose: () => void;
@@ -24,6 +25,11 @@ const KeyboardTriggerModal: React.FC<Props> = ({ onClose }) => {
   const [description, setDescription] = useState("");
 
   const handleSave = () => {
+    if (keyCombo === "" || !keyCombo) {
+      toast.error("Please add a key to the trigger");
+      return;
+    }
+
     const isBlock = blocks.find((block) => block.type === "screen");
 
     const triggerData = {

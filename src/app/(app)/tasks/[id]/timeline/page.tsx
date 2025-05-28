@@ -6,8 +6,9 @@ import TimelineView from "@/modules/timeline/TimelineView";
 import { useParams } from "next/navigation";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
 import SequentialStimuliConfigModal from "@/components/blockTypes/sequentialStimuli/SequentialStimuliConfigModal";
+import MultiTriggerConfigModal from "@/components/blockTypes/multiTriggerStimuli/MultiTriggerConfigModal";
 import { useAuth } from "@/hooks/useAuth";
-import { useExperimentsStore } from "@/stores/experiments/experimentsStore";
+import { useTasksStore } from "@/stores/tasks/tasksStore";
 import _ from "lodash";
 import { useAuthStore } from "@/stores/auth/useAuthStore";
 import { TimelineStep } from "@shared/timeline";
@@ -15,64 +16,51 @@ import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
 
 // Schema de validação
-const CreateExperimentsTimeline = () => {
+const CreateTasksTimeline = () => {
   const { token } = useAuth();
-  const { formatToTimeline, edges, steps, setLoading, getTasks } =
-    useTimelineStore();
-  const {
-    selectedExperiment,
-    setSelectedExperiment,
-    getExperimentById,
-    experiments,
-    setExperiments,
-  } = useExperimentsStore();
+  const { formatToTimeline, edges, steps, setLoading } = useTimelineStore();
+  const { selectedTask, setSelectedTask, getTaskById, tasks, setTasks } =
+    useTasksStore();
   const router = useRouter();
   const params = useParams();
-  const experimentId = params.id as string;
+  const taskId = params.id as string;
   const [fetched, setFetched] = useState(false);
   const { authState } = useAuthStore();
   const [localSteps, setLocalSteps] = useState<TimelineStep[]>(steps);
 
-  const fetchExperiment = async () => {
-    const experiment = await getExperimentById(experimentId);
-    if (experiment) {
-      setSelectedExperiment(experiment.data);
-      formatToTimeline(experiment.data);
+  const fetchTask = async () => {
+    const task = await getTaskById(taskId);
+    if (task) {
+      setSelectedTask(task.data);
+      formatToTimeline(task.data);
       setFetched(true);
     }
   };
 
-  const fetchTasks = async () => {
-    await getTasks();
-  };
-
   useEffect(() => {
     if (!authState.token) return;
-
-    fetchTasks();
-
-    const selected = experiments.find((exp) => exp.id === experimentId);
+    const selected = tasks.find((task) => task.id === taskId);
 
     if (selected) {
       formatToTimeline(selected);
       return;
     }
 
-    fetchExperiment();
+    fetchTask();
     return;
-  }, [experimentId, authState]);
+  }, [taskId, authState]);
 
-  const refreshExperiment = async () => {
+  const refreshTask = async () => {
     setLoading(true);
-    const exp = await getExperimentById(experimentId);
-    if (exp?.data) {
-      setSelectedExperiment(exp.data);
-      formatToTimeline(exp.data);
-      const experimentsClone = _.cloneDeep(experiments);
-      const updated = experimentsClone.map((d) =>
-        d.experiment.id === experimentId ? exp.data : d
+    const task = await getTaskById(taskId);
+    if (task?.data) {
+      setSelectedTask(task.data);
+      formatToTimeline(task.data);
+      const tasksClone = _.cloneDeep(tasks);
+      const updated = tasksClone.map((d) =>
+        d.task.id === taskId ? task.data : d
       );
-      setExperiments(updated);
+      setTasks(updated);
     }
     setLoading(false);
   };
@@ -81,23 +69,20 @@ const CreateExperimentsTimeline = () => {
     if (steps.length === 0) return;
 
     if (!_.isEqual(steps, localSteps)) {
-      refreshExperiment();
+      refreshTask();
       setLocalSteps(steps);
     }
   }, [steps]);
 
   return (
     <div className="flex flex-col h-full">
-      <PageHeader
-        title="Experiment Timeline"
-        subtitle="Manage the flow of your experiment"
-      >
+      <PageHeader title="Task Timeline" subtitle="Manage the flow of your task">
         <div className="button">
           <Link
             className="cursor-pointer text-white rounded-lg px-4 py-3 bg-blue-600 transition duration-200"
-            href={"/experiments/create"}
+            href={"/tasks/create"}
           >
-            Create Experiment
+            Create Task
           </Link>
         </div>
       </PageHeader>
@@ -112,15 +97,16 @@ const CreateExperimentsTimeline = () => {
         className="bg-blue-500 text-white px-4 py-2 hover:bg-blue-600 transition cursor-pointer"
         onClick={() => {
           NProgress.start();
-          router.push(`/experiments/${experimentId}/participants`);
+          router.push(`/tasks`);
         }}
       >
-        Manage participants
+        Check other tasks
       </button>
 
       <SequentialStimuliConfigModal />
+      <MultiTriggerConfigModal />
     </div>
   );
 };
 
-export default CreateExperimentsTimeline;
+export default CreateTasksTimeline;

@@ -65,7 +65,7 @@ const ImageRenderer = ({ block }: { block: MediaBlock }) => {
         width: getAbsoluteSize(block.size?.width || 300, screen.width),
         height: getAbsoluteSize(block.size?.height || 200, screen.height),
       }}
-      className="border border-dashed rounded-sm"
+      className="border border-dashed rounded-sm object-contain"
       bounds="parent"
       // lockAspectRatio
       resizeHandleStyles={{

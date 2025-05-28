@@ -40,6 +40,9 @@ export const useKeyboardTriggers = (
 
         if (fullCombo === triggerCombo) {
           e.preventDefault();
+          if (currentStep.type === "multi_trigger_stimuli") {
+            return;
+          }
           dispatchTriggerAction(trigger, context);
         }
       });

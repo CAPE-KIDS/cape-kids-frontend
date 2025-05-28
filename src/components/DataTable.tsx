@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, WheelEvent } from "react";
 import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -49,7 +49,7 @@ const DataTable: React.FC<DataTableProps> = ({
   }, [rows]);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | WheelEvent) => {
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
@@ -58,7 +58,9 @@ const DataTable: React.FC<DataTableProps> = ({
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -77,7 +79,7 @@ const DataTable: React.FC<DataTableProps> = ({
   };
 
   return (
-    <div className={`space-y-2 ${isDragging ? "overflow-hidden" : ""}`}>
+    <div className={`space-y-2 ${isDragging ? "overflow-hidden" : ""} `}>
       <div className="rounded-md">
         <DndContext
           collisionDetection={closestCenter}
@@ -91,7 +93,7 @@ const DataTable: React.FC<DataTableProps> = ({
             items={currentOrder}
             strategy={verticalListSortingStrategy}
           >
-            <table className="w-full text-left text-sm">
+            <table className="w-full text-left text-sm ">
               <thead>
                 <tr className="border-b border-b-gray-300 bg-white text-xs text-gray-400">
                   {headers.map((header) => (
@@ -158,6 +160,8 @@ const DataRow: React.FC<DataRowProps> = ({
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: row.id });
 
+  const quickActionRef = useRef<HTMLTableCellElement | null>(null);
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -181,7 +185,7 @@ const DataRow: React.FC<DataRowProps> = ({
         </td>
       ))}
       {withQuickActions && (
-        <td className="px-4 py-3 text-right">
+        <td className="px-4 py-3 text-right" ref={quickActionRef}>
           <div
             className="inline-block"
             ref={openRowId === row.id ? dropdownRef : null}
@@ -189,12 +193,26 @@ const DataRow: React.FC<DataRowProps> = ({
             <button
               type="button"
               onClick={() => setOpenRowId(openRowId === row.id ? null : row.id)}
-              className="text-gray-400 hover:text-gray-600 cursor-pointer"
+              className="text-gray-400 hover:text-gray-600 cursor-pointer "
             >
               <MoreVertical size={16} />
             </button>
             {openRowId === row.id && (
-              <div className="absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white border z-20 overflow-hidden">
+              <div
+                className="fixed right-0 mt-2 w-32 rounded-md shadow-lg bg-white border z-20 overflow-hidden"
+                style={{
+                  top: quickActionRef.current
+                    ? quickActionRef.current.getBoundingClientRect().bottom +
+                      window.scrollY -
+                      20
+                    : 0,
+                  left: quickActionRef.current
+                    ? quickActionRef.current.getBoundingClientRect().left +
+                      window.scrollX -
+                      50
+                    : 0,
+                }}
+              >
                 {actions.map((action, index) => (
                   <button
                     key={index}

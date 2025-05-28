@@ -26,6 +26,8 @@ interface TimelineState {
   connections: StepConnectionSchemaType[];
   nodes: Node[];
   edges: Edge[];
+  tasks: TaskSchemaType[];
+  setTasks: (tasks: TaskSchemaType[]) => void;
   loading: boolean;
   error: string | null;
   setTimelineData: (data: any) => void;
@@ -44,7 +46,7 @@ interface TimelineState {
     token: string,
     stepFiles?: Record<string, File>
   ) => Promise<RestResponseSchemaType>;
-
+  getTasks: () => Promise<void>;
   saveConnections: () => void;
   getTimelineBySourceId: (sourceId: string) => Promise<RestResponseSchemaType>;
   recalculateOrderFromEdges: (
@@ -63,6 +65,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   connections: [],
   nodes: [],
   edges: [],
+  tasks: [],
+  setTasks: (tasks: TaskSchemaType[]) => set({ tasks }),
   loading: true,
   error: null,
   edgesSaved: false,
@@ -73,7 +77,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   setError: (error) => set({ error }),
   formatToTimeline: async (data) => {
     set({ loading: true, error: null });
-    set({ sourceData: data });
+    set({ sourceData: data[Object.keys(data)[0]] });
     set({ steps: data?.timeline?.steps || [] });
     set({ connections: data?.timeline?.step_connections || [] });
     set({ timelineId: data?.timeline?.id || "" });
@@ -81,6 +85,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     get().formatNodes();
     get().formatedEdges();
     set({ loading: false });
+
+    console.log("sourceData", data);
   },
 
   updateSteps: (updatedStep) => {
@@ -196,8 +202,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
 
   formatedEdges: () => {
     const { connections, timeline } = get();
-    console.log("timeline", timeline);
-    console.log("sourceData", get().sourceData);
     if (!connections.length) {
       console.warn(
         "Nenhuma conexão carregada do backend. Evitando fallback automático."
@@ -415,6 +419,27 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     debouncedUpdate(edges, nodes);
   },
 
+  getTasks: async () => {
+    const { authState } = useAuthStore.getState();
+
+    try {
+      const request = await fetch(API.GET_TASKS, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${authState.token}`,
+        },
+      });
+
+      if (!request.ok) {
+        throw new Error("Failed to fetch tasks");
+      }
+
+      const response = await request.json();
+      set({ tasks: response.data || [] });
+    } catch (error) {
+      set({ error: error.message || "An error occurred while fetching tasks" });
+    }
+  },
   resetTimeline: () => {
     set({
       sourceData: null,

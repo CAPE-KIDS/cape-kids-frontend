@@ -7,25 +7,31 @@ import CanvasRunner from "@/modules/canvas/components/CanvasRunner";
 import { compileTimeline } from "@/utils/functions";
 import { useResultsStore } from "@/stores/results/useResultsStore";
 import { TimelineStep } from "@shared/timeline";
+import { useCanvasStore } from "@/modules/canvas/store/useCanvasStore";
+import CanvasDebugger from "@/modules/canvas/components/CanvasDebugger";
 
 const PreviewPage = () => {
   const searchParams = useSearchParams();
   const stepId = searchParams.get("id");
-
+  const { activeStep } = useCanvasStore();
   const [started, setStarted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [steps, setSteps] = useState<TimelineStep[] | null>(null);
   const [rawData, setRawData] = useState<any>(null);
   const { clearResults } = useResultsStore();
 
+  const compileSteps = async (steps: TimelineStep[]) => {
+    const compiledSteps = await compileTimeline(steps);
+    setSteps(compiledSteps);
+    return compiledSteps;
+  };
   useEffect(() => {
     try {
       if (typeof window !== "undefined" && window.name) {
         const data = JSON.parse(window.name);
         setRawData(data);
         if (data?.steps) {
-          const parsedSteps = compileTimeline(data.steps);
-          setSteps(parsedSteps);
+          compileSteps(data.steps);
         }
       }
     } catch (err) {
@@ -55,7 +61,7 @@ const PreviewPage = () => {
     }, 500);
   };
 
-  const resetPreview = () => {
+  const resetPreview = async () => {
     setLoading(true);
     setStarted(false);
     setSteps(null);
@@ -67,7 +73,7 @@ const PreviewPage = () => {
     }
 
     // Reload data
-    const parsedSteps = compileTimeline(rawData.steps);
+    const parsedSteps = await compileTimeline(rawData.steps);
     setSteps(parsedSteps);
     setLoading(false);
   };
@@ -79,7 +85,7 @@ const PreviewPage = () => {
         <div className="relative w-full h-full overflow-hidden">
           {!started && <div className="absolute inset-0 bg-black z-50" />}
 
-          {steps && (
+          {started && steps && (
             <>
               <button
                 className="p-2 bg-black text-white cursor-pointer hover:opacity-80 border border-white absolute left-[-1px] top-[-1px] z-50"
@@ -87,6 +93,8 @@ const PreviewPage = () => {
               >
                 Restart
               </button>
+              {activeStep && <CanvasDebugger />}
+
               <CanvasRunner steps={steps} started={started} />
             </>
           )}
@@ -106,7 +114,7 @@ const PreviewPage = () => {
             </>
           ) : (
             <>
-              <h1 className="text-2xl mb-6">Click on the screen to start</h1>
+              <h1 className="text-2xl mb-6">Clique na tela para iniciar</h1>
             </>
           )}
         </div>
