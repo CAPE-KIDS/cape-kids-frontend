@@ -27,8 +27,6 @@ const RegisterForm = ({ close }: Props) => {
     },
   });
 
-  console.log("form", form);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
