@@ -3,7 +3,7 @@
 import RegisterForm from "@/components/forms/RegisterForm";
 import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { loginSchema, type LoginSchemaType } from "@shared/user";
 import { toast } from "sonner";
 
@@ -44,8 +44,17 @@ export default function Home() {
       return;
     }
     toast.success("Authenticated successfully");
-    setAwaiting(false);
   };
+
+  useEffect(() => {
+    return () => {
+      setForm({ email: "", password: "" });
+      setErrors({});
+      setLoginError("");
+      setAwaiting(false);
+      setShowRegister(false);
+    };
+  }, []);
 
   return (
     <main className="w-full h-full px-4 bg-blue-500 flex items-center justify-center">
@@ -120,6 +129,7 @@ export default function Home() {
 
             <div className="relative">
               <button
+                disabled={awaiting}
                 className="transition-colors mt-8 bg-blue-500 text-white font-semibold px-10 py-4 shadow-2xs cursor-pointer hover:bg-blue-600 mb-10"
                 onClick={handleLogin}
               >
