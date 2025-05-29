@@ -87,7 +87,7 @@ const RegisterForm = ({ close }: Props) => {
   };
 
   return (
-    <div className="w-full max-w-lg p-6 relative max-h-full h-full space-y-4 mb-4 pb-12 overflow-hidden">
+    <div className="w-full md:max-w-lg p-6 relative max-h-full h-full space-y-4 mb-4 pb-12 overflow-hidden">
       <button type="button">
         <X
           size={24}

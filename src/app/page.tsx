@@ -48,9 +48,9 @@ export default function Home() {
   };
 
   return (
-    <main className="w-full h-full bg-blue-500 flex items-center justify-center">
-      <div className="max-w-7xl w-full mx-auto bg-white rounded-4xl shadow-lg flex border-2 border-white">
-        <div className="w-1/2 p-8">
+    <main className="w-full h-full px-4 bg-blue-500 flex items-center justify-center">
+      <div className="max-w-7xl w-full  mx-auto bg-white rounded-4xl shadow-lg flex border-2 border-white relative">
+        <div className="w-full md:w-1/2 p-8">
           <Image
             src="/cape-kids-logo.svg"
             alt="Logo"
@@ -58,7 +58,7 @@ export default function Home() {
             height={61.46}
           />
 
-          <h2 className="text-4xl font-normal mt-11 mb-11 max-w-[400px]">
+          <h2 className="text-2xl md:text-4xl font-normal my-4 md:my-11 max-w-[400px]">
             Exploring the world of cognitive capabilities
           </h2>
 
@@ -133,12 +133,26 @@ export default function Home() {
             </button>
           </p>
         </div>
-        <div className="w-1/2 flex items-center justify-center bg-blue-500 rounded-br-4xl rounded-tr-4xl relative">
-          <Image src="/family.svg" alt="Cape Kids" width={452} height={472} />
+        <div
+          className={`w-full md:w-1/2 items-center justify-center bg-blue-500 rounded-br-4xl rounded-tr-4xl ${
+            showRegister
+              ? "absolute md:relative left-0 z-10 h-full md:h-auto rounded-4xl md:rounded-none md:rounded-br-4xl md:rounded-tr-4xl  bg-white md:bg-blue-500"
+              : "hidden md:flex relative"
+          }`}
+        >
+          <Image
+            className="hidden md:block"
+            src="/family.svg"
+            alt="Cape Kids"
+            width={452}
+            height={472}
+          />
 
           <div
-            className={`absolute rounded-tr-4xl rounded-br-4xl top-0 left-0 w-full h-full bg-white flex items-center justify-center opacity-0 ml-[1px] ${
-              showRegister ? "opacity-100" : ""
+            className={`absolute z-10 rounded-tr-4xl rounded-br-4xl top-0 left-0 w-full h-full bg-white flex items-center justify-center opacity-0 ml-[1px]  ${
+              showRegister
+                ? "opacity-100  rounded-4xl md:rounded-none md:rounded-tr-4xl md:rounded-br-4xl"
+                : ""
             } transition-opacity duration-300`}
           >
             <RegisterForm close={() => setShowRegister(false)} />
@@ -148,4 +162,3 @@ export default function Home() {
     </main>
   );
 }
-
