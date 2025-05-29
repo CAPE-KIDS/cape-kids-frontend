@@ -179,9 +179,9 @@ const SaveScreen = () => {
         </div>
       ) : status === "done" ? (
         <>
-          <p className="text-xl font-medium">
+          {/* <p className="text-xl font-medium">
             ✅ Resultados salvos com sucesso!
-          </p>
+          </p> */}
           <p className="mt-2 text-gray-600">Você já pode fechar essa janela.</p>
           {renderTable()}
         </>

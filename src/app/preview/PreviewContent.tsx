@@ -91,6 +91,8 @@ const PreviewContent = () => {
   };
 
   const resetPreview = async () => {
+    window.location.reload();
+    return;
     setLoading(true);
     setStarted(false);
     setSteps(null);
