@@ -80,6 +80,14 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
   formatToTimeline: async (data) => {
+    if (!data) {
+      const { sourceData } = get();
+      if (!sourceData) {
+        set({ loading: false, error: "No source data provided" });
+        return;
+      }
+      data = sourceData as SourceDataType;
+    }
     set({ loading: true, error: null });
     set({ sourceData: data[Object.keys(data)[0]] });
     set({ steps: data?.timeline?.steps || [] });

@@ -19,7 +19,7 @@ const TimelineView = () => {
   }
 
   if (!sourceData) {
-    return <div>No data found</div>;
+    return <div className="p-6">No data found</div>;
   }
 
   return (

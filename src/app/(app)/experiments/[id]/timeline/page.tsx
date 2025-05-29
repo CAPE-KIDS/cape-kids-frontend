@@ -32,6 +32,7 @@ const CreateExperimentsTimeline = () => {
   const [fetched, setFetched] = useState(false);
   const { authState } = useAuthStore();
   const [localSteps, setLocalSteps] = useState<TimelineStep[]>(steps);
+  const { resetTimeline } = useTimelineStore();
 
   const fetchExperiment = async () => {
     const experiment = await getExperimentById(experimentId);
@@ -63,6 +64,12 @@ const CreateExperimentsTimeline = () => {
     fetchExperiment();
     return;
   }, [experimentId, authState]);
+
+  useEffect(() => {
+    return () => {
+      resetTimeline();
+    };
+  }, []);
 
   const refreshExperiment = async () => {
     setLoading(true);
