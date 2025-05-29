@@ -11,10 +11,6 @@ const InnactivityModal = () => {
     onTriggerModal: () => setShowModal(true),
   });
 
-  useEffect(() => {
-    console.log("showModal", showModal);
-  }, [showModal]);
-
   return (
     <div>
       {showModal && (

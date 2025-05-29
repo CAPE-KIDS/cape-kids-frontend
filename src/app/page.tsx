@@ -130,7 +130,7 @@ export default function Home() {
             <div className="relative">
               <button
                 disabled={awaiting}
-                className="transition-colors mt-8 bg-blue-500 text-white font-semibold px-10 py-4 shadow-2xs cursor-pointer hover:bg-blue-600 mb-10"
+                className={`transition-colors mt-8 bg-blue-500 text-white font-semibold px-10 py-4 shadow-2xs cursor-pointer hover:bg-blue-600 mb-10 disabled:opacity-50 disabled:cursor-not-allowed`}
                 onClick={handleLogin}
               >
                 Login

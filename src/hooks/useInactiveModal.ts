@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import IdleJs from "idle-js";
 
 export function useInactivityModal({
   timeoutMinutes = 5,
@@ -9,30 +8,37 @@ export function useInactivityModal({
   onTriggerModal: () => void;
 }) {
   const [wasIdle, setWasIdle] = useState(false);
-  console.log("timeoutMinutes", timeoutMinutes);
-  useEffect(() => {
-    const idle = new IdleJs({
-      idle: timeoutMinutes * 60 * 1000,
-      events: ["mousemove", "keydown", "mousedown", "touchstart", "scroll"],
-      keepTracking: true,
-      recurIdleCall: false,
-      onIdle: () => {
-        setWasIdle(true);
-        onTriggerModal();
-      },
-      onShow: () => {
-        if (wasIdle) {
-          onTriggerModal();
-          setWasIdle(false);
-        }
-      },
-    });
 
-    idle.start();
-    console.log("iddle", idle);
+  useEffect(() => {
+    let idle: any;
+
+    const setupIdle = async () => {
+      const { default: IdleJs } = await import("idle-js");
+
+      idle = new IdleJs({
+        idle: timeoutMinutes * 60 * 1000,
+        events: ["mousemove", "keydown", "mousedown", "touchstart", "scroll"],
+        keepTracking: true,
+        recurIdleCall: false,
+        onIdle: () => {
+          setWasIdle(true);
+          onTriggerModal();
+        },
+        onShow: () => {
+          if (wasIdle) {
+            onTriggerModal();
+            setWasIdle(false);
+          }
+        },
+      });
+
+      idle.start();
+    };
+
+    setupIdle();
 
     return () => {
-      idle.stop();
+      if (idle) idle.stop();
     };
   }, [timeoutMinutes, onTriggerModal, wasIdle]);
 }
