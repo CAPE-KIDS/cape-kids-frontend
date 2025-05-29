@@ -6,6 +6,7 @@ import { useTriggerHandler } from "@/modules/triggers/useTriggerHandler";
 import { useCanvasStore } from "../store/useCanvasStore";
 import { useKeyboardTriggers } from "@/modules/triggers/useKeyboardTriggers";
 import { useTimerTriggers } from "@/modules/triggers/useTimerTrigger";
+import FeedbackScreen from "./FeedbackScreen";
 
 interface StepLayerProps {
   step: TimelineStep;
@@ -37,12 +38,12 @@ const StepLayer = ({ step, visible, started }: StepLayerProps) => {
     <div
       className={`absolute inset-0 transition-opacity duration-300 ${
         visible
-          ? "opacity-100 pointer-events-auto"
+          ? "opacity-100 pointer-events-auto "
           : "opacity-0 pointer-events-none"
       }`}
     >
       <div
-        className="w-full h-full flex items-center justify-center"
+        className="w-full h-full flex items-center justify-center  relative"
         data-block-id="Screen"
         data-active-id={activeStepId}
       >

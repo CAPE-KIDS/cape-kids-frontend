@@ -11,7 +11,7 @@ export const useInteractionCapture = () => {
   useEffect(() => {
     if (!activeResultId || !startTime) return;
 
-    const handleMouseEvent = (e: MouseEvent) => {
+    function handleMouseEvent(e: MouseEvent) {
       let target = e.target as HTMLElement | null;
 
       const rect = target?.getBoundingClientRect?.();
@@ -31,9 +31,9 @@ export const useInteractionCapture = () => {
         x,
         y,
       });
-    };
+    }
 
-    const handleKeyEvent = (e: KeyboardEvent) => {
+    function handleKeyEvent(e: KeyboardEvent) {
       const keyCombo = normalizeKeyCombo(e);
       if (!keyCombo) return;
 
@@ -43,7 +43,7 @@ export const useInteractionCapture = () => {
         target: activeResultId,
         key: keyCombo,
       });
-    };
+    }
 
     MOUSE_EVENTS.forEach((event) =>
       document.addEventListener(event, handleMouseEvent)

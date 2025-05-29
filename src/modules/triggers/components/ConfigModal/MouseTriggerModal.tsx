@@ -6,6 +6,7 @@ import { MediaBlock } from "@/modules/media/types";
 import { capitalize, random } from "lodash";
 import { Trigger } from "../../types";
 import { TriggerActionsRegistry } from "../../TriggerActionsRegistry";
+import { toast } from "sonner";
 
 interface Props {
   onClose: () => void;
@@ -34,6 +35,17 @@ const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
 
   const handleSave = () => {
     const isBlock = blocks.find((block) => block.id === target);
+
+    if (!target) {
+      toast.error("Please add a target.");
+      return;
+    }
+
+    if (!action) {
+      toast.error("Please add the action.");
+      return;
+    }
+
     const triggerData = {
       id: random(1000, 9999).toString(),
       timeline_step_id: "1234-5678-9101",

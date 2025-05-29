@@ -73,6 +73,11 @@ export const TextEditor = ({
           <OnChangeDebounce
             wait={100}
             onChange={(json, plainText, htmlString) => {
+              console.log("Editor content changed:", {
+                json,
+                plainText,
+                htmlString,
+              });
               onChange && onChange(htmlString, plainText);
             }}
           />

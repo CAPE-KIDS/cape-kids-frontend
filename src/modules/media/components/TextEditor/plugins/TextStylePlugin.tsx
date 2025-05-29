@@ -35,7 +35,7 @@ export const TextStylePlugin = ({ block }: { block: MediaBlock }) => {
   const { resetTool, updateStep, screen } = useEditorStore();
   const [editor] = useLexicalComposerContext();
 
-  const updateBlockStyle = (key: string, value: any) => {
+  const updateBlockStyle = (key: string, value: any, text: string) => {
     if (key === "font-size") {
       const relativeSize = getRelativeSize(
         +value.replace("px", ""),
@@ -45,7 +45,8 @@ export const TextStylePlugin = ({ block }: { block: MediaBlock }) => {
     } else {
       block.data[styleMap[key]] = value;
     }
-
+    block.data.text = text;
+    console.log("block", block);
     updateStep({
       ...block,
     });
@@ -63,11 +64,14 @@ export const TextStylePlugin = ({ block }: { block: MediaBlock }) => {
           const nodes = selection.getNodes();
           nodes.forEach((node) => {
             if (node instanceof TextNode) {
+              console.log("node", node);
               const dom = editor.getElementByKey(node.getKey());
               if (dom) {
+                const text = node.getTextContent();
+                console.log("text", text);
                 const style = dom.style;
                 Object.entries(styles).forEach(([key, value]) => {
-                  updateBlockStyle(key, value);
+                  updateBlockStyle(key, value, text);
                   style.setProperty(key, value);
                 });
               }

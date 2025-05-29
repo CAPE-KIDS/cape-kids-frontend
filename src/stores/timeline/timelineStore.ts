@@ -14,10 +14,14 @@ import _ from "lodash";
 import { useAuthStore } from "../auth/useAuthStore";
 import { StepConnectionSchemaType } from "@shared/stepConnections";
 import { toast } from "sonner";
+import { TaskSchemaWithTimelineType } from "@shared/tasks";
 
 let debouncedUpdate: (...args: any[]) => void;
 
-type SourceDataType = ExperimentSchemaWithTimelineType | TaskSchemaType | null;
+type SourceDataType =
+  | ExperimentSchemaWithTimelineType
+  | TaskSchemaWithTimelineType
+  | null;
 interface TimelineState {
   timelineId: string;
   timeline: TimelineSchemaType;
@@ -85,8 +89,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     get().formatNodes();
     get().formatedEdges();
     set({ loading: false });
-
-    console.log("sourceData", data);
   },
 
   updateSteps: (updatedStep) => {
@@ -209,7 +211,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       set({ edges: [] });
       return [];
     }
-
     const formatedEdges = connections.map((connection) => ({
       id: connection.id,
       source: connection.fromStepId,
@@ -249,25 +250,27 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
 
     let updatedGroup = step.metadata.group;
     if (step.metadata.group?.steps?.length) {
-      const updatedGroupSteps = step.metadata.group.steps.map((groupStep) => {
-        const updatedBlocks = groupStep.metadata.blocks?.map((block) => {
-          const tmpId = block.id;
-          const hasFile = stepFiles && stepFiles[tmpId];
+      const updatedGroupSteps = step.metadata.group.steps.map(
+        (groupStep: any) => {
+          const updatedBlocks = groupStep.metadata.blocks?.map((block: any) => {
+            const tmpId = block.id;
+            const hasFile = stepFiles && stepFiles[tmpId];
+
+            return {
+              ...block,
+              data: hasFile ? { fileField: `files[${tmpId}]` } : block.data,
+            };
+          });
 
           return {
-            ...block,
-            data: hasFile ? { fileField: `files[${tmpId}]` } : block.data,
+            ...groupStep,
+            metadata: {
+              ...groupStep.metadata,
+              blocks: updatedBlocks,
+            },
           };
-        });
-
-        return {
-          ...groupStep,
-          metadata: {
-            ...groupStep.metadata,
-            blocks: updatedBlocks,
-          },
-        };
-      });
+        }
+      );
 
       updatedGroup = {
         ...step.metadata.group,
@@ -298,8 +301,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     }
 
     if (stepFiles && step.metadata.group?.steps?.length) {
-      step.metadata.group.steps.forEach((groupStep) => {
-        groupStep.metadata.blocks.forEach((block) => {
+      step.metadata.group.steps.forEach((groupStep: any) => {
+        groupStep.metadata.blocks.forEach((block: any) => {
           if (block.id && stepFiles[block.id]) {
             formData.append(`files[${block.id}]`, stepFiles[block.id]);
           }
@@ -383,7 +386,14 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   updateEdgesAndNodes: (edges: Edge[], nodes: Node[]) => {
     if (!debouncedUpdate) {
       debouncedUpdate = _.debounce(async (edges: Edge[], nodes: Node[]) => {
-        const { timelineId } = get();
+        const {
+          timelineId,
+          recalculateOrderFromEdges,
+          formatNodes,
+          formatedEdges,
+          getTimelineBySourceId,
+        } = get();
+
         const updatedEdges = edges.map((edge) => ({
           id: edge.id.includes("xy-edge") ? null : edge.id,
           fromStepId: edge.source,
@@ -391,7 +401,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
           condition: "",
         }));
 
-        const ordered = get().recalculateOrderFromEdges(edges, nodes);
+        const ordered = recalculateOrderFromEdges(edges, nodes);
 
         const request = await fetch(API.UPDATE_CONNECTIONS, {
           method: "PUT",
@@ -412,7 +422,25 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
           return;
         }
 
-        set({ error: null });
+        const updatedTimelineReq = await getTimelineBySourceId(
+          get().sourceData?.id as string
+        );
+        const updatedTimelineResponse =
+          updatedTimelineReq as RestResponseSchemaType;
+        if (updatedTimelineResponse.error) {
+          set({ error: updatedTimelineResponse.message });
+          return;
+        }
+
+        const updatedTimeline = updatedTimelineResponse.data;
+        set({
+          timeline: updatedTimeline,
+          steps: updatedTimeline.steps || [],
+          connections: updatedTimeline.step_connections || [],
+        });
+
+        formatNodes();
+        formatedEdges();
       }, 100);
     }
 
@@ -436,10 +464,11 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
 
       const response = await request.json();
       set({ tasks: response.data || [] });
-    } catch (error) {
+    } catch (error: any) {
       set({ error: error.message || "An error occurred while fetching tasks" });
     }
   },
+
   resetTimeline: () => {
     set({
       sourceData: null,

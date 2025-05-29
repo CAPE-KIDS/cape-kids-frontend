@@ -89,7 +89,7 @@ const CreateExperimentsTimeline = () => {
   }, [steps]);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader
         title="Experiment Timeline"
         subtitle="Manage the flow of your experiment"
@@ -104,7 +104,7 @@ const CreateExperimentsTimeline = () => {
         </div>
       </PageHeader>
 
-      <div className="flex-1 p-6">
+      <div className="flex-1">
         <TimelineView />
       </div>
 

@@ -5,7 +5,7 @@ import { MediaBlock } from "@/modules/media/types";
 import { result } from "lodash";
 import { Check, X } from "lucide-react";
 
-const FeedbackScreen = ({ block }: { block: MediaBlock }) => {
+const FeedbackScreen = () => {
   const { isLastCorrect } = useResultsStore();
 
   if (isLastCorrect === undefined) return null;

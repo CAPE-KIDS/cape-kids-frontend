@@ -49,14 +49,14 @@ const DataTable: React.FC<DataTableProps> = ({
   }, [rows]);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent | WheelEvent) => {
+    function handleClickOutside(event: MouseEvent | WheelEvent) {
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setOpenRowId(null);
       }
-    };
+    }
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);

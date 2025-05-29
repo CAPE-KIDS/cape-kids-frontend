@@ -47,14 +47,14 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   const selected = options.find((o) => o.value === value);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    function handleClickOutside(event: MouseEvent) {
       if (
         wrapperRef.current &&
         !wrapperRef.current.contains(event.target as Node)
       ) {
         setOpen(false);
       }
-    };
+    }
 
     if (open) {
       document.addEventListener("mousedown", handleClickOutside);

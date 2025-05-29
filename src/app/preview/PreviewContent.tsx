@@ -8,6 +8,9 @@ import { useResultsStore } from "@/stores/results/useResultsStore";
 import { TimelineStep } from "@shared/timeline";
 import { useCanvasStore } from "@/modules/canvas/store/useCanvasStore";
 import CanvasDebugger from "@/modules/canvas/components/CanvasDebugger";
+import { API } from "@/utils/api";
+import { toast } from "sonner";
+import { useAuthStore } from "@/stores/auth/useAuthStore";
 
 const PreviewContent = () => {
   const searchParams = useSearchParams();
@@ -18,14 +21,40 @@ const PreviewContent = () => {
   const [steps, setSteps] = useState<TimelineStep[] | null>(null);
   const [rawData, setRawData] = useState<any>(null);
   const { clearResults } = useResultsStore();
+  const { authState } = useAuthStore();
 
   const compileSteps = async (steps: TimelineStep[]) => {
     const compiledSteps = await compileTimeline(steps);
     setSteps(compiledSteps);
     return compiledSteps;
   };
+
+  async function getTimelineData() {
+    if (!stepId) return toast.error("Timeline ID inválido ou não fornecido.");
+    const request = await fetch(API.GET_TIMELINE_ID_BY_SOURCE_ID(stepId), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const response = await request.json();
+
+    if (response.error) {
+      console.error("Erro ao buscar dados da timeline:", response.error);
+      toast.error("Erro ao buscar dados da timeline.");
+      return;
+    }
+    console.log(response);
+    compileSteps(response.data.steps);
+  }
+
   useEffect(() => {
     try {
+      if (!window.name) {
+        getTimelineData();
+        return;
+      }
+
       if (typeof window !== "undefined" && window.name) {
         const data = JSON.parse(window.name);
         setRawData(data);
@@ -47,6 +76,7 @@ const PreviewContent = () => {
   }, []);
 
   const handleStart = async (e) => {
+    if (loading) return;
     const el = document.documentElement;
     if (el.requestFullscreen) {
       try {
@@ -79,22 +109,32 @@ const PreviewContent = () => {
   return (
     <>
       <div className="relative w-screen h-screen overflow-hidden bg-white">
-        {/* Canvas com steps carregados */}
         <div className="relative w-full h-full overflow-hidden">
           {!started && <div className="absolute inset-0 bg-black z-50" />}
 
           {started && steps && (
-            <>
-              <button
-                className="p-2 bg-black text-white cursor-pointer hover:opacity-80 border border-white absolute left-[-1px] top-[-1px] z-50"
-                onClick={resetPreview}
+            <div className="w-screen h-screen bg-black flex items-center justify-center">
+              <div
+                className="bg-white relative"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  maxWidth: "calc(100vh * (16 / 9))",
+                  maxHeight: "calc(100vw * (9 / 16))",
+                  aspectRatio: "16 / 9",
+                }}
               >
-                Restart
-              </button>
-              {activeStep && <CanvasDebugger />}
+                <button
+                  className="p-2 bg-black text-white cursor-pointer hover:opacity-80 border border-white absolute left-[-1px] top-[-1px] z-50"
+                  onClick={resetPreview}
+                >
+                  Restart
+                </button>
+                {activeStep && authState.user && <CanvasDebugger />}
 
-              <CanvasRunner steps={steps} started={started} />
-            </>
+                <CanvasRunner steps={steps} started={started} />
+              </div>
+            </div>
           )}
         </div>
 
@@ -117,7 +157,6 @@ const PreviewContent = () => {
           )}
         </div>
       </div>
-      <div id="feedback-overlay-root" />
     </>
   );
 };

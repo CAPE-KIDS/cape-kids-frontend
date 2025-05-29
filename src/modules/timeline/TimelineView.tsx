@@ -23,13 +23,15 @@ const TimelineView = () => {
   }
 
   return (
-    <div>
-      <TimelineHeader
-        title={sourceData?.title || ""}
-        key={sourceData?.id || ""}
-        onAddStep={() => useTimelineSidebar.getState().openSidebar(null)}
-      />
-      <TimelineEditor />
+    <div className="w-full overflow-hidden relative h-full">
+      <div className="p-6">
+        <TimelineHeader
+          title={sourceData?.title || ""}
+          key={sourceData?.id || ""}
+          onAddStep={() => useTimelineSidebar.getState().openSidebar(null)}
+        />
+        <TimelineEditor />
+      </div>
       <TimelineSidebar />
     </div>
   );

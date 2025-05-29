@@ -121,7 +121,7 @@ const TimelineEditor = () => {
   };
 
   return (
-    <div className="w-full h-[600px] max-h-[calc(100vh-230px)] rounded-md border relative">
+    <div className="w-full h-[600px] max-h-[calc(100vh-260px)] rounded-md border relative">
       <div className="absolute right-1 top-1 flex items-center gap-2">
         <button
           onClick={openPreview}
@@ -145,6 +145,16 @@ const TimelineEditor = () => {
         <Background gap={12} size={1} />
         <Controls />
       </ReactFlow>
+      <div className="text-xs mt-1">
+        Facing any trouble or the loading is taking to much time? Please{" "}
+        <button
+          className="text-blue-500 cursor-pointer"
+          onClick={() => window.location.reload()}
+        >
+          refresh the page
+        </button>{" "}
+        to re-sync the data.
+      </div>
     </div>
   );
 };

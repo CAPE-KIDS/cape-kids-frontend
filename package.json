@@ -19,6 +19,7 @@
     "canvas": "^3.0.0-rc3",
     "capekids-shared": "git+https://github.com/CAPE-KIDS/capekids-shared.git",
     "hotkeys-js": "^3.13.9",
+    "idle-js": "^1.2.0",
     "jwt-decode": "^4.0.0",
     "lexical": "^0.29.0",
     "lodash": "^4.17.21",
@@ -36,6 +37,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/idle-js": "^1.2.3",
     "@types/lodash": "^4.17.16",
     "@types/node": "^20",
     "@types/nprogress": "^0.2.3",

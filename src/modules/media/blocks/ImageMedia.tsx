@@ -11,11 +11,17 @@ const ImageMedia = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.addEventListener("cancel", () => {
-        ImageTool.onCancel && ImageTool.onCancel({ ...UIContext });
-      });
+    if (!inputRef.current) return;
+
+    function handleCancel() {
+      ImageTool.onCancel && ImageTool.onCancel({ ...UIContext });
     }
+
+    inputRef.current.addEventListener("cancel", handleCancel);
+
+    return () => {
+      inputRef.current?.removeEventListener("cancel", handleCancel);
+    };
   }, [inputRef.current]);
 
   const UIContext = {

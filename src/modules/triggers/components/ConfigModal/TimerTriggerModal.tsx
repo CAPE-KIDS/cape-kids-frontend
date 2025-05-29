@@ -5,6 +5,7 @@ import CustomSelect from "@/components/CustomSelect";
 import { random } from "lodash";
 import { Trigger } from "../../types";
 import { TriggerActionsRegistry } from "../../TriggerActionsRegistry";
+import { toast } from "sonner";
 
 interface Props {
   onClose: () => void;
@@ -25,6 +26,11 @@ const TimerTriggerModal: React.FC<Props> = ({ onClose }) => {
 
   const handleSave = () => {
     if (!screenBlock) return;
+
+    if (!action) {
+      toast.error("Please add the action.");
+      return;
+    }
 
     const triggerData = {
       id: random(1000, 9999).toString(),

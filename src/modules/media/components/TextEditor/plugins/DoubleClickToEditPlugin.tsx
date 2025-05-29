@@ -20,19 +20,19 @@ export function DoubleClickToEditPlugin({
     const wrapper = wrapperRef?.current;
     if (!wrapper) return;
 
-    const handleDoubleClick = () => {
+    function handleDoubleClick() {
       setIsEditable(true);
       setTimeout(() => {
         editor.focus();
       }, 0);
-    };
+    }
 
-    const handleBlur = (event: FocusEvent) => {
-      if (!wrapper.contains(event.relatedTarget as Node)) {
+    function handleBlur(event: FocusEvent) {
+      if (!wrapperRef.current?.contains(event.relatedTarget as Node)) {
         setIsEditable(false);
         editor.blur();
       }
-    };
+    }
 
     wrapper.addEventListener("dblclick", handleDoubleClick);
     wrapper.addEventListener("focusout", handleBlur);
@@ -43,5 +43,5 @@ export function DoubleClickToEditPlugin({
     };
   }, [editor, setIsEditable, wrapperRef]);
 
-  return null; // sem UI
+  return null;
 }

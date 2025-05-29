@@ -15,7 +15,12 @@ export function middleware(request: NextRequest) {
 
   const token = request.cookies.get("auth_token")?.value;
   const { pathname } = request.nextUrl;
-  const isPublic = pathname === "/";
+  const isPublic = pathname === "/" || pathname.startsWith("/preview");
+
+  if (isPublic) {
+    return NextResponse.next();
+  }
+
   if (!token) {
     redirect = true;
     return NextResponse.redirect(new URL("/", request.url));

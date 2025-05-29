@@ -42,6 +42,7 @@ const PlayExperiment = () => {
   }, [authState]);
 
   const handleStart = async (e) => {
+    if (loading) return;
     const el = document.documentElement;
     if (el.requestFullscreen) {
       try {
@@ -62,9 +63,20 @@ const PlayExperiment = () => {
           {!started && <div className="absolute inset-0 bg-black z-50" />}
 
           {started && steps && (
-            <>
-              <CanvasRunner steps={steps} started={started} />
-            </>
+            <div className="w-screen h-screen bg-black flex items-center justify-center">
+              <div
+                className="bg-white relative"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  maxWidth: "calc(100vh * (16 / 9))",
+                  maxHeight: "calc(100vw * (9 / 16))",
+                  aspectRatio: "16 / 9",
+                }}
+              >
+                <CanvasRunner steps={steps} started={started} />
+              </div>
+            </div>
           )}
         </div>
 
@@ -86,7 +98,6 @@ const PlayExperiment = () => {
           )}
         </div>
       </div>
-      <div id="feedback-overlay-root" />
     </>
   );
 };

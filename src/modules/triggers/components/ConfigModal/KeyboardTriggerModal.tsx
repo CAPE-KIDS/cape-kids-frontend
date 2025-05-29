@@ -30,6 +30,11 @@ const KeyboardTriggerModal: React.FC<Props> = ({ onClose }) => {
       return;
     }
 
+    if (!action) {
+      toast.error("Please add the action.");
+      return;
+    }
+
     const isBlock = blocks.find((block) => block.type === "screen");
 
     const triggerData = {

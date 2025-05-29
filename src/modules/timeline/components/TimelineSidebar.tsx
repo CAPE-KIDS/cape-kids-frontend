@@ -14,7 +14,7 @@ import { useEditorStore } from "@/stores/editor/useEditorStore";
 import { toast } from "sonner";
 import { TimelineStepOrder } from "./TimelineStepOrder";
 import TriggerManager from "@/modules/triggers/components/TriggerManager";
-import { Settings, Trash } from "lucide-react";
+import { MonitorPlay, Settings, Trash } from "lucide-react";
 import { useStimuliModal } from "@/stores/timeline/blockTypes/stimuliModalStore";
 import { useMultiTriggerStimuliModal } from "@/stores/timeline/blockTypes/multiTriggerStimuliStore";
 import { StepType, stepTypeEnum } from "@shared/timeline";
@@ -263,10 +263,6 @@ const TimelineSidebar = () => {
     }
   };
 
-  useEffect(() => {
-    console.log("tasks", tasks);
-  }, [tasks]);
-
   return (
     <ResizableSidebar
       isOpen={sidebarOpen}
@@ -274,136 +270,164 @@ const TimelineSidebar = () => {
         closeSidebar();
       }}
     >
-      <div className="flex w-full h-full gap-10">
-        <div className="max-w-2xl w-full">
-          <h2 className="text-2xl mb-4">
-            {currentStep ? "Editing step" : "Adding step to the timeline"}
-          </h2>
-          <p className="mb-4">{sourceData?.title}</p>
+      <div className="w-full h-full flex flex-col">
+        <div className="flex gap-10 p-6 flex-col lg:flex-row flex-1 ">
+          {/* Right Panel */}
+          <div className="max-w-2xl pr-4 w-full flex-1">
+            <h2 className="text-2xl mb-4">
+              {currentStep ? "Editing step" : "Adding step to the timeline"}
+            </h2>
+            <p className="mb-4">{sourceData?.title}</p>
 
-          <div className="flex flex-col gap-4">
-            {/* Title */}
-            <div className="flex flex-col space-y-1">
-              <label className="text-xs text-gray-400">Title</label>
-              <input
-                {...register("title")}
-                className="bg-[#EBEFFF] rounded-lg p-2"
-                placeholder="Step title"
-              />
-              {errors.title && (
-                <span className="text-red-500 text-xs">
-                  {errors.title.message}
-                </span>
-              )}
-            </div>
-
-            {/* Type */}
-            <div className="flex flex-col space-y-1">
-              <div className="flex justify-between">
-                <label className="text-xs text-gray-400">Type</label>
-                {options.find((opt) => opt.value === watch("type"))
-                  ?.onSelect && (
-                  <Settings
-                    width={16}
-                    className="cursor-pointer"
-                    onClick={handleConfig}
-                  />
+            <div className="flex flex-col gap-4">
+              {/* Title */}
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs text-gray-400">Title</label>
+                <input
+                  {...register("title")}
+                  className="bg-[#EBEFFF] rounded-lg p-2"
+                  placeholder="Step title"
+                />
+                {errors.title && (
+                  <span className="text-red-500 text-xs">
+                    {errors.title.message}
+                  </span>
                 )}
               </div>
-              <CustomSelect
-                value={watch("type") || null}
-                onChange={(val) => {
-                  const { blocks } = useEditorStore.getState();
-                  const currentStepType = watch("type");
 
-                  pushHistory(currentStepType as StepType);
-
-                  const selected = options.find((opt) => opt.value === val);
-                  if (selected?.onSelect) {
-                    selected.onSelect();
-                  }
-
-                  setValue("type", val);
-                }}
-                options={options}
-              />
-              {errors.type && (
-                <span className="text-red-500 text-xs">
-                  {errors.type.message}
-                </span>
-              )}
-            </div>
-
-            {/* Task selector */}
-            {watch("type") === "task" && (
+              {/* Type */}
               <div className="flex flex-col space-y-1">
-                <label className="text-xs text-gray-400">Task</label>
+                <div className="flex justify-between">
+                  <label className="text-xs text-gray-400">Type</label>
+                  {options.find((opt) => opt.value === watch("type"))
+                    ?.onSelect && (
+                    <Settings
+                      width={16}
+                      className="cursor-pointer"
+                      onClick={handleConfig}
+                    />
+                  )}
+                </div>
                 <CustomSelect
-                  value={watch("task") || null}
-                  onChange={(val) => setValue("task", val)}
-                  options={tasks.map((t) => {
-                    return {
-                      value: t.task.id,
-                      label: t.task.title,
-                    };
-                  })}
+                  value={watch("type") || null}
+                  onChange={(val) => {
+                    const { blocks } = useEditorStore.getState();
+                    const currentStepType = watch("type");
+
+                    pushHistory(currentStepType as StepType);
+
+                    const selected = options.find((opt) => opt.value === val);
+                    if (selected?.onSelect) {
+                      selected.onSelect();
+                    }
+
+                    setValue("type", val);
+                  }}
+                  options={options}
                 />
+                {errors.type && (
+                  <span className="text-red-500 text-xs">
+                    {errors.type.message}
+                  </span>
+                )}
               </div>
-            )}
 
-            {/* Editor */}
-            {options.find((opt) => opt.value === watch("type"))?.showScreen && (
-              <>
+              {/* Task selector */}
+              {watch("type") === "task" && (
                 <div className="flex flex-col space-y-1">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs text-gray-400">Screen</label>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-gray-400">Task</label>
+
+                      {watch("task") && (
+                        <div>
+                          <button
+                            className="flex items-center gap-1 cursor-pointer"
+                            onClick={() => {
+                              window.open(
+                                `/preview?id=${watch("task")}`,
+                                "_blank"
+                              );
+                            }}
+                          >
+                            <MonitorPlay
+                              size={16}
+                              className="text-gray-500 hover:text-gray-700"
+                            />
+                            <span className="text-xs ">Preview</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <ScreenEditor key={sourceData?.id} />
+                  <CustomSelect
+                    value={watch("task") || null}
+                    onChange={(val) => setValue("task", val)}
+                    options={tasks.map((t) => {
+                      return {
+                        value: t.task.id,
+                        label: t.task.title,
+                      };
+                    })}
+                  />
                 </div>
+              )}
 
-                <div className="flex items-center mt-4 gap-8">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs text-gray-500">Media</span>
-                    <MediaTypeBlocks />
+              {/* Editor */}
+              {options.find((opt) => opt.value === watch("type"))
+                ?.showScreen && (
+                <>
+                  <div className="flex flex-col space-y-1">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-gray-400">Screen</label>
+                    </div>
+                    <ScreenEditor key={sourceData?.id} />
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs text-gray-500">Triggers</span>
-                    <TriggerButtons />
+
+                  <div className="flex items-center mt-4 gap-8">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs text-gray-500">Media</span>
+                      <MediaTypeBlocks />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs text-gray-500">Triggers</span>
+                      <TriggerButtons />
+                    </div>
                   </div>
-                </div>
-              </>
-            )}
-
-            <div className="flex gap-4 justify-between items-center">
-              {/* Submit */}
-              <button
-                onClick={handleSubmit(onSubmit)}
-                className="w-md flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm cursor-pointer"
-              >
-                {currentStep ? "Update" : "Save"}
-              </button>
-
-              {currentStep && (
-                <button
-                  onClick={handleRemove}
-                  className="group w-fit flex items-center justify-center gap-2 text-red-600 hover:text-red-700 text-sm cursor-pointer"
-                >
-                  <Trash size={16} className="group-hover:animate-bounce" />
-                  Remove step
-                </button>
+                </>
               )}
             </div>
           </div>
+
+          {/* Right Panel */}
+          <div className="w-full lg:max-w-96 bg-[#EBEFFF] h-full max-h-[660px] p-6 relative flex-1">
+            <TimelineStepOrder
+              draftTitle={watch("title")}
+              draftType={watch("type")}
+            />
+            {options.find((opt) => opt.value === watch("type"))?.showScreen && (
+              <TriggerManager />
+            )}
+          </div>
         </div>
 
-        {/* Right Panel */}
-        <div className="w-full max-w-96 bg-[#EBEFFF] h-full max-h-[660px] p-6 relative">
-          <TimelineStepOrder
-            draftTitle={watch("title")}
-            draftType={watch("type")}
-          />
-          {options.find((opt) => opt.value === watch("type"))?.showScreen && (
-            <TriggerManager />
+        <div className="flex gap-4 justify-between items-center mb-6 max-w-96 mx-6">
+          {/* Submit */}
+          <button
+            onClick={handleSubmit(onSubmit)}
+            className="w-md flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm cursor-pointer"
+          >
+            {currentStep ? "Update" : "Save"}
+          </button>
+
+          {currentStep && (
+            <button
+              onClick={handleRemove}
+              className="group w-fit flex items-center justify-center gap-2 text-red-600 hover:text-red-700 text-sm cursor-pointer"
+            >
+              <Trash size={16} className="group-hover:animate-bounce" />
+              Remove step
+            </button>
           )}
         </div>
       </div>

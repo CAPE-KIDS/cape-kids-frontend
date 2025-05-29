@@ -18,7 +18,7 @@ export const CanvasMediaRenderer: React.FC<{ block: MediaBlock }> = ({
   const handlers = getHandlersFromTriggers(block.triggers);
 
   if (block.type === "feedback") {
-    return <FeedbackScreen block={block} />;
+    return <FeedbackScreen />;
   }
 
   if (block.type === "save") {
@@ -67,6 +67,19 @@ export const CanvasMediaRenderer: React.FC<{ block: MediaBlock }> = ({
     ? getAbsoluteSize(block.data.fontSize, screen?.width)
     : 16;
 
+  console.log("screen", screen);
+  console.log("block.position.x", block.position.x);
+  console.log("block.position.y", block.position.y);
+  console.log("left", getAbsoluteSize(block.position.x, screen?.width));
+  console.log("top", getAbsoluteSize(block.position.y, screen?.height));
+  console.log("width", getAbsoluteSize(block.size.width, screen?.width));
+  console.log(
+    "height",
+    block.size?.height
+      ? getAbsoluteSize(block.size?.height, screen?.width) + "px"
+      : "auto"
+  );
+
   const style = {
     position: "absolute" as const,
     left: `${getAbsoluteSize(block.position.x, screen?.width)}px`,
@@ -74,7 +87,7 @@ export const CanvasMediaRenderer: React.FC<{ block: MediaBlock }> = ({
     width: `${getAbsoluteSize(block.size.width, screen?.width)}px`,
     height: `${
       block.size?.height
-        ? getAbsoluteSize(block.size?.height, screen?.width) + "px"
+        ? getAbsoluteSize(block.size?.height, screen?.height) + "px"
         : "auto"
     }`,
     ...block.data,
@@ -87,9 +100,14 @@ export const CanvasMediaRenderer: React.FC<{ block: MediaBlock }> = ({
       return (
         <div
           {...handlers}
-          style={style}
+          style={{
+            ...style,
+            height: "auto",
+          }}
           className="leading-none"
-          dangerouslySetInnerHTML={{ __html: block.data.html }}
+          dangerouslySetInnerHTML={{
+            __html: block.data.html || block.data.text,
+          }}
           data-block-id={block.id}
         ></div>
       );

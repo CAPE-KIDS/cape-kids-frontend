@@ -18,7 +18,7 @@ const KeyCaptureInput: React.FC<KeyCaptureInputProps> = ({
   useEffect(() => {
     if (!listening) return;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
+    function handleKeyDown(e: KeyboardEvent) {
       e.preventDefault();
 
       const combo = normalizeKeyCombo(e);
@@ -27,7 +27,7 @@ const KeyCaptureInput: React.FC<KeyCaptureInputProps> = ({
         onKeyCapture(combo);
         setListening(false);
       }
-    };
+    }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);

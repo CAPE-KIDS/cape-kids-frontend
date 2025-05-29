@@ -1,32 +1,38 @@
 "use client";
 import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useExperimentsStore } from "@/stores/experiments/experimentsStore";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
+import { useAuthStore } from "@/stores/auth/useAuthStore";
 
 const Experiments = () => {
   const router = useRouter();
-  const { token, user } = useAuth();
+  const { authState } = useAuthStore();
   const { experiments, getUserExperiments } = useExperimentsStore();
   const [loading, setLoading] = React.useState(true);
   const { getTasks } = useTimelineStore();
 
+  const fetchExperiments = async () => {
+    if (!authState.token) return;
+    await getUserExperiments(authState.token);
+    setLoading(false);
+  };
+
+  const fetchTasks = async () => {
+    if (!authState.token) return;
+    await getTasks();
+  };
+
   useEffect(() => {
-    if (!token) return;
-    const fetchExperiments = async () => {
-      await getUserExperiments(token);
-      setLoading(false);
-    };
-    const fetchTasks = async () => {
-      await getTasks();
-    };
+    if (!authState.token) return;
+
     fetchExperiments();
     fetchTasks();
-  }, [token]);
+  }, [authState.token]);
 
   return (
     <div>
@@ -39,7 +45,7 @@ const Experiments = () => {
           />
         </div>
 
-        {user?.profile.profileType !== "participant" && (
+        {authState.user?.profile.profileType !== "participant" && (
           <div className="button">
             <Link
               className="cursor-pointer bg-blue-500 text-white rounded-lg px-4 py-3 hover:bg-blue-600 transition duration-200"
@@ -60,7 +66,7 @@ const Experiments = () => {
 
         {!loading &&
           experiments.length === 0 &&
-          (user?.profile.profileType === "participant" ? (
+          (authState.user?.profile.profileType === "participant" ? (
             <div className="p-6">
               <p className="text-gray-500">
                 You are not part of any experiment. Please contact the
@@ -88,7 +94,7 @@ const Experiments = () => {
               >
                 <h2 className="text-lg font-semibold">{e.experiment.title}</h2>
                 <p className="text-gray-500">{e.experiment.description}</p>
-                {user?.profile.profileType === "participant" ? (
+                {authState.user?.profile.profileType === "participant" ? (
                   <Link
                     className="cursor-pointer text-blue-500 mt-4 block"
                     href={`/experiments/${e.experiment.id}/play`}
