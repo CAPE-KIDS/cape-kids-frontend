@@ -1,20 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import {
-  RegisterSchemaType,
-  registerSchema,
-  ParticipantMetadataSchemaType,
-} from "@shared/user";
-import { API } from "@/utils/api";
+import { RegisterSchemaType, registerSchema } from "@shared/user";
 import ParticipantProfileForm from "./ParticipantProfileForm";
 import PsychologistProfileForm from "./PsychologistProfileForm";
 import ResearcherProfileForm from "./ResearcherProfileForm";
-import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { X } from "lucide-react";
-import { set } from "lodash";
 
 interface Props {
   close: () => void;
@@ -33,6 +26,8 @@ const RegisterForm = ({ close }: Props) => {
       metadata: {},
     },
   });
+
+  console.log("form", form);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
