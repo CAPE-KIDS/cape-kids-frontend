@@ -46,7 +46,7 @@ const CreateExperiments = () => {
       return;
     }
     toast.success("Experiment created successfully");
-    router.push(`/experiments/${response.data.id}/timeline`);
+    router.push(`/experiments/${response.data.experiment.id}/timeline`);
   };
 
   const generateCode = async () => {
