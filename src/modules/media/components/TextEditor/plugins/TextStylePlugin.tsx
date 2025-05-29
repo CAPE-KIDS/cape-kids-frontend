@@ -46,7 +46,6 @@ export const TextStylePlugin = ({ block }: { block: MediaBlock }) => {
       block.data[styleMap[key]] = value;
     }
     block.data.text = text;
-    console.log("block", block);
     updateStep({
       ...block,
     });
@@ -64,11 +63,9 @@ export const TextStylePlugin = ({ block }: { block: MediaBlock }) => {
           const nodes = selection.getNodes();
           nodes.forEach((node) => {
             if (node instanceof TextNode) {
-              console.log("node", node);
               const dom = editor.getElementByKey(node.getKey());
               if (dom) {
                 const text = node.getTextContent();
-                console.log("text", text);
                 const style = dom.style;
                 Object.entries(styles).forEach(([key, value]) => {
                   updateBlockStyle(key, value, text);
