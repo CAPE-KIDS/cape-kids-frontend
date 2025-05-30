@@ -14,6 +14,7 @@ import {
   FormatedParticipantsType,
   useParticipantsStore,
 } from "@/stores/participants/participantsStore";
+import { confirm } from "@/components/confirm/confirm";
 
 const ExperimentParticipants = () => {
   const params = useParams();
@@ -222,8 +223,15 @@ const ExperimentParticipants = () => {
               // { label: "Edit", onClick: (row) => editParticipant(row.id) },
               {
                 label: "Remove",
-                onClick: async (row) =>
-                  await removeParticipantFromExperiment(`${row.id}`),
+                onClick: async (row) => {
+                  const ok = await confirm({
+                    title: "Tem certeza que remover este participante?",
+                    message: "Essa ação não pode ser desfeita.",
+                  });
+                  if (!ok) return;
+
+                  await removeParticipantFromExperiment(`${row.id}`);
+                },
               },
             ]}
             onReorder={(newOrder) => console.log("Reordered: ", newOrder)}

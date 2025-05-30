@@ -3,6 +3,7 @@ import { useEditorStore } from "@/stores/editor/useEditorStore";
 import { Pencil, Trash2 } from "lucide-react";
 import { Trigger } from "@/modules/triggers/types";
 import { capitalize } from "lodash";
+import { confirm } from "@/components/confirm/confirm";
 
 interface TriggerWithBlock extends Trigger {
   blockId: string;
@@ -87,7 +88,14 @@ const TriggerManager: React.FC = () => {
               <button
                 title="Delete trigger"
                 className="text-red-500 hover:text-red-700 cursor-pointer"
-                onClick={() => handleRemove(trigger)}
+                onClick={async () => {
+                  const ok = await confirm({
+                    title: "Por favor confirme a remoção do trigger",
+                    message: "",
+                  });
+                  if (!ok) return;
+                  handleRemove(trigger);
+                }}
               >
                 <Trash2 size={16} />
               </button>

@@ -4,6 +4,7 @@ import { useStimuliModal } from "@/stores/timeline/blockTypes/stimuliModalStore"
 import { capitalize } from "lodash";
 import { PlusIcon } from "lucide-react";
 import React, { useMemo } from "react";
+import { confirm } from "@/components/confirm/confirm";
 
 export function getFirstBlockTypeAndTrigger(step: TimelineStep) {
   const firstWithTrigger = (step.metadata.blocks || []).find(
@@ -84,7 +85,17 @@ const SequentialStimuliManager = () => {
                 label: "Duplicate",
                 onClick: (row) => duplicateStimulusStep(row.id),
               },
-              { label: "Remove", onClick: (row) => removeStimulusStep(row.id) },
+              {
+                label: "Remove",
+                onClick: async (row) => {
+                  const ok = await confirm({
+                    title: "Tem certeza que remover este estimulo?",
+                    message: "Essa ação não pode ser desfeita.",
+                  });
+                  if (!ok) return;
+                  removeStimulusStep(row.id);
+                },
+              },
             ]}
             onReorder={(newOrder) => updateStimulusOrder(newOrder)}
           />

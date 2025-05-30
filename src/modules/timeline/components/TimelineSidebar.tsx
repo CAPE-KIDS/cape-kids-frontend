@@ -20,6 +20,7 @@ import { useMultiTriggerStimuliModal } from "@/stores/timeline/blockTypes/multiT
 import { StepType, stepTypeEnum } from "@shared/timeline";
 import _, { get } from "lodash";
 import { useAuth } from "@/hooks/useAuth";
+import { confirm } from "@/components/confirm/confirm";
 
 const timelineStepSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -94,6 +95,7 @@ const TimelineSidebar = () => {
     pushHistory,
     historyStack,
     stepFiles,
+    clearStepFiles,
   } = useEditorStore();
 
   const {
@@ -143,8 +145,9 @@ const TimelineSidebar = () => {
     }
 
     if (currentStep) {
+      console.log("stepFiles", stepFiles);
       console.log("newStep", newStep);
-      // const updatedStep = await updatedStep(newStep, token);
+      // const updatedStep = await updateStep(newStep, token);
       // updateSteps(updatedStep.data);
       // toast.success(
       //   currentStep ? "Step updated sucessfully!" : "Step created sucessfully!"
@@ -170,11 +173,20 @@ const TimelineSidebar = () => {
   const handleRemove = async () => {
     if (!currentStep) return;
 
-    await removeStep(currentStep.id);
-    closeSidebar();
-    clearEditor();
-    resetTimeline();
-    reset();
+    const ok = await confirm({
+      title: "Tem certeza?",
+      message: "Essa ação não pode ser desfeita.",
+    });
+
+    if (!ok) return;
+
+    if (ok) {
+      await removeStep(currentStep.id);
+      closeSidebar();
+      clearEditor();
+      resetTimeline();
+      reset();
+    }
   };
 
   useEffect(() => {
@@ -263,10 +275,17 @@ const TimelineSidebar = () => {
     }
   };
 
+  useEffect(() => {
+    return () => {
+      closeSidebar();
+    };
+  }, []);
+
   return (
     <ResizableSidebar
       isOpen={sidebarOpen}
       onClose={() => {
+        clearStepFiles();
         closeSidebar();
       }}
     >

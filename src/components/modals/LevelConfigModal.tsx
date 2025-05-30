@@ -201,7 +201,7 @@ const LevelConfigModal = ({
                 setShowLevelModal(false);
               }}
             >
-              Cancel
+              Close
             </span>
           </button>
         </div>

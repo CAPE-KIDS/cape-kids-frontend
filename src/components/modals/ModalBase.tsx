@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 
 interface ModalBaseProps {
   styles?: string;
@@ -13,7 +14,10 @@ const ModalBase: React.FC<ModalBaseProps> = ({
   children,
   styles,
 }) => {
-  return (
+  const modalRoot = document.getElementById("modal-root");
+  if (!modalRoot) return null;
+
+  return ReactDOM.createPortal(
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[100]">
       <div
         className={`bg-white rounded-xl shadow-xl p-6 w-[400px] max-w-[90%] relative ${styles}`}
@@ -27,7 +31,8 @@ const ModalBase: React.FC<ModalBaseProps> = ({
         </button>
         {children}
       </div>
-    </div>
+    </div>,
+    modalRoot
   );
 };
 

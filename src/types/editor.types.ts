@@ -80,7 +80,7 @@ export interface EditorState {
   removeTriggerFromBlock: (blockId: string | null, triggerId: string) => void;
   stepFiles: Record<string, File>;
   addStepFile: (stepId: string, file: File) => void;
-  clearStepFiles: (stepId: string) => void;
+  clearStepFiles: () => void;
   mountStep: (
     timelineId: string,
     positions: StepPositions,

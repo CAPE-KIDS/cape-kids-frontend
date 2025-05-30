@@ -142,10 +142,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     });
   },
 
-  clearStepFiles: (stepId) => {
-    const { stepFiles } = get();
-    const { [stepId]: _, ...rest } = stepFiles;
-    set({ stepFiles: rest });
+  clearStepFiles: () => {
+    set({ stepFiles: {} });
   },
 
   calculateRenderPosititon: (steps) => {

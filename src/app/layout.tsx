@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthProvider";
 import { Toaster } from "sonner";
+import { ConfirmProvider } from "@/components/confirm/ConfirmProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,11 +24,14 @@ export default function RootLayout({
         <body className={`${inter.className} antialiased`}>
           <Toaster position="top-right" richColors />
 
-          <div className="flex">
-            <div className="flex flex-1 flex-col h-screen overflow-auto">
-              {children}
+          <ConfirmProvider>
+            <div className="flex">
+              <div className="flex flex-1 flex-col h-screen overflow-auto">
+                {children}
+              </div>
             </div>
-          </div>
+          </ConfirmProvider>
+          <div id="modal-root" />
         </body>
       </AuthProvider>
     </html>

@@ -45,7 +45,7 @@ const MultiTriggerConfigModal = () => {
               onClick={closeModal}
               className="text-sm px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 cursor-pointer"
             >
-              Cancel
+              Close
             </button>
             <button
               onClick={closeModal}

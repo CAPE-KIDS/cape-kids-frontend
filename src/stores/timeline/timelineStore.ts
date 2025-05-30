@@ -50,6 +50,10 @@ interface TimelineState {
     token: string,
     stepFiles?: Record<string, File>
   ) => Promise<RestResponseSchemaType>;
+  updateStep: (
+    step: TimelineStep,
+    stepFiles?: Record<string, File>
+  ) => Promise<RestResponseSchemaType>;
   getTasks: () => Promise<void>;
   saveConnections: () => void;
   getTimelineBySourceId: (sourceId: string) => Promise<RestResponseSchemaType>;
@@ -149,10 +153,16 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       return;
     }
 
-    set({ error: null });
-    set({ loading: false });
     toast.success("Step deleted successfully");
     const updatedSteps = steps.filter((step) => step.id !== stepId);
+    console.log("Updated steps after deletion:", updatedSteps);
+
+    if (updatedSteps.length === 0) {
+      setTimeout(() => {
+        set({ error: null, loading: false });
+      }, 100);
+      return;
+    }
 
     const updatedConnections = connections.filter(
       (conn) => conn.fromStepId !== stepId && conn.toStepId !== stepId
@@ -330,6 +340,15 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     return response;
   },
 
+  updateStep: async (step, stepFiles) => {
+    return {
+      timelineId: get().timelineId,
+      step: step,
+      stepFiles: stepFiles,
+      token: useAuthStore.getState().authState.token,
+    };
+  },
+
   saveConnections: async () => {
     const { connections } = get();
     const { authState } = useAuthStore.getState();
@@ -479,7 +498,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
 
   resetTimeline: () => {
     set({
-      sourceData: null,
       steps: [],
       connections: [],
       nodes: [],

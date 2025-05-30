@@ -1,3 +1,4 @@
+import { confirm } from "@/components/confirm/confirm";
 import DataTable from "@/components/DataTable";
 import { useMultiTriggerStimuliModal } from "@/stores/timeline/blockTypes/multiTriggerStimuliStore";
 import { TimelineStep } from "@shared/timeline";
@@ -88,7 +89,17 @@ const MultiTriggerStimuliManager = () => {
                 label: "Duplicate",
                 onClick: (row) => duplicateStimulusStep(row.id),
               },
-              { label: "Remove", onClick: (row) => removeStimulusStep(row.id) },
+              {
+                label: "Remove",
+                onClick: async (row) => {
+                  const ok = await confirm({
+                    title: "Tem certeza que remover este estimulo?",
+                    message: "Essa ação não pode ser desfeita.",
+                  });
+                  if (!ok) return;
+                  removeStimulusStep(row.id);
+                },
+              },
             ]}
             onReorder={(newOrder) => updateStimulusOrder(newOrder)}
           />
