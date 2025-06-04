@@ -9,10 +9,6 @@ import { useTimelineSidebar } from "@/stores/timeline/sidebarStore";
 const TimelineView = () => {
   const { sourceData, loading } = useTimelineStore();
 
-  useEffect(() => {
-    console.log("Loading state changed:", loading);
-  }, [loading]);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full gap-4">

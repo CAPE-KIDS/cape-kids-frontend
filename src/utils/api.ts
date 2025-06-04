@@ -34,6 +34,7 @@ export const API = {
     `${API_URL}/timelines/source/${sourceId}`,
   UPDATE_CONNECTIONS: `${API_URL}/timelines/update-timeline-connections`,
   SAVE_STEP: `${API_URL}/timeline-steps`,
+  UPDATE_STEP: (id: string) => `${API_URL}/timeline-steps/${id}`,
   DELETE_STEP: (id: string) => `${API_URL}/timeline-steps/${id}`,
   SAVE_CONNECTIONS: `${API_URL}/step-connections`,
 };

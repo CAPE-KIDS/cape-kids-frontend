@@ -77,6 +77,7 @@ const TimelineSidebar = () => {
     steps,
     sourceData,
     updateSteps,
+    updateStepResquest,
     removeStep,
     saveStep,
     timelineId,
@@ -145,15 +146,20 @@ const TimelineSidebar = () => {
     }
 
     if (currentStep) {
-      console.log("stepFiles", stepFiles);
-      console.log("newStep", newStep);
-      // const updatedStep = await updateStep(newStep, token);
-      // updateSteps(updatedStep.data);
-      // toast.success(
-      //   currentStep ? "Step updated sucessfully!" : "Step created sucessfully!"
-      // );
-      // closeSidebar();
-      // clearEditor();
+      newStep.id = currentStep.id;
+      const updatedStep = await updateStepResquest(newStep, stepFiles);
+      console.log("updatedStep", updatedStep);
+      if (updatedStep.error) {
+        toast.error("Error updating step");
+        return;
+      }
+
+      updateSteps(updatedStep.data);
+      toast.success("Step created sucessfully!");
+      closeSidebar();
+      clearEditor();
+
+      reset();
       return;
     }
 

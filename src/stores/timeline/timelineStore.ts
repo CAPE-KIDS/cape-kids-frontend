@@ -15,6 +15,7 @@ import { useAuthStore } from "../auth/useAuthStore";
 import { StepConnectionSchemaType } from "@shared/stepConnections";
 import { toast } from "sonner";
 import { TaskSchemaWithTimelineType } from "@shared/tasks";
+import { MediaBlock } from "@/modules/media/types";
 
 let debouncedUpdate: (...args: any[]) => void;
 
@@ -50,7 +51,7 @@ interface TimelineState {
     token: string,
     stepFiles?: Record<string, File>
   ) => Promise<RestResponseSchemaType>;
-  updateStep: (
+  updateStepResquest: (
     step: TimelineStep,
     stepFiles?: Record<string, File>
   ) => Promise<RestResponseSchemaType>;
@@ -246,7 +247,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     const { sourceData, timelineId, getTimelineBySourceId } = get();
     let timelineDataId = timelineId;
     if (!timelineDataId) {
-      const response = await getTimelineBySourceId(sourceData?.id as string);
+      const response = await getTimelineBySourceId(
+        sourceData?.timeline.sourceId as string
+      );
       if (response.error) {
         set({ error: response.message });
         set({ loading: false });
@@ -340,13 +343,125 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     return response;
   },
 
-  updateStep: async (step, stepFiles) => {
-    return {
-      timelineId: get().timelineId,
-      step: step,
-      stepFiles: stepFiles,
-      token: useAuthStore.getState().authState.token,
+  updateStepResquest: async (step, stepFiles) => {
+    if (!step.id)
+      return {
+        error: true,
+        message: "Step ID is required for update",
+        data: null,
+      };
+    const { sourceData, timelineId, getTimelineBySourceId } = get();
+    const token = useAuthStore.getState().authState.token;
+
+    let timelineDataId = timelineId;
+    if (!timelineDataId) {
+      if (!sourceData) {
+        return {
+          error: true,
+          message: "Source data is required to get timeline",
+          data: null,
+        };
+      }
+      const response = await getTimelineBySourceId(
+        sourceData.timeline.sourceId
+      );
+      if (response.error) {
+        set({ error: response.message });
+        set({ loading: false });
+        return response;
+      }
+      timelineDataId = response.data.id;
+    }
+    const formData = new FormData();
+
+    const blocks = step.metadata.blocks?.map((block) => {
+      const tmpId = block.id;
+      const hasFile = stepFiles && stepFiles[tmpId];
+
+      return {
+        ...block,
+        data: hasFile ? { fileField: `files[${tmpId}]` } : block.data,
+      };
+    });
+
+    let updatedGroup = step.metadata.group;
+    if (step.metadata.group?.steps?.length) {
+      const updatedGroupSteps = step.metadata.group.steps.map(
+        (groupStep: any) => {
+          const updatedBlocks = groupStep.metadata.blocks?.map(
+            (block: MediaBlock) => {
+              if (!block.id) {
+                console.warn("Block ID is missing, skipping file attachment");
+                return block;
+              }
+              const tmpId = block.id;
+              const hasFile = stepFiles && stepFiles[tmpId];
+
+              return {
+                ...block,
+                data: hasFile ? { fileField: `files[${tmpId}]` } : block.data,
+              };
+            }
+          );
+
+          return {
+            ...groupStep,
+            metadata: {
+              ...groupStep.metadata,
+              blocks: updatedBlocks,
+            },
+          };
+        }
+      );
+
+      updatedGroup = {
+        ...step.metadata.group,
+        steps: updatedGroupSteps,
+      };
+    }
+
+    const stepData = {
+      timelineId: timelineDataId,
+      orderIndex: step.orderIndex || null,
+      type: step.type,
+      taskVersionId: step?.taskVersionId || null,
+      metadata: {
+        ...step.metadata,
+        blocks,
+        group: updatedGroup,
+      },
     };
+
+    formData.append("step", JSON.stringify(stepData));
+
+    if (stepFiles && step.metadata.blocks?.length) {
+      step.metadata.blocks.forEach((block) => {
+        if (block.id && stepFiles[block.id]) {
+          formData.append(`files[${block.id}]`, stepFiles[block.id]);
+        }
+      });
+    }
+
+    if (stepFiles && step.metadata.group?.steps?.length) {
+      step.metadata.group.steps.forEach((groupStep) => {
+        groupStep.metadata.blocks.forEach((block) => {
+          if (block.id && stepFiles[block.id]) {
+            formData.append(`files[${block.id}]`, stepFiles[block.id]);
+          }
+        });
+      });
+    }
+
+    const request = await fetch(`${API.UPDATE_STEP(step.id)}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const response = await request.json();
+    return response;
   },
 
   saveConnections: async () => {
