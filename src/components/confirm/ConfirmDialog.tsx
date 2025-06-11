@@ -1,10 +1,12 @@
+import { useTranslation } from "react-i18next";
+
 // ConfirmDialog.tsx
 export default function ConfirmDialog({
   open,
   title,
   message,
-  confirmLabel = "Confirmar",
-  cancelLabel = "Cancelar",
+  confirmLabel,
+  cancelLabel,
   onClose,
 }: {
   open: boolean;
@@ -14,6 +16,7 @@ export default function ConfirmDialog({
   cancelLabel?: string;
   onClose: (result: boolean) => void;
 }) {
+  const { t: tC } = useTranslation("common");
   if (!open) return null;
 
   return (
@@ -26,13 +29,13 @@ export default function ConfirmDialog({
             onClick={() => onClose(false)}
             className="px-4 py-2 border text-xs cursor-pointer"
           >
-            {cancelLabel}
+            {cancelLabel || tC("cancel")}
           </button>
           <button
             onClick={() => onClose(true)}
             className="px-4 py-2 bg-blue-600 text-white text-xs cursor-pointer"
           >
-            {confirmLabel}
+            {confirmLabel || tC("confirm")}
           </button>
         </div>
       </div>

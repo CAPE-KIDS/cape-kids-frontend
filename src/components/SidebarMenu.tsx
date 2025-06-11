@@ -19,6 +19,7 @@ import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/router";
 import { useAuthStore } from "@/stores/auth/useAuthStore";
+import { useTranslation } from "react-i18next";
 
 type MenuItemProps = {
   title: string;
@@ -85,21 +86,35 @@ function MenuItem({
 export default function SidebarMenu() {
   const [collapsed, setCollapsed] = useState(false);
   const { authState } = useAuthStore();
+  const { t } = useTranslation("common");
 
   const menuItems = [
-    { title: "Dashboard", icon: LayoutDashboard, url: "/dashboard" },
-    { title: "Experiments", icon: Microscope, url: "/experiments" },
-    { title: "Trainings", icon: Brain, url: "/trainings" },
-    { title: "Tasks", icon: ClipboardList, url: "/tasks", adminOnly: true },
-    { title: "Participants", icon: Users, url: "/participants" },
-    { title: "Reports", icon: FileChartColumn, url: "/reports" },
-    { title: "Settings", icon: Settings, url: "/settings" },
+    {
+      title: t("navigation.dashboard"),
+      icon: LayoutDashboard,
+      url: "/dashboard",
+    },
+    {
+      title: t("navigation.experiments"),
+      icon: Microscope,
+      url: "/experiments",
+    },
+    { title: t("navigation.trainings"), icon: Brain, url: "/trainings" },
+    {
+      title: t("navigation.tasks"),
+      icon: ClipboardList,
+      url: "/tasks",
+      adminOnly: true,
+    },
+    { title: t("navigation.participants"), icon: Users, url: "/participants" },
+    { title: t("navigation.reports"), icon: FileChartColumn, url: "/reports" },
+    { title: t("navigation.settings"), icon: Settings, url: "/settings" },
   ];
 
   const configItems = [
-    { title: "Account", icon: CircleUser, url: "/account" },
+    { title: t("navigation.account"), icon: CircleUser, url: "/account" },
     {
-      title: "Logout",
+      title: t("navigation.logout"),
       icon: LogOut,
       url: "/logout",
       onClick: () => {
@@ -170,7 +185,7 @@ export default function SidebarMenu() {
         <span
           className={`transition-all ${collapsed ? "w-0" : "will-change-auto"}`}
         >
-          {!collapsed && "Collapse"}
+          {!collapsed && t("navigation.collapse")}
         </span>
       </button>
     </aside>

@@ -6,6 +6,7 @@ import {
   ParticipantMetadataSchemaType,
 } from "@shared/user";
 import { set } from "lodash";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   value: ParticipantMetadataSchemaType;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 const ParticipantProfileForm = ({ value, onChange, submitted }: Props) => {
+  const { t } = useTranslation("common");
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
 
   useEffect(() => {
@@ -56,7 +58,7 @@ const ParticipantProfileForm = ({ value, onChange, submitted }: Props) => {
   return (
     <div className="flex flex-col gap-4 mt-4">
       <div>
-        <label className="text-gray-700">Age</label>
+        <label className="text-gray-700">{t("age")}</label>
         <input
           type="number"
           value={value.age ?? ""}
@@ -69,28 +71,28 @@ const ParticipantProfileForm = ({ value, onChange, submitted }: Props) => {
           }}
           className="w-full border px-3 py-2 rounded mt-1"
         />
-        {errors.age && <p className="text-red-500 text-sm">{errors.age}</p>}
+        {errors.age && <p className="text-red-500 text-sm">{t("required")}</p>}
       </div>
 
       <div>
-        <label className="text-gray-700">Gender</label>
+        <label className="text-gray-700">{t("gender")}</label>
         <select
           value={value.gender ?? ""}
           onChange={(e) => handleChange("gender", e.target.value)}
           className="w-full border px-3 py-2 rounded mt-1"
         >
-          {!value.gender && <option value="">Select...</option>}
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="ratherNotSay">Rather not say</option>
+          {!value.gender && <option value="">{t("select")}...</option>}
+          <option value="male">{t("male")}</option>
+          <option value="female">{t("female")}</option>
+          <option value="ratherNotSay">{t("rather_not_say")}</option>
         </select>
         {errors.gender && (
-          <p className="text-red-500 text-sm">{errors.gender}</p>
+          <p className="text-red-500 text-sm">{t("required")}</p>
         )}
       </div>
 
       <div>
-        <label className="text-gray-700">Handedness</label>
+        <label className="text-gray-700">{t("handedness")}</label>
         <input
           value={value.handedness ?? ""}
           onChange={(e) => handleChange("handedness", e.target.value)}
@@ -99,7 +101,7 @@ const ParticipantProfileForm = ({ value, onChange, submitted }: Props) => {
       </div>
 
       <div>
-        <label className="text-gray-700">Native Language</label>
+        <label className="text-gray-700">{t("native_language")}</label>
         <input
           value={value.nativeLanguage ?? ""}
           onChange={(e) => handleChange("nativeLanguage", e.target.value)}
@@ -108,9 +110,7 @@ const ParticipantProfileForm = ({ value, onChange, submitted }: Props) => {
       </div>
 
       <div>
-        <label className="text-gray-700">
-          Medical Conditions (comma-separated)
-        </label>
+        <label className="text-gray-700">{t("medical_conditions")}</label>
         <input
           className="w-full border px-3 py-2 rounded mt-1"
           placeholder="e.g., ADHD, Dyslexia"
@@ -119,7 +119,7 @@ const ParticipantProfileForm = ({ value, onChange, submitted }: Props) => {
       </div>
 
       <div>
-        <label className="text-gray-700">Medications (comma-separated)</label>
+        <label className="text-gray-700">{t("medications")}</label>
         <input
           className="w-full border px-3 py-2 rounded mt-1"
           placeholder="e.g., Ritalin, Concerta"
@@ -136,10 +136,10 @@ const ParticipantProfileForm = ({ value, onChange, submitted }: Props) => {
           className="w-4 h-4"
         />
         <label htmlFor="parentalConsent" className="text-gray-700">
-          Has parental consent
+          {t("has_parental_consent")}
         </label>
         {errors.parentalConsent && (
-          <p className="text-red-500 text-sm">{errors.parentalConsent}</p>
+          <p className="text-red-500 text-sm">{t("required")}</p>
         )}
       </div>
     </div>

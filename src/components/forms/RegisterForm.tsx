@@ -8,12 +8,14 @@ import ResearcherProfileForm from "./ResearcherProfileForm";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   close: () => void;
 }
 
 const RegisterForm = ({ close }: Props) => {
+  const { t } = useTranslation("common");
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const { register } = useAuth();
@@ -59,7 +61,7 @@ const RegisterForm = ({ close }: Props) => {
       return;
     }
 
-    toast.success("Registered successfully");
+    toast.success(t("register_success"));
     resetForm();
     close();
     setSubmitted(false);
@@ -94,7 +96,7 @@ const RegisterForm = ({ close }: Props) => {
         />
       </button>
       <form onSubmit={handleSubmit} className="max-h-full overflow-auto pr-4">
-        <h2 className="text-2xl font-semibold mb-4">Register</h2>
+        <h2 className="text-2xl font-semibold mb-4">{t("register")}</h2>
 
         <div className="flex flex-col gap-4 mt-4">
           <div>
@@ -110,14 +112,12 @@ const RegisterForm = ({ close }: Props) => {
               className="w-full border px-3 py-2 rounded mt-1"
             />
             {errors.email && (
-              <p className="text-red-500 text-sm">
-                {errors.email.replace("String", "Email")}
-              </p>
+              <p className="text-red-500 text-sm">{t("invalid_email")}</p>
             )}
           </div>
 
           <div>
-            <label className="text-gray-700">Password*</label>
+            <label className="text-gray-700">{t("password")}*</label>
             <input
               type="password"
               value={form.password}
@@ -129,14 +129,12 @@ const RegisterForm = ({ close }: Props) => {
               className="w-full border px-3 py-2 rounded mt-1"
             />
             {errors.password && (
-              <p className="text-red-500 text-sm">
-                {errors.password.replace("String", "Password")}
-              </p>
+              <p className="text-red-500 text-sm">{t("invalid_password")}</p>
             )}
           </div>
 
           <div>
-            <label className="text-gray-700">Full Name*</label>
+            <label className="text-gray-700">{t("full_name")}*</label>
             <input
               type="text"
               value={form.profile.fullName}
@@ -156,12 +154,12 @@ const RegisterForm = ({ close }: Props) => {
               className="w-full border px-3 py-2 rounded mt-1"
             />
             {errors["profile.fullName"] && (
-              <p className="text-red-500 text-sm">Required</p>
+              <p className="text-red-500 text-sm">{t("required")}</p>
             )}
           </div>
 
           <div>
-            <label className="text-gray-700">Profile Type*</label>
+            <label className="text-gray-700">{t("profile_type")}*</label>
             <select
               className="w-full border px-3 py-2 rounded mt-1"
               value={form.profile.profileType}
@@ -181,9 +179,9 @@ const RegisterForm = ({ close }: Props) => {
                 }));
               }}
             >
-              <option value="participant">Participant</option>
+              <option value="participant">{t("participant")}</option>
               {/* <option value="psychologist">Psychologist</option> */}
-              <option value="researcher">Researcher</option>
+              <option value="researcher">{t("researcher")}</option>
             </select>
             {errors["profile.profileType"] && (
               <p className="text-red-500 text-sm">
@@ -246,7 +244,7 @@ const RegisterForm = ({ close }: Props) => {
             type="submit"
             className="cursor-pointer bg-blue-500 text-white px-6 py-2 rounded font-semibold mt-4 hover:bg-blue-600 disabled:opacity-50"
           >
-            Register
+            {t("register")}
           </button>
           <button
             type="button"
@@ -258,7 +256,7 @@ const RegisterForm = ({ close }: Props) => {
               }, 200);
             }}
           >
-            Cancel
+            {t("cancel")}
           </button>
         </div>
       </form>

@@ -5,6 +5,7 @@ import {
   researcherMetadataSchema,
   ResearcherMetadataSchemaType,
 } from "@shared/user";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   value: ResearcherMetadataSchemaType;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 const ResearcherProfileForm = ({ value, onChange, submitted }: Props) => {
+  const { t } = useTranslation("common");
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
 
   useEffect(() => {
@@ -52,7 +54,7 @@ const ResearcherProfileForm = ({ value, onChange, submitted }: Props) => {
   return (
     <div className="flex flex-col gap-4 mt-4">
       <div>
-        <label className="text-gray-700">Institution</label>
+        <label className="text-gray-700">{t("institution")}</label>
         <input
           type="text"
           value={value.institution || ""}
@@ -60,12 +62,12 @@ const ResearcherProfileForm = ({ value, onChange, submitted }: Props) => {
           className="w-full border px-3 py-2 rounded mt-1"
         />
         {errors.institution && (
-          <p className="text-red-500 text-sm">{errors.institution}</p>
+          <p className="text-red-500 text-sm">{t("required")}</p>
         )}
       </div>
 
       <div>
-        <label className="text-gray-700">Department</label>
+        <label className="text-gray-700">{t("department")}</label>
         <input
           type="text"
           value={value.department || ""}
@@ -73,12 +75,12 @@ const ResearcherProfileForm = ({ value, onChange, submitted }: Props) => {
           className="w-full border px-3 py-2 rounded mt-1"
         />
         {errors.department && (
-          <p className="text-red-500 text-sm">{errors.department}</p>
+          <p className="text-red-500 text-sm">{t("required")}</p>
         )}
       </div>
 
       <div>
-        <label className="text-gray-700">Degree</label>
+        <label className="text-gray-700">{t("degree")}</label>
         <input
           type="text"
           value={value.degree || ""}
@@ -86,14 +88,12 @@ const ResearcherProfileForm = ({ value, onChange, submitted }: Props) => {
           className="w-full border px-3 py-2 rounded mt-1"
         />
         {errors.degree && (
-          <p className="text-red-500 text-sm">{errors.degree}</p>
+          <p className="text-red-500 text-sm">{t("required")}</p>
         )}
       </div>
 
       <div>
-        <label className="text-gray-700">
-          Research Areas (comma-separated)
-        </label>
+        <label className="text-gray-700">{t("research_areas")}</label>
         <input
           placeholder="e.g., Neuroscience, Education"
           onChange={(e) => handleCommaSeparated(e, "researchAreas")}
@@ -102,7 +102,7 @@ const ResearcherProfileForm = ({ value, onChange, submitted }: Props) => {
       </div>
 
       <div>
-        <label className="text-gray-700">Affiliations (comma-separated)</label>
+        <label className="text-gray-700">{t("affiliations")}</label>
         <input
           placeholder="e.g., IEEE, APA"
           onChange={(e) => handleCommaSeparated(e, "affiliations")}
@@ -111,7 +111,7 @@ const ResearcherProfileForm = ({ value, onChange, submitted }: Props) => {
       </div>
 
       <div>
-        <label className="text-gray-700">ORCID ID</label>
+        <label className="text-gray-700">{t("orcid_id")}</label>
         <input
           type="url"
           value={value.orcidId || ""}
@@ -121,7 +121,7 @@ const ResearcherProfileForm = ({ value, onChange, submitted }: Props) => {
       </div>
 
       <div>
-        <label className="text-gray-700">LinkedIn</label>
+        <label className="text-gray-700">{t("linkedin")}</label>
         <input
           type="url"
           value={value.linkedin || ""}
@@ -131,7 +131,7 @@ const ResearcherProfileForm = ({ value, onChange, submitted }: Props) => {
       </div>
 
       <div>
-        <label className="text-gray-700">Google Scholar</label>
+        <label className="text-gray-700">{t("google_scholar")}</label>
         <input
           type="url"
           value={value.googleScholar || ""}

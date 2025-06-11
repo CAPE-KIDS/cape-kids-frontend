@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+"use client";
 import { Inter } from "next/font/google";
 import "../globals.css";
 import { AuthProvider } from "@/context/AuthProvider";
@@ -7,10 +7,6 @@ import NextTopLoader from "nextjs-toploader";
 import InnactivityModal from "@/components/modals/InnactivityModal";
 
 const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "CAPE-KIDS - App",
-};
 
 export default function ({
   children,

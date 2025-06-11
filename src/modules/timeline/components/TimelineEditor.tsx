@@ -15,8 +15,10 @@ import CustomEdge from "./CustomEdge";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
 
 import "../../../../tailwind.config";
+import { useTranslation } from "react-i18next";
 
 const TimelineEditor = () => {
+  const { t: tC } = useTranslation("common");
   const {
     nodes: timelineNodes,
     edges: timelineEdges,
@@ -146,14 +148,14 @@ const TimelineEditor = () => {
         <Controls />
       </ReactFlow>
       <div className="text-xs mt-1">
-        Facing any trouble or the loading is taking to much time? Please{" "}
+        {tC("facing_trouble")}
         <button
           className="text-blue-500 cursor-pointer"
           onClick={() => window.location.reload()}
         >
-          refresh the page
+          {tC("refresh_page")}
         </button>{" "}
-        to re-sync the data.
+        {tC("to_re_sync")}
       </div>
     </div>
   );

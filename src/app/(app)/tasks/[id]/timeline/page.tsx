@@ -14,9 +14,11 @@ import { useAuthStore } from "@/stores/auth/useAuthStore";
 import { TimelineStep } from "@shared/timeline";
 import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
+import { useTranslation } from "react-i18next";
 
 // Schema de validação
 const CreateTasksTimeline = () => {
+  const { t } = useTranslation("common");
   const { token } = useAuth();
   const { formatToTimeline, edges, steps, setLoading, resetTimeline } =
     useTimelineStore();
@@ -74,13 +76,13 @@ const CreateTasksTimeline = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <PageHeader title="Task Timeline" subtitle="Manage the flow of your task">
+      <PageHeader title={t("task_title")} subtitle={t("task_subtitle")}>
         <div className="button">
           <Link
             className="cursor-pointer text-white rounded-lg px-4 py-3 bg-blue-600 transition duration-200"
             href={"/tasks/create"}
           >
-            Create Task
+            {t("create_task")}
           </Link>
         </div>
       </PageHeader>
@@ -98,7 +100,7 @@ const CreateTasksTimeline = () => {
           router.push(`/tasks`);
         }}
       >
-        Check other tasks
+        {t("check_other_tasks")}
       </button>
 
       <SequentialStimuliConfigModal />

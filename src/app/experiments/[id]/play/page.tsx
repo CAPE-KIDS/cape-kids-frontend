@@ -9,8 +9,10 @@ import { compileTimeline } from "@/utils/functions";
 import { TimelineStep } from "@shared/timeline";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const PlayExperiment = () => {
+  const { t: tC } = useTranslation("common");
   const { authState } = useAuthStore();
   const searchParams = useParams();
   const stepId = searchParams.id as string;
@@ -89,11 +91,13 @@ const PlayExperiment = () => {
           {loading ? (
             <>
               <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin mb-4" />
-              <p className="text-sm text-gray-300">Loading...</p>
+              <p className="text-sm text-gray-300">{tC("loading")}</p>
             </>
           ) : (
             <>
-              <h1 className="text-2xl mb-6">Clique na tela para iniciar</h1>
+              <h1 className="text-2xl mb-6">
+                {tC("click_on_screen_to_start")}
+              </h1>
             </>
           )}
         </div>

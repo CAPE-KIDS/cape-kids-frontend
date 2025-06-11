@@ -5,6 +5,7 @@ import {
   psychologistMetadataSchema,
   PsychologistMetadataSchemaType,
 } from "@shared/user";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   value: PsychologistMetadataSchemaType;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 const PsychologistProfileForm = ({ value, onChange, submitted }: Props) => {
+  const { t } = useTranslation("common");
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
 
   useEffect(() => {

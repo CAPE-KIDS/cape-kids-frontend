@@ -13,9 +13,12 @@ import { useAuthStore } from "@/stores/auth/useAuthStore";
 import { TimelineStep } from "@shared/timeline";
 import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
+import { useTranslation } from "react-i18next";
 
 // Schema de validação
 const CreateExperimentsTimeline = () => {
+  const { t: tC } = useTranslation("common");
+  const { t: tE } = useTranslation("experiments");
   const { token } = useAuth();
   const { formatToTimeline, edges, steps, setLoading, getTasks } =
     useTimelineStore();
@@ -98,15 +101,15 @@ const CreateExperimentsTimeline = () => {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <PageHeader
-        title="Experiment Timeline"
-        subtitle="Manage the flow of your experiment"
+        title={tE("experiment_timeline_title")}
+        subtitle={tE("experiment_timeline_subtitle")}
       >
         <div className="button">
           <Link
             className="cursor-pointer text-white rounded-lg px-4 py-3 bg-blue-600 transition duration-200"
             href={"/experiments/create"}
           >
-            Create Experiment
+            {tE("create_experiment")}
           </Link>
         </div>
       </PageHeader>
@@ -124,7 +127,7 @@ const CreateExperimentsTimeline = () => {
           router.push(`/experiments/${experimentId}/participants`);
         }}
       >
-        Manage participants
+        {tC("manage_participants")}
       </button>
 
       <SequentialStimuliConfigModal />

@@ -2,7 +2,7 @@
 
 import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Copy } from "lucide-react";
@@ -17,11 +17,15 @@ import { API } from "@/utils/api";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useExperimentsStore } from "@/stores/experiments/experimentsStore";
+import { useTranslation } from "react-i18next";
 
 const CreateExperiments = () => {
+  const { t: tC } = useTranslation("common");
+  const { t: tE } = useTranslation("experiments");
   const router = useRouter();
   const { token } = useAuth();
   const { createExperiment } = useExperimentsStore();
+
   const {
     register,
     handleSubmit,
@@ -42,10 +46,10 @@ const CreateExperiments = () => {
     const response = await createExperiment(token, data);
 
     if (response.error) {
-      toast.error("Error creating experiment");
+      toast.error(tE("experiment_creation_error"));
       return;
     }
-    toast.success("Experiment created successfully");
+    toast.success(tE("experiment_created_message"));
     router.push(`/experiments/${response.data.experiment.id}/timeline`);
   };
 
@@ -61,47 +65,52 @@ const CreateExperiments = () => {
 
     const response = await request.json();
     if (response.error) {
-      toast.error("Error generating access code");
+      toast.error(tC("access_code_error"));
       return;
     }
 
     setValue("accessCode", response.data.accessCode);
-    toast.success("Access code generated");
+    toast.success(tC("access_code_generated_message"));
   };
 
   return (
     <div className="flex flex-col h-full">
       <PageHeader
-        title="Create experiment"
-        subtitle="Create your new experiment"
+        title={tE("create_experiment")}
+        subtitle={tE("create_experiment_subtitle")}
       >
         <div className="button">
           <Link
             className="cursor-pointer bg-blue-500 text-white rounded-lg px-4 py-3 hover:bg-blue-600 transition duration-200"
             href={"/experiments/create"}
           >
-            Create Experiment
+            {tE("create_experiment")}
           </Link>
         </div>
       </PageHeader>
 
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit(onSubmit);
+        }}
         className="flex flex-col justify-between h-full"
       >
         <div>
           <div className="space-y-6 p-8">
             {/* Title */}
             <div className="flex flex-col space-y-1">
-              <label className="font-light text-xs text-gray-400">Title*</label>
+              <label className="font-light text-xs text-gray-400">
+                {tC("title")}*
+              </label>
               <input
                 {...register("title")}
                 className="bg-[#EBEFFF] rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
-                placeholder="Experiment title"
+                placeholder={tC("title")}
               />
               {errors.title?.message && (
                 <span className="text-red-500 text-xs">
-                  {errors.title.message.replace("String", "Title")}
+                  {tC("error_title_required")}
                 </span>
               )}
             </div>
@@ -109,17 +118,17 @@ const CreateExperiments = () => {
             {/* Description */}
             <div className="flex flex-col space-y-1">
               <label className="font-light text-xs text-gray-400">
-                Description
+                {tC("description")}*
               </label>
               <textarea
                 rows={3}
                 {...register("description")}
                 className="bg-[#EBEFFF] rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
-                placeholder="Experiment description"
+                placeholder={tE("placeholder_experiment_description")}
               />
               {errors.description?.message && (
                 <span className="text-red-500 text-xs">
-                  {errors.description.message.replace("String", "Description")}
+                  {tC("error_description_required")}
                 </span>
               )}
             </div>
@@ -129,17 +138,17 @@ const CreateExperiments = () => {
               {/* Participant Target */}
               <div className="flex-1 flex flex-col space-y-1">
                 <label className="font-light text-xs text-gray-400">
-                  Participant target
+                  {tC("participant_target")}
                 </label>
                 <input
                   type="number"
                   {...register("participantTarget", { valueAsNumber: true })}
                   className="bg-[#EBEFFF] rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
-                  placeholder="Number of participants"
+                  placeholder={tC("number_of_participants")}
                 />
                 {errors.participantTarget?.message && (
                   <span className="text-red-500 text-xs">
-                    {errors.participantTarget.message}
+                    {tC("error_participant_target_invalid")}
                   </span>
                 )}
               </div>
@@ -148,7 +157,7 @@ const CreateExperiments = () => {
               <div className="flex-1 flex flex-col space-y-1">
                 <div className="flex justify-between items-center">
                   <label className="font-light text-xs text-gray-400">
-                    Access code
+                    {tC("access_code")}
                   </label>
                   <button
                     type="button"
@@ -157,14 +166,14 @@ const CreateExperiments = () => {
                       watch("accessCode") ? "hidden" : "block"
                     }`}
                   >
-                    generate
+                    {tC("generate")}
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
                     {...register("accessCode")}
                     className="bg-[#EBEFFF] rounded-lg p-2 w-full focus:outline-none focus:ring focus:ring-blue-300"
-                    placeholder="Click to generate"
+                    placeholder={tC("placeholder_access_code")}
                     disabled
                   />
                   <button
@@ -194,7 +203,7 @@ const CreateExperiments = () => {
                 className="text-sm cursor-pointer"
                 htmlFor="allowToJoinAfterFull"
               >
-                Allow entry after reaching target
+                {tC("allow_entry_after_reaching_target")}
               </label>
             </div>
           </div>
@@ -205,33 +214,36 @@ const CreateExperiments = () => {
           {/* Scientists */}
           <div className="px-8 space-y-4 mb-8">
             <SectionHeader
-              title="Scientists"
-              actionLabel="Add Scientist"
+              title={tC("scientists")}
+              actionLabel={tC("add_scientist")}
               onAction={() => console.log("open modal")}
             />
 
             <DataTable
               headers={[
-                { key: "name", label: "NAME" },
-                { key: "email", label: "EMAIL" },
-                { key: "profile", label: "PROFILE" },
-                { key: "role", label: "ROLE" },
+                { key: "name", label: tC("NAME") },
+                { key: "email", label: tC("EMAIL") },
+                { key: "profile", label: tC("PROFILE") },
+                { key: "role", label: tC("ROLE") },
               ]}
               rows={[
                 {
                   id: 1,
                   name: "Matheus Rodrigues Felizardo",
                   email: "matheus.felizardo2@gmail.com",
-                  profile: "Researcher",
-                  role: "Owner",
+                  profile: tC("Researcher"),
+                  role: tC("Owner"),
                 },
               ]}
               withQuickActions
               actions={[
-                { label: "Edit", onClick: (row) => alert(`Edit ${row.name}`) },
                 {
-                  label: "Remove",
-                  onClick: (row) => alert(`Remove ${row.name}`),
+                  label: tC("edit"),
+                  onClick: (row) => alert(`${tC("edit")} ${row.name}`),
+                },
+                {
+                  label: tC("remove"),
+                  onClick: (row) => alert(`${tC("remove")} ${row.name}`),
                 },
               ]}
             />
@@ -243,7 +255,7 @@ const CreateExperiments = () => {
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 hover:bg-blue-600 transition cursor-pointer"
         >
-          Save and continue
+          {tC("save_and_continue")}
         </button>
       </form>
     </div>

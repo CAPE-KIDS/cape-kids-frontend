@@ -12,6 +12,7 @@ import { OnChangeDebounce } from "./hooks/OnChangeDebounce";
 import { useEditorStore } from "@/stores/editor/useEditorStore";
 import { DoubleClickToEditPlugin } from "./plugins/DoubleClickToEditPlugin";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   isEditable: boolean;
@@ -26,6 +27,7 @@ export const TextEditor = ({
   onChange,
   block,
 }: Props) => {
+  const { t: tC } = useTranslation("common");
   const editorConfig = {
     namespace: "TextEditor",
     nodes: [],
@@ -58,7 +60,7 @@ export const TextEditor = ({
             }
             placeholder={
               <span className="text-xs font-light left-1 top-1 absolute">
-                Double-click to edit
+                {tC("double_click_to_edit")}
               </span>
             }
           />

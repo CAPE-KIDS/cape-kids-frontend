@@ -1,0 +1,20 @@
+{
+  "experiment_title": "Experimentos",
+  "experiment_subtitle": "Gerencie seus experimentos",
+  "create_experiment": "Criar Experimento",
+  "search_experiments": "Pesquisar por um experimento...",
+  "not_part_experiment": "You are not part of any experiment. Please contact the experiment owner to join.",
+  "no_experiments": "Nenhum experimento encontrado.",
+  "create_first_experiment": "Crie seu primeiro experimento",
+  "view_experiment": "Ver Experimento",
+  "create_experiment_subtitle": "Crie seu novo experimento",
+  "experiment_deleted_error": "Erro ao excluir experimento",
+  "experiment_created_error": "Erro ao criar experimento",
+  "experiment_deleted_message": "Experimento excluído com sucesso",
+  "experiment_created_message": "Experimento criado com sucesso",
+  "experiment_updated_message": "Experimento atualizado com sucesso",
+  "placeholder_experiment_title": "Título do experimento",
+  "placeholder_experiment_description": "Descrição do experimento",
+  "experiment_timeline_title": "Experimento - Timeline",
+  "experiment_timeline_subtitle": "Gerencie o fluxo do seu experimento"
+}

@@ -1,5 +1,6 @@
 import { ChevronDown } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export type Option = {
   value: string;
@@ -38,9 +39,10 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     dropdownStyle:
       "absolute z-10 bg-white border w-full mt-1 rounded-md shadow-sm max-h-60 overflow-y-auto",
     showToggle: true,
-    placeholder: "Select one option",
+    placeholder: null,
   },
 }) => {
+  const { t: tC } = useTranslation("common");
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -91,7 +93,9 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
             )}
           </div>
         ) : (
-          <span className="text-gray-400">{config?.placeholder}</span>
+          <span className="text-gray-400">
+            {config?.placeholder || tC("select_one_option")}
+          </span>
         )}
         {config?.showToggle && (
           <span className="text-gray-400">

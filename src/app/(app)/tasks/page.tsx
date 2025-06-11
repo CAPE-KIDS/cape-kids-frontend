@@ -6,8 +6,10 @@ import { useTasksStore } from "@/stores/tasks/tasksStore";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
+import { useTranslation } from "react-i18next";
 
 const Tasks = () => {
+  const { t } = useTranslation("common");
   const router = useRouter();
   const { token, user } = useAuth();
   const { tasks, getUserTasks } = useTasksStore();
@@ -24,11 +26,11 @@ const Tasks = () => {
 
   return (
     <div>
-      <PageHeader title="Tasks" subtitle="Manage your tasks">
+      <PageHeader title={t("tasks_title")} subtitle={t("tasks_subtitle")}>
         <div className="search">
           <input
             type="text"
-            placeholder="Search for a task..."
+            placeholder={t("search_tasks")}
             className="border-2 border-gray-300 rounded-lg p-2 w-full"
           />
         </div>
@@ -39,7 +41,7 @@ const Tasks = () => {
               className="cursor-pointer bg-blue-500 text-white rounded-lg px-4 py-3 hover:bg-blue-600 transition duration-200"
               href={"/tasks/create"}
             >
-              Create Task
+              {t("create_task")}
             </Link>
           </div>
         )}
@@ -48,18 +50,18 @@ const Tasks = () => {
       <div>
         {loading && (
           <div className="flex items-center justify-center h-screen">
-            <p className="text-gray-500">Loading...</p>
+            <p className="text-gray-500">{t("loading")}</p>
           </div>
         )}
 
         {!loading && tasks.length === 0 && (
           <div className="p-6">
-            <p className="text-gray-500">No tasks found</p>
+            <p className="text-gray-500">{t("no_tasks_found")}</p>
             <Link
               className="cursor-pointer font-semibold text-blue-500 mt-4 block"
               href={"/tasks/create"}
             >
-              Create your first task
+              {t("create_first_task")}
             </Link>
           </div>
         )}
@@ -86,7 +88,7 @@ const Tasks = () => {
                     }, 100);
                   }}
                 >
-                  View Timeline
+                  {t("view_timeline")}
                 </button>
               </div>
             ))}

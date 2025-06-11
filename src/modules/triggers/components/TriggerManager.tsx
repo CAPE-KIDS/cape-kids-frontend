@@ -4,6 +4,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { Trigger } from "@/modules/triggers/types";
 import { capitalize } from "lodash";
 import { confirm } from "@/components/confirm/confirm";
+import { useTranslation } from "react-i18next";
 
 interface TriggerWithBlock extends Trigger {
   blockId: string;
@@ -12,6 +13,7 @@ interface TriggerWithBlock extends Trigger {
 }
 
 const TriggerManager: React.FC = () => {
+  const { t: tC } = useTranslation("common");
   const { blocks, removeTriggerFromBlock } = useEditorStore();
 
   const allTriggers: TriggerWithBlock[] = blocks.flatMap((block) => {
@@ -22,12 +24,12 @@ const TriggerManager: React.FC = () => {
       let blockData: string | undefined;
 
       if (type === "keydown") {
-        blockLabel = "Screen (Keyboard)";
+        blockLabel = `${tC("screen")} (Keyboard)`;
         blockData = undefined;
       } else {
         const readableType =
           block.type === "screen"
-            ? "Screen"
+            ? `${tC("screen")}`
             : `${capitalize(block.type)} Media`;
         blockLabel = `${readableType} (${type})`;
 
@@ -35,7 +37,7 @@ const TriggerManager: React.FC = () => {
           block.type === "text"
             ? block.data?.text
             : block.type === "image"
-            ? "Image"
+            ? tC("image")
             : undefined;
       }
 
@@ -57,7 +59,7 @@ const TriggerManager: React.FC = () => {
       <h3 className="text-md font-semibold">Triggers</h3>
 
       {allTriggers.length === 0 && (
-        <p className="text-sm text-gray-500">No triggers added.</p>
+        <p className="text-sm text-gray-500">{tC("no_trigger_added")}</p>
       )}
 
       <div className="max-h-[200px] overflow-y-auto flex flex-col gap-2">
@@ -86,11 +88,11 @@ const TriggerManager: React.FC = () => {
               <Pencil size={16} />
             </button> */}
               <button
-                title="Delete trigger"
+                title={tC("delete_trigger")}
                 className="text-red-500 hover:text-red-700 cursor-pointer"
                 onClick={async () => {
                   const ok = await confirm({
-                    title: "Por favor confirme a remoção do trigger",
+                    title: tC("confirm_trigger_removal"),
                     message: "",
                   });
                   if (!ok) return;

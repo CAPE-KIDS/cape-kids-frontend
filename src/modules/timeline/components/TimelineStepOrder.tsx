@@ -17,6 +17,7 @@ import { useTimelineSidebar } from "@/stores/timeline/sidebarStore";
 import { TimelineStep } from "@shared/timeline";
 import { options } from "./TimelineSidebar";
 import { Grip } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface TimelineStepOrderProps {
   draftTitle: string;
@@ -27,6 +28,7 @@ export function TimelineStepOrder({
   draftTitle,
   draftType,
 }: TimelineStepOrderProps) {
+  const { t: tC } = useTranslation("common");
   const { steps } = useTimelineStore();
   const { currentStep } = useTimelineSidebar();
   const [items, setItems] = useState<TimelineStep[]>([]);
@@ -73,7 +75,7 @@ export function TimelineStepOrder({
 
   return (
     <div className="bg-[#e6ecff] rounded-xl space-y-4">
-      <h2 className="text-lg font-semibold mb-2">Timeline order</h2>
+      <h2 className="text-lg font-semibold mb-2">{tC("timeline_order")}</h2>
       <DndContext
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
@@ -105,6 +107,7 @@ function SortableStep({
   step: TimelineStep;
   isDraft: boolean;
 }) {
+  const { t: tC } = useTranslation("common");
   const {
     attributes,
     listeners,
@@ -141,7 +144,7 @@ function SortableStep({
       <Grip className="w-4 h-4" />
       <span className="truncate">
         {step.metadata.title || (
-          <em className="text-gray-400">Untitled step</em>
+          <em className="text-gray-400">{tC("untitled_step")}</em>
         )}
       </span>
     </div>

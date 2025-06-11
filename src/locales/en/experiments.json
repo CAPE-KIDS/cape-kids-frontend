@@ -1,0 +1,22 @@
+{
+  "experiment_title": "Experiments",
+  "experiment_subtitle": "Manage your experiments",
+  "create_experiment": "Create Experiment",
+  "search_experiments": "Search for an experiments...",
+  "not_part_experiment": "Você não faz parte de nenhum experimento. Por favor, entre em contato com o proprietário do experimento para participar.",
+  "no_experiments": "No experiments found.",
+  "create_first_experiment": "Create your first experiment",
+  "view_experiment": "View Experiment",
+
+  "create_experiment_subtitle": "Create your new experiment",
+  "experiment_deleted_error": "Error deleting experiment",
+  "experiment_created_error": "Error creating experiment",
+  "experiment_deleted_message": "Experiment deleted successfully",
+  "experiment_created_message": "Experiment created successfully",
+  "experiment_updated_message": "Experiment updated successfully",
+  "placeholder_experiment_title": "Experiment title",
+  "placeholder_experiment_description": "Experiment description",
+
+  "experiment_timeline_title": "Experiment Timeline",
+  "experiment_timeline_subtitle": "Manage the flow of your experiment"
+}

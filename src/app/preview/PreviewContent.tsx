@@ -11,8 +11,10 @@ import CanvasDebugger from "@/modules/canvas/components/CanvasDebugger";
 import { API } from "@/utils/api";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/auth/useAuthStore";
+import { useTranslation } from "react-i18next";
 
 const PreviewContent = () => {
+  const { t: tC } = useTranslation("common");
   const searchParams = useSearchParams();
   const stepId = searchParams.get("id");
   const { activeStep } = useCanvasStore();
@@ -41,7 +43,7 @@ const PreviewContent = () => {
 
     if (response.error) {
       console.error("Erro ao buscar dados da timeline:", response.error);
-      toast.error("Erro ao buscar dados da timeline.");
+      toast.error(tC("error_getting_timeline_data"));
       return;
     }
     console.log(response);
@@ -93,21 +95,8 @@ const PreviewContent = () => {
   const resetPreview = async () => {
     window.location.reload();
     return;
-    setLoading(true);
-    setStarted(false);
-    setSteps(null);
-    clearResults();
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch((err) => {
-        console.warn("Falha ao sair do modo fullscreen:", err);
-      });
-    }
-
-    // Reload data
-    const parsedSteps = await compileTimeline(rawData.steps);
-    setSteps(parsedSteps);
-    setLoading(false);
   };
+
   return (
     <>
       <div className="relative w-screen h-screen overflow-hidden bg-white">
@@ -130,7 +119,7 @@ const PreviewContent = () => {
                   className="p-2 bg-black text-white cursor-pointer hover:opacity-80 border border-white absolute left-[-1px] top-[-1px] z-50"
                   onClick={resetPreview}
                 >
-                  Restart
+                  {tC("restart")}
                 </button>
                 {activeStep && authState.user && <CanvasDebugger />}
 
@@ -150,11 +139,13 @@ const PreviewContent = () => {
           {loading ? (
             <>
               <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin mb-4" />
-              <p className="text-sm text-gray-300">Loading...</p>
+              <p className="text-sm text-gray-300">{tC("loading")}</p>
             </>
           ) : (
             <>
-              <h1 className="text-2xl mb-6">Clique na tela para iniciar</h1>
+              <h1 className="text-2xl mb-6">
+                {tC("click_on_screen_to_start")}
+              </h1>
             </>
           )}
         </div>

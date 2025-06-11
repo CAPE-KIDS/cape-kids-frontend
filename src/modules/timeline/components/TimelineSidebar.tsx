@@ -21,6 +21,7 @@ import { StepType, stepTypeEnum } from "@shared/timeline";
 import _, { get } from "lodash";
 import { useAuth } from "@/hooks/useAuth";
 import { confirm } from "@/components/confirm/confirm";
+import { useTranslation } from "react-i18next";
 
 const timelineStepSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -72,6 +73,7 @@ export const options: Option[] = [
 ];
 
 const TimelineSidebar = () => {
+  const { t: tC } = useTranslation("common");
   const { token } = useAuth();
   const {
     steps,
@@ -150,12 +152,12 @@ const TimelineSidebar = () => {
       const updatedStep = await updateStepResquest(newStep, stepFiles);
       console.log("updatedStep", updatedStep);
       if (updatedStep.error) {
-        toast.error("Error updating step");
+        toast.error(tC("error_updating_step"));
         return;
       }
 
       updateSteps(updatedStep.data);
-      toast.success("Step created sucessfully!");
+      toast.success(tC("step_updated_successfully"));
       closeSidebar();
       clearEditor();
 
@@ -165,11 +167,11 @@ const TimelineSidebar = () => {
 
     const savedStep = await saveStep(newStep, token, stepFiles);
     if (savedStep.error) {
-      toast.error("Error saving step");
+      toast.error(tC("error_creating_step"));
       return;
     }
     updateSteps(savedStep.data);
-    toast.success("Step created sucessfully!");
+    toast.success(tC("step_created_successfully"));
     closeSidebar();
     clearEditor();
 
@@ -180,14 +182,21 @@ const TimelineSidebar = () => {
     if (!currentStep) return;
 
     const ok = await confirm({
-      title: "Tem certeza?",
-      message: "Essa ação não pode ser desfeita.",
+      title: tC("are_you_sure"),
+      message: tC("action_cannot_be_undone"),
     });
 
     if (!ok) return;
 
     if (ok) {
-      await removeStep(currentStep.id);
+      const response = await removeStep(currentStep.id);
+      console.log("response", response);
+      if (response?.error) {
+        toast.error(tC("step_delete_error"));
+        return;
+      }
+
+      toast.success(tC("step_deleted_success"));
       closeSidebar();
       clearEditor();
       resetTimeline();
@@ -300,22 +309,24 @@ const TimelineSidebar = () => {
           {/* Right Panel */}
           <div className="max-w-2xl pr-4 w-full flex-1">
             <h2 className="text-2xl mb-4">
-              {currentStep ? "Editing step" : "Adding step to the timeline"}
+              {currentStep
+                ? tC("editting_step")
+                : tC("adding_step_to_timeline")}
             </h2>
             <p className="mb-4">{sourceData?.title}</p>
 
             <div className="flex flex-col gap-4">
               {/* Title */}
               <div className="flex flex-col space-y-1">
-                <label className="text-xs text-gray-400">Title</label>
+                <label className="text-xs text-gray-400">{tC("title")}</label>
                 <input
                   {...register("title")}
                   className="bg-[#EBEFFF] rounded-lg p-2"
-                  placeholder="Step title"
+                  placeholder={tC("step_title")}
                 />
                 {errors.title && (
                   <span className="text-red-500 text-xs">
-                    {errors.title.message}
+                    {tC("error_title_required")}
                   </span>
                 )}
               </div>
@@ -323,7 +334,7 @@ const TimelineSidebar = () => {
               {/* Type */}
               <div className="flex flex-col space-y-1">
                 <div className="flex justify-between">
-                  <label className="text-xs text-gray-400">Type</label>
+                  <label className="text-xs text-gray-400">{tC("type")}</label>
                   {options.find((opt) => opt.value === watch("type"))
                     ?.onSelect && (
                     <Settings
@@ -362,7 +373,9 @@ const TimelineSidebar = () => {
                 <div className="flex flex-col space-y-1">
                   <div>
                     <div className="flex items-center justify-between">
-                      <label className="text-xs text-gray-400">Task</label>
+                      <label className="text-xs text-gray-400">
+                        {tC("task")}
+                      </label>
 
                       {watch("task") && (
                         <div>
@@ -404,7 +417,9 @@ const TimelineSidebar = () => {
                 <>
                   <div className="flex flex-col space-y-1">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs text-gray-400">Screen</label>
+                      <label className="text-xs text-gray-400">
+                        {tC("screen")}
+                      </label>
                     </div>
                     <ScreenEditor key={sourceData?.id} />
                   </div>
@@ -442,7 +457,7 @@ const TimelineSidebar = () => {
             onClick={handleSubmit(onSubmit)}
             className="w-md flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm cursor-pointer"
           >
-            {currentStep ? "Update" : "Save"}
+            {currentStep ? tC("update") : tC("save")}
           </button>
 
           {currentStep && (
@@ -451,7 +466,7 @@ const TimelineSidebar = () => {
               className="group w-fit flex items-center justify-center gap-2 text-red-600 hover:text-red-700 text-sm cursor-pointer"
             >
               <Trash size={16} className="group-hover:animate-bounce" />
-              Remove step
+              {tC("remove_step")}
             </button>
           )}
         </div>

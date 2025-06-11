@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
 import { useAuthStore } from "@/stores/auth/useAuthStore";
+import { useTranslation } from "react-i18next";
 
 const Experiments = () => {
   const router = useRouter();
@@ -15,6 +16,8 @@ const Experiments = () => {
   const { experiments, getUserExperiments } = useExperimentsStore();
   const [loading, setLoading] = React.useState(true);
   const { getTasks } = useTimelineStore();
+  const { t: tC } = useTranslation("common");
+  const { t: tE } = useTranslation("experiments");
 
   const fetchExperiments = async () => {
     if (!authState.token) return;
@@ -36,11 +39,14 @@ const Experiments = () => {
 
   return (
     <div>
-      <PageHeader title="Experiments" subtitle="Manage your experiments">
+      <PageHeader
+        title={tE("experiment_title")}
+        subtitle={tE("experiment_subtitle")}
+      >
         <div className="search">
           <input
             type="text"
-            placeholder="Search for an experiment..."
+            placeholder={tE("search_experiments")}
             className="border-2 border-gray-300 rounded-lg p-2 w-full"
           />
         </div>
@@ -51,7 +57,7 @@ const Experiments = () => {
               className="cursor-pointer bg-blue-500 text-white rounded-lg px-4 py-3 hover:bg-blue-600 transition duration-200"
               href={"/experiments/create"}
             >
-              Create Experiment
+              {tE("create_experiment")}
             </Link>
           </div>
         )}
@@ -60,7 +66,7 @@ const Experiments = () => {
       <div>
         {loading && (
           <div className="flex items-center justify-center h-screen">
-            <p className="text-gray-500">Loading...</p>
+            <p className="text-gray-500">{tC("loading")}</p>
           </div>
         )}
 
@@ -68,10 +74,7 @@ const Experiments = () => {
           experiments.length === 0 &&
           (authState.user?.profile.profileType === "participant" ? (
             <div className="p-6">
-              <p className="text-gray-500">
-                You are not part of any experiment. Please contact the
-                experiment owner to join.
-              </p>
+              <p className="text-gray-500">{tE("not_part_experiment")}</p>
             </div>
           ) : (
             <div className="p-6">
@@ -80,7 +83,7 @@ const Experiments = () => {
                 className="cursor-pointer font-semibold text-blue-500 mt-4 block"
                 href={"/experiments/create"}
               >
-                Create your first experiment
+                {tE("create_first_experiment")}
               </Link>
             </div>
           ))}
@@ -100,7 +103,7 @@ const Experiments = () => {
                     href={`/experiments/${e.experiment.id}/play`}
                     target="_blank"
                   >
-                    View Experiment
+                    {tE("view_experiment")}
                   </Link>
                 ) : (
                   <button
@@ -113,7 +116,7 @@ const Experiments = () => {
                       }, 100);
                     }}
                   >
-                    View Timeline
+                    {tC("view_timeline")}
                   </button>
                 )}
               </div>

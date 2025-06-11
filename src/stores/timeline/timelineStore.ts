@@ -40,7 +40,7 @@ interface TimelineState {
   setError: (error: string | null) => void;
   formatToTimeline: (data?: SourceDataType) => Promise<void>;
   updateSteps: (updatedStep: TimelineStep) => void;
-  removeStep: (stepId: string) => Promise<void>;
+  removeStep: (stepId: string) => Promise<RestResponseSchemaType>;
   formatNodes: () => Node[];
   formatedEdges: () => Edge[];
   edgesSaved: boolean;
@@ -148,13 +148,11 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     });
     const response = await request.json();
     if (response.error) {
-      toast.success(response.error);
       set({ error: response.error });
       set({ loading: false });
-      return;
+      return response;
     }
 
-    toast.success("Step deleted successfully");
     const updatedSteps = steps.filter((step) => step.id !== stepId);
     console.log("Updated steps after deletion:", updatedSteps);
 
@@ -176,6 +174,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
 
     get().formatNodes();
     get().formatedEdges();
+    return response;
   },
 
   formatNodes: () => {
