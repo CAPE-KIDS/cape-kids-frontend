@@ -590,6 +590,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
 
   getTasks: async () => {
     const { authState } = useAuthStore.getState();
+    if (!authState.token) return;
 
     try {
       const request = await fetch(API.GET_TASKS, {
