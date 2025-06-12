@@ -6,6 +6,7 @@ import { random } from "lodash";
 import { Trigger } from "../../types";
 import { TriggerActionsRegistry } from "../../TriggerActionsRegistry";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   onClose: () => void;
@@ -17,6 +18,7 @@ const timerActions = Object.values(TriggerActionsRegistry).map((action) => ({
 }));
 
 const TimerTriggerModal: React.FC<Props> = ({ onClose }) => {
+  const { t } = useTranslation("common");
   const { blocks, updateStep } = useEditorStore();
   const [delay, setDelay] = useState(3000); // em ms
   const [action, setAction] = useState("");
@@ -28,7 +30,7 @@ const TimerTriggerModal: React.FC<Props> = ({ onClose }) => {
     if (!screenBlock) return;
 
     if (!action) {
-      toast.error("Please add the action.");
+      toast.error(t("please_add_action"));
       return;
     }
 
@@ -69,9 +71,12 @@ const TimerTriggerModal: React.FC<Props> = ({ onClose }) => {
 
         {/* Action */}
         <div>
-          <label>Action</label>
+          <label>{t("action")}</label>
           <CustomSelect
-            options={timerActions}
+            options={timerActions.map((action) => ({
+              value: action.value,
+              label: t(action.label),
+            }))}
             value={action}
             onChange={setAction}
             config={{
@@ -83,20 +88,20 @@ const TimerTriggerModal: React.FC<Props> = ({ onClose }) => {
               dropdownStyle:
                 "absolute z-10 bg-white border w-full mt-1 rounded-md shadow-sm max-h-60 overflow-y-auto",
               showToggle: true,
-              placeholder: "Select an action",
+              placeholder: t("select_action"),
             }}
           />
         </div>
 
         {/* Description */}
         <label>
-          Description (optional):
+          {t("description")} ({t("optional")}):
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full border rounded px-2 py-1 mt-1"
             rows={2}
-            placeholder="Describe the trigger action"
+            placeholder={t("describe_trigger_action")}
           />
         </label>
 
@@ -106,13 +111,13 @@ const TimerTriggerModal: React.FC<Props> = ({ onClose }) => {
             onClick={onClose}
             className="text-sm px-3 py-1 rounded border border-gray-300 hover:bg-gray-100"
           >
-            Cancelar
+            {t("cancel")}
           </button>
           <button
             onClick={handleSave}
             className="text-sm px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
           >
-            Salvar
+            {t("save")}
           </button>
         </div>
       </div>

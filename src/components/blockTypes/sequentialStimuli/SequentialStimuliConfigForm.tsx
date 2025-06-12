@@ -3,9 +3,11 @@ import { Tooltip } from "@/components/Tooltip";
 import { StimuliBlockConfig } from "@/modules/timeline/types";
 import { useStimuliModal } from "@/stores/timeline/blockTypes/stimuliModalStore";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 const SequentialStimuliConfigForm = () => {
+  const { t } = useTranslation("common");
   const { open, config, setConfig, updateStimulusStepsConfigField } =
     useStimuliModal();
 
@@ -20,14 +22,12 @@ const SequentialStimuliConfigForm = () => {
   };
 
   return (
-    <div className="flex w-full gap-16 border-b border-gray-300 pb-4">
-      <div className="w-1/2 flex flex-col gap-2">
+    <div className="flex w-full gap-x-16 gap-y-4 border-b border-gray-300 pb-4 flex-wrap">
+      <div className="max-w-full lg:max-w-[45%] w-full flex flex-col gap-2 ">
         <label className="flex items-center justify-between gap-4">
-          <div className="flex min-w-[182px]">
-            Number of Trials{" "}
-            <Tooltip>
-              Number of time that this block of stimulus will be repeated
-            </Tooltip>
+          <div className="flex max-w-[215px] w-full">
+            {t("number_of_trials")}
+            <Tooltip>{t("tooltip_number_of_trials")}</Tooltip>
           </div>
           <input
             type="number"
@@ -38,9 +38,9 @@ const SequentialStimuliConfigForm = () => {
         </label>
 
         <div className="flex items-center justify-between gap-4">
-          <div className="flex min-w-[182px]">
-            Stimuli Duration (ms)
-            <Tooltip>Time that each stimulus is shown on the screen</Tooltip>
+          <div className="flex max-w-[215px] w-full">
+            {t("stimuli_duration")} (ms)
+            <Tooltip>{t("tooltip_stimuli_duration")}</Tooltip>
           </div>
           <div className="flex gap-2 items-center flex-1">
             <Toggle
@@ -55,7 +55,7 @@ const SequentialStimuliConfigForm = () => {
             />
             {config.stimulusDuration === null ? (
               <div className="w-full border rounded px-2 py-1 mt-1 flex-1">
-                Disabled
+                {t("disabled")}
               </div>
             ) : (
               <input
@@ -71,9 +71,9 @@ const SequentialStimuliConfigForm = () => {
         </div>
 
         <div className="flex items-center justify-between gap-4">
-          <div className="flex min-w-[165px]">
-            Inter Stimuli Interval (ms)
-            <Tooltip>Time between one stimuli and another</Tooltip>
+          <div className="flex max-w-[215px] w-full">
+            {t("inter_stimuli_interval")} (ms)
+            <Tooltip>{t("tooltip_inter_stimuli_interval")}</Tooltip>
           </div>
           <div className="flex gap-2 items-center flex-1">
             <Toggle
@@ -89,7 +89,7 @@ const SequentialStimuliConfigForm = () => {
 
             {config.interStimulusInterval === null ? (
               <div className="w-full border rounded px-2 py-1 mt-1 flex-1">
-                Disabled
+                {t("disabled")}
               </div>
             ) : (
               <input
@@ -105,15 +105,11 @@ const SequentialStimuliConfigForm = () => {
         </div>
       </div>
 
-      <div className="w-1/2 flex flex-col gap-2">
+      <div className="max-w-full lg:max-w-[45%] w-full flex flex-col gap-2">
         <label className="flex items-center gap-4">
-          <div className="min-w-[192px]">
-            Practice
-            <Tooltip>
-              If enabled, the block will be used for practice trials. This will
-              not affect the data collection, but it will be used to display as
-              practice trials in the UI.
-            </Tooltip>
+          <div className="max-w-[210px] w-full">
+            {t("practice")}
+            <Tooltip>{t("tooltip_practice")}</Tooltip>
           </div>
           <Toggle
             checked={config.isPractice}
@@ -122,13 +118,9 @@ const SequentialStimuliConfigForm = () => {
         </label>
 
         <label className="flex items-center gap-4">
-          <div className="min-w-[192px]">
-            Advance on wrong answer
-            <Tooltip>
-              If enabled, the block will advance to the next trial if the
-              participant answers incorrectly. If disabled, the block will wait
-              for the participant to answer correctly before advancing.
-            </Tooltip>
+          <div className="max-w-[210px] w-full">
+            {t("advance_on_wrong")}
+            <Tooltip>{t("tooltip_advance_on_wrong")}</Tooltip>
           </div>
           <Toggle
             checked={config.advanceOnWrong}
@@ -137,11 +129,9 @@ const SequentialStimuliConfigForm = () => {
         </label>
 
         <div className="flex items-center gap-4 ">
-          <div className="min-w-[192px]">
-            Show Feedback
-            <Tooltip>
-              Enable to display a feedback after the user interaction.
-            </Tooltip>
+          <div className="max-w-[210px] w-full">
+            {t("show_feedback")}
+            <Tooltip>{t("tooltip_show_feedback")}</Tooltip>
           </div>
           <div className="flex gap-2 items-center flex-1">
             <Toggle
@@ -156,7 +146,7 @@ const SequentialStimuliConfigForm = () => {
             />
             {config.feedbackDuration === null ? (
               <div className="w-full border rounded px-2 py-1 mt-1 flex-1">
-                Disabled
+                {t("disabled")}
               </div>
             ) : (
               <div className="relative flex-1 max-w-26">
@@ -165,9 +155,7 @@ const SequentialStimuliConfigForm = () => {
                   value={config.feedbackDuration}
                   onChange={(e) => {
                     if (+e.target.value > 10000) {
-                      toast.error(
-                        "Feedback duration cannot be greater than 10 seconds"
-                      );
+                      toast.error(t("feedback_duration_limit_exceeded"));
                       handleChange("feedbackDuration", Number(10000));
                       return;
                     }
@@ -184,11 +172,9 @@ const SequentialStimuliConfigForm = () => {
         </div>
 
         <label className="flex items-center gap-4">
-          <div className="min-w-[192px]">
-            Randomize Order
-            <Tooltip>
-              This will randomize the order of the stimuli in each trial
-            </Tooltip>
+          <div className="max-w-[210px] w-full">
+            {t("randomize_order")}
+            <Tooltip>{t("tooltip_randomize_order")}</Tooltip>
           </div>
           <Toggle
             checked={config.randomize}

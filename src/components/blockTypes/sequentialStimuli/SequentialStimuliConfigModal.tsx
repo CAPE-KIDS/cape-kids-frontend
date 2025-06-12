@@ -6,8 +6,10 @@ import SequentialStimuliConfigForm from "./SequentialStimuliConfigForm";
 import SequentialStimuliManager from "./SequentialStimuliManager";
 import { useEditorStore } from "@/stores/editor/useEditorStore";
 import SequentialStimuliEditorModal from "./SequentialStimuliEditorModal";
+import { useTranslation } from "react-i18next";
 
 const SequentialStimuliConfigModal = () => {
+  const { t } = useTranslation("common");
   const { open, closeModal } = useStimuliModal();
   const { setEditorContext } = useEditorStore();
 
@@ -26,13 +28,12 @@ const SequentialStimuliConfigModal = () => {
   return (
     <>
       <ModalBase
-        title="Sequential Stimuli Configuration"
+        title={t("sequential_stimuli_modal_title")}
         onClose={closeModal}
         styles="w-[900px]"
       >
         <p className="text-xs text-gray-400 -mt-2 mb-2 border-t border-gray-300 pt-1">
-          These configurations apply to all stimuli in this block, unless you
-          define individual configuration.
+          {t("stimuli_modal_description")}
         </p>
         <div className="flex flex-col gap-3 text-sm">
           <SequentialStimuliConfigForm />
@@ -44,13 +45,13 @@ const SequentialStimuliConfigModal = () => {
               onClick={closeModal}
               className="text-sm px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 cursor-pointer"
             >
-              Close
+              {t("close")}
             </button>
             <button
               onClick={closeModal}
               className="text-sm px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
             >
-              Confirm
+              {t("confirm")}
             </button>
           </div>
         </div>

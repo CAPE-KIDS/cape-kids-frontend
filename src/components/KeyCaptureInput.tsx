@@ -2,6 +2,7 @@
 
 import { normalizeKeyCombo } from "@/utils/functions";
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface KeyCaptureInputProps {
   value: string;
@@ -12,6 +13,7 @@ const KeyCaptureInput: React.FC<KeyCaptureInputProps> = ({
   value,
   onKeyCapture,
 }) => {
+  const { t } = useTranslation("common");
   const [listening, setListening] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -35,7 +37,7 @@ const KeyCaptureInput: React.FC<KeyCaptureInputProps> = ({
 
   return (
     <div className="w-full">
-      <label className="block mb-1 text-sm">Key:</label>
+      <label className="block mb-1 text-sm">{t("key")}</label>
       <input
         ref={inputRef}
         type="text"
@@ -43,11 +45,11 @@ const KeyCaptureInput: React.FC<KeyCaptureInputProps> = ({
         value={value}
         onFocus={() => setListening(true)}
         onBlur={() => setListening(false)}
-        placeholder="Press a key"
+        placeholder={t("press_key_placeholder")}
         readOnly
       />
       {listening && (
-        <p className="text-xs text-blue-600 mt-1">Listening... press any key</p>
+        <p className="text-xs text-blue-600 mt-1">{t("press_key_message")}</p>
       )}
     </div>
   );

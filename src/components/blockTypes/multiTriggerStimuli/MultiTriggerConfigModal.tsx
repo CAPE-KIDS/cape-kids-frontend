@@ -7,8 +7,10 @@ import { useEditorStore } from "@/stores/editor/useEditorStore";
 import SequentialStimuliEditorModal from "./MultiTriggerStimuliEditorModal";
 import { useMultiTriggerStimuliModal } from "@/stores/timeline/blockTypes/multiTriggerStimuliStore";
 import MultiTriggerStimuliManager from "./MultiTriggerStimuliManager";
+import { useTranslation } from "react-i18next";
 
 const MultiTriggerConfigModal = () => {
+  const { t } = useTranslation("common");
   const { open, closeModal } = useMultiTriggerStimuliModal();
   const { setEditorContext } = useEditorStore();
 
@@ -27,13 +29,12 @@ const MultiTriggerConfigModal = () => {
   return (
     <>
       <ModalBase
-        title="Multi Trigger Stimuli Configuration"
+        title={t("multi_trigger_modal_title")}
         onClose={closeModal}
         styles="w-[900px]"
       >
         <p className="text-xs text-gray-400 -mt-2 mb-2 border-t border-gray-300 pt-1">
-          These configurations apply to all stimuli in this block, unless you
-          define individual configuration.
+          {t("stimuli_modal_description")}
         </p>
         <div className="flex flex-col gap-3 text-sm">
           <MultiTriggerStimuliForm />
@@ -45,13 +46,13 @@ const MultiTriggerConfigModal = () => {
               onClick={closeModal}
               className="text-sm px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 cursor-pointer"
             >
-              Close
+              {t("close")}
             </button>
             <button
               onClick={closeModal}
               className="text-sm px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
             >
-              Confirm
+              {t("confirm")}
             </button>
           </div>
         </div>

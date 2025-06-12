@@ -9,6 +9,7 @@ import { useStimuliModal } from "@/stores/timeline/blockTypes/stimuliModalStore"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -18,6 +19,7 @@ const formSchema = z.object({
 type ExperimentFormData = z.infer<typeof formSchema>;
 
 const SequentialStimuliEditorModal = () => {
+  const { t } = useTranslation("common");
   const {
     stimulusEditorOpen,
     closeStimulusEditorModal,
@@ -93,8 +95,8 @@ const SequentialStimuliEditorModal = () => {
       (block) => block.triggers && block.triggers.length > 0
     );
 
-    if (!hasBlocks) return toast.error("You must add at least one block.");
-    if (!hasTrigger) return toast.error("You must add at least one trigger.");
+    if (!hasBlocks) return toast.error(t("error_add_at_least_one_block"));
+    if (!hasTrigger) return toast.error(t("error_add_at_least_one_trigger"));
 
     const commonMetadata = {
       title,
@@ -131,14 +133,16 @@ const SequentialStimuliEditorModal = () => {
     clearEditor();
     reset();
     resetOverrideConfig();
-    toast.success("Stimuli saved successfully.");
+    toast.success(t("stimuli_saved_successfully"));
   });
 
   if (!stimulusEditorOpen) return null;
 
   return (
     <ModalBase
-      title="Stimuli creation"
+      title={
+        editingStep ? t("stimuli_edit_title") : t("stimuli_creation_title")
+      }
       onClose={() => {
         closeStimulusEditorModal();
         setEditingStep(null);
@@ -151,31 +155,34 @@ const SequentialStimuliEditorModal = () => {
       <div className="flex gap-8">
         <div className="w-lg">
           <div className="flex flex-col space-y-1 mb-4">
-            <label className="font-light text-xs text-gray-400">Title</label>
+            <label className="font-light text-xs text-gray-400">
+              {t("title")}
+            </label>
             <input
               {...register("title")}
               className="bg-[#EBEFFF] rounded-lg p-2"
-              placeholder="Stimuli title"
+              placeholder={t("stimuli_title_placeholder")}
             />
             {errors.title && (
               <span className="text-red-500 text-xs">
-                {errors.title.message}
+                {t("title_required")}
               </span>
             )}
           </div>
 
           <div className="flex flex-col space-y-1">
-            <label className="text-xs text-gray-400">Screen</label>
+            <label className="text-xs text-gray-400">{t("screen")}</label>
             <ScreenEditor />
           </div>
         </div>
 
         <div className="flex-1">
           <label className="flex items-center gap-2 mb-4 relative w-fit">
-            <span className="text-xs">Display rate</span>
+            <span className="text-xs">{t("display_rate")}</span>
             <input
+              disabled
               type="number"
-              className="border border-gray-300 rounded-lg p-2 text-xs"
+              className="border border-gray-300 rounded-lg p-2 text-xs text-gray-400"
               value={overrideConfig.displayRate}
               onChange={(e) => {
                 const value = Number(e.target.value);
@@ -191,7 +198,7 @@ const SequentialStimuliEditorModal = () => {
 
           {/* Stimulus duration toggle */}
           <div>
-            <p className="text-xs mb-1">Override stimulus time?</p>
+            <p className="text-xs mb-1">{t("override_stimulus_time")}</p>
             <div className="flex gap-2">
               <Toggle
                 checked={overrideConfig.overrideStimulusDuration}
@@ -216,7 +223,7 @@ const SequentialStimuliEditorModal = () => {
 
           {/* Inter-stimulus interval toggle */}
           <div className="mt-2">
-            <p className="text-xs mb-1">Override inter stimulus time?</p>
+            <p className="text-xs mb-1">{t("override_stimulus_duration")}</p>
             <div className="flex gap-2">
               <Toggle
                 checked={overrideConfig.overrideInterStimulusInterval}
@@ -272,13 +279,13 @@ const SequentialStimuliEditorModal = () => {
           }}
           className="text-sm px-3 py-1 rounded border border-gray-300 hover:bg-gray-100"
         >
-          Cancel
+          {t("cancel")}
         </button>
         <button
           onClick={handleSave}
           className="text-sm px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
         >
-          Save
+          {t("save")}
         </button>
       </div>
     </ModalBase>

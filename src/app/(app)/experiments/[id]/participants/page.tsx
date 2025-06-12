@@ -15,8 +15,11 @@ import {
   useParticipantsStore,
 } from "@/stores/participants/participantsStore";
 import { confirm } from "@/components/confirm/confirm";
+import { useTranslation } from "react-i18next";
 
 const ExperimentParticipants = () => {
+  const { t } = useTranslation("common");
+  const { t: tE } = useTranslation("experiments");
   const params = useParams();
   const experimentId = params.id as string;
   const {
@@ -92,30 +95,30 @@ const ExperimentParticipants = () => {
   const removeParticipantFromExperiment = async (id: string) => {
     const response = await removeParticipant(experimentId, id);
     if (response.error) {
-      toast.error("Error removing participant from experiment");
+      toast.error(t("error_removing_participant"));
       return;
     }
 
-    toast.success("Participant removed from experiment");
+    toast.success(t("participant_removed_from_experiment"));
     await fetchExperimentParticipants();
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>{t("loading")}</div>;
 
   const experimentUrl = `http://localhost:3001/experiments/${experimentId}/join`;
 
   return (
     <div>
       <PageHeader
-        title="Experiment Participants"
-        subtitle="Manage your experiment participants"
+        title={t("experiment_participants_title")}
+        subtitle={t("experiment_participants_subtitle")}
       >
         <div className="button">
           <Link
             className="cursor-pointer text-white rounded-lg px-4 py-3 bg-blue-600 transition duration-200"
             href={"/experiments/create"}
           >
-            Create Experiment
+            {tE("create_experiment")}
           </Link>
         </div>
       </PageHeader>
@@ -130,7 +133,7 @@ const ExperimentParticipants = () => {
           <div className="flex flex-col space-y-1 flex-1 max-w-[625px]">
             <div className="flex justify-between items-center">
               <label className="font-light text-xs text-gray-400">
-                Access url
+                {t("access_url")}
               </label>
             </div>
             <div className="flex items-center gap-2">
@@ -139,7 +142,7 @@ const ExperimentParticipants = () => {
                 tabIndex={0}
                 onClick={() => {
                   navigator.clipboard.writeText(String(experimentUrl));
-                  toast.success("Access url copied to clipboard");
+                  toast.success(t("access_url_copied"));
                 }}
               >
                 <span className="line-clamp-1 overlfow-hidden">
@@ -150,7 +153,7 @@ const ExperimentParticipants = () => {
                 type="button"
                 onClick={() => {
                   navigator.clipboard.writeText(String(experimentUrl));
-                  toast.success("Access url copied to clipboard");
+                  toast.success(t("access_url_copied"));
                 }}
               >
                 <Copy
@@ -165,7 +168,7 @@ const ExperimentParticipants = () => {
           <div className="flex flex-col space-y-1 max-w-[190px]">
             <div className="flex justify-between items-center">
               <label className="font-light text-xs text-gray-400">
-                Access code
+                {t("access_code")}
               </label>
             </div>
             <div className="flex items-center gap-2">
@@ -176,7 +179,7 @@ const ExperimentParticipants = () => {
                   navigator.clipboard.writeText(
                     String(selectedExperiment?.experiment.accessCode)
                   );
-                  toast.success("Access code copied to clipboard");
+                  toast.success(t("access_code_copied"));
                 }}
               >
                 {selectedExperiment?.experiment.accessCode}
@@ -187,7 +190,7 @@ const ExperimentParticipants = () => {
                   navigator.clipboard.writeText(
                     String(selectedExperiment?.experiment.accessCode)
                   );
-                  toast.success("Access code copied to clipboard");
+                  toast.success(t("access_code_copied"));
                 }}
               >
                 <Copy
@@ -204,18 +207,18 @@ const ExperimentParticipants = () => {
         <div className="border-t border-indigo-200 my-4" />
         <div>
           <SectionHeader
-            title="Participants"
-            actionLabel="Add Participant"
+            title={t("Participants")}
+            actionLabel={t("add_participant")}
             onAction={() => setIsModalOpen(true)}
           />
         </div>
         {rows.length > 0 ? (
           <DataTable
             headers={[
-              { key: "name", label: "Name" },
-              { key: "age", label: "Age" },
-              { key: "gender", label: "Gender" },
-              { key: "nativeLanguage", label: "Language" },
+              { key: "name", label: t("name") },
+              { key: "age", label: t("age") },
+              { key: "gender", label: t("gender") },
+              { key: "nativeLanguage", label: t("language") },
             ]}
             rows={rows}
             withQuickActions
@@ -225,8 +228,8 @@ const ExperimentParticipants = () => {
                 label: "Remove",
                 onClick: async (row) => {
                   const ok = await confirm({
-                    title: "Tem certeza que remover este participante?",
-                    message: "Essa ação não pode ser desfeita.",
+                    title: t("participant_remove_confirmation"),
+                    message: t("participant_remove_confirmation_message"),
                   });
                   if (!ok) return;
 
@@ -238,7 +241,7 @@ const ExperimentParticipants = () => {
           />
         ) : (
           <div className="flex h-full w-full">
-            <p className="text-gray-500">No participants found</p>
+            <p className="text-gray-500">{t("no_participants_found")}</p>
           </div>
         )}
       </div>

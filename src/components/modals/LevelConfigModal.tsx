@@ -11,6 +11,7 @@ import CustomSelect from "../CustomSelect";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
 import { TriggerActionType } from "@/modules/triggers/types";
 import { TriggerActionsRegistry } from "@/modules/triggers/TriggerActionsRegistry";
+import { useTranslation } from "react-i18next";
 
 interface LevelConfigModalProps {
   setShowLevelModal: (show: boolean) => void;
@@ -23,6 +24,7 @@ const LevelConfigModal = ({
   setConfig,
   config,
 }: LevelConfigModalProps) => {
+  const { t } = useTranslation("common");
   const { steps } = useTimelineStore();
   const handleChange = <K extends keyof StimuliBlockConfig>(
     field: K,
@@ -46,12 +48,9 @@ const LevelConfigModal = ({
   return (
     <ModalBase title="Levels" onClose={() => setShowLevelModal(false)}>
       <div>
-        {/* <p className="text-sm text-gray-500 mb-2">
-          Levels are used to pass different settings for 
-        </p> */}
         <div>
           <label className="flex items-center gap-4">
-            <div className="min-w-[180.5px]">Title</div>
+            <div className="min-w-[180.5px]">{t("title")}</div>
             <input
               type="text"
               value={config.level?.level || ""}
@@ -70,10 +69,8 @@ const LevelConfigModal = ({
 
         <div className="flex items-center justify-between gap-4">
           <div className="flex min-w-[180.5px]">
-            Repeat on wrong answer
-            <Tooltip>
-              Defines if the step will be repeated after the wrong answer
-            </Tooltip>
+            {t("repeat_on_wrong_answer")}
+            <Tooltip>{t("tooltip_repeat_on_wrong_answer")}</Tooltip>
           </div>
           <div className="flex gap-2 items-center flex-1">
             <Toggle
@@ -103,7 +100,7 @@ const LevelConfigModal = ({
                 value={config.level.repeatAmount}
                 onChange={(e) => {
                   if (Number(e.target.value) < 1) {
-                    toast.error("Repeat amount must be at least 1");
+                    toast.error(t("error_repeat_amount"));
                     return;
                   }
                   handleChange("level", {
@@ -117,7 +114,7 @@ const LevelConfigModal = ({
               />
             ) : (
               <div className="w-full border rounded px-2 py-1 mt-1 flex-1">
-                Disabled
+                {t("disabled")}
               </div>
             )}
           </div>
@@ -125,11 +122,8 @@ const LevelConfigModal = ({
 
         <div className="flex items-center justify-between gap-4">
           <div className="flex min-w-[180.5px]">
-            On wrong answer
-            <Tooltip>
-              Defines the action to be taken when the answer is wrong. This
-              action will be performed after the last repeat.
-            </Tooltip>
+            {t("on_wrong_answer")}
+            <Tooltip>{t("tooltip_on_wrong_answer")}</Tooltip>
           </div>
 
           <CustomSelect
@@ -152,7 +146,7 @@ const LevelConfigModal = ({
               dropdownStyle:
                 "absolute z-10 bg-white border w-full mt-1 rounded-md shadow-sm max-h-60 overflow-y-auto",
               showToggle: true,
-              placeholder: "Select an event",
+              placeholder: t("select_action"),
             }}
           ></CustomSelect>
         </div>
@@ -180,7 +174,7 @@ const LevelConfigModal = ({
                 dropdownStyle:
                   "absolute z-10 bg-white border w-full mt-1 rounded-md shadow-sm max-h-60 overflow-y-auto",
                 showToggle: true,
-                placeholder: "Select a step",
+                placeholder: t("select_step"),
               }}
             ></CustomSelect>
           </div>
@@ -191,7 +185,7 @@ const LevelConfigModal = ({
             className="text-sm px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
             onClick={() => setShowLevelModal(false)}
           >
-            Save
+            {t("save")}
           </button>
 
           <button className="cancel">
@@ -201,7 +195,7 @@ const LevelConfigModal = ({
                 setShowLevelModal(false);
               }}
             >
-              Close
+              {t("close")}
             </span>
           </button>
         </div>

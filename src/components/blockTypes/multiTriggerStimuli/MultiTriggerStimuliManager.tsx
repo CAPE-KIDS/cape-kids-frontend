@@ -5,6 +5,7 @@ import { TimelineStep } from "@shared/timeline";
 import { capitalize } from "lodash";
 import { PlusIcon } from "lucide-react";
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 export function getBlockTypeAndTrigger(step: TimelineStep) {
   const firstWithTrigger = (step.metadata.blocks || []).find(
@@ -28,6 +29,7 @@ export function getBlockTypeAndTrigger(step: TimelineStep) {
 }
 
 const MultiTriggerStimuliManager = () => {
+  const { t } = useTranslation("common");
   const {
     openMultiTriggerStimulusEditorModal,
     config,
@@ -61,7 +63,7 @@ const MultiTriggerStimuliManager = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-2">
-        <h2 className="text-lg font-semibold">Stimulus</h2>
+        <h2 className="text-lg font-semibold">{t("stimulus")}</h2>
         <button
           className="cursor-pointer"
           onClick={() => {
@@ -77,24 +79,24 @@ const MultiTriggerStimuliManager = () => {
         {steps.length > 0 ? (
           <DataTable
             headers={[
-              { key: "type", label: "TYPE" },
-              { key: "name", label: "Name" },
+              { key: "type", label: t("type") },
+              { key: "name", label: t("name") },
               { key: "trigger", label: "Trigger" },
             ]}
             rows={rows}
             withQuickActions
             actions={[
-              { label: "Edit", onClick: (row) => handleEdit(row.id) },
+              { label: t("edit"), onClick: (row) => handleEdit(row.id) },
               {
-                label: "Duplicate",
+                label: t("duplicate"),
                 onClick: (row) => duplicateStimulusStep(row.id),
               },
               {
-                label: "Remove",
+                label: t("remove"),
                 onClick: async (row) => {
                   const ok = await confirm({
-                    title: "Tem certeza que remover este estimulo?",
-                    message: "Essa ação não pode ser desfeita.",
+                    title: t("confirm_remove_stimulus"),
+                    message: t("action_cannot_be_undone"),
                   });
                   if (!ok) return;
                   removeStimulusStep(row.id);
@@ -104,7 +106,7 @@ const MultiTriggerStimuliManager = () => {
             onReorder={(newOrder) => updateStimulusOrder(newOrder)}
           />
         ) : (
-          <p className="text-sm text-gray-500">No stimuli added yet.</p>
+          <p className="text-sm text-gray-500">{t("no_stimulus_added")}</p>
         )}
       </div>
     </div>

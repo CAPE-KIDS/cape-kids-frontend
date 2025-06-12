@@ -11,6 +11,7 @@ import {
 import ParticipantTable from "../tables/ParticipantTable";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface ParticipantModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ const ParticipantModal = ({
   closeModal,
   fetchExperimentParticipants,
 }: ParticipantModalProps) => {
+  const { t } = useTranslation("common");
   const params = useParams();
   const experimentId = params.id as string;
   const {
@@ -53,16 +55,18 @@ const ParticipantModal = ({
         }}
         styles="w-[900px]"
       >
-        <p className="text-lg mb-4">Adding participants</p>
+        <p className="text-lg mb-4">{t("participant_modal_title")}</p>
         <p className="text-md">{selectedExperiment.experiment.title}</p>
 
         <div className="">
           <div className="flex items-center justify-between mb-4 gap-8 mt-6">
-            <span className="text-blue-600 text-lg">Participants list</span>
+            <span className="text-blue-600 text-lg">
+              {t("participant_modal_list")}
+            </span>
             <div className="search flex relative flex-1 max-w-[372px]">
               <input
                 type="text"
-                placeholder="Search for the name..."
+                placeholder={t("participant_modal_search_placeholder")}
                 className="border-2 border-blue-300 rounded-lg p-2 w-full text-sm"
                 value={searchTerm}
                 onChange={(e) => {
@@ -101,10 +105,10 @@ const ParticipantModal = ({
           <div className="overflow-auto h-full max-h-[400px] min-h-[400px]">
             <ParticipantTable
               headers={[
-                { key: "name", label: "Name" },
-                { key: "age", label: "Age" },
-                { key: "gender", label: "Gender" },
-                { key: "nativeLanguage", label: "Language" },
+                { key: "name", label: t("name") },
+                { key: "age", label: t("age") },
+                { key: "gender", label: t("gender") },
+                { key: "nativeLanguage", label: t("language") },
               ]}
               rows={selectedParticipants}
               withAddButton={true}
@@ -116,16 +120,16 @@ const ParticipantModal = ({
                 if (response.error) {
                   toast.error(response.message);
                 } else {
-                  toast.success("Participant added to experiment");
+                  toast.success(t("participant_added_to_experiment"));
                   await fetchExperimentParticipants();
                 }
               }}
               removeAction={async (id: string) => {
                 const response = await removeParticipant(experimentId, id);
                 if (response.error) {
-                  toast.error("Participant is not in the experiment");
+                  toast.error(t("paticipant_not_in_experiment"));
                 } else {
-                  toast.success("Participant removed from experiment");
+                  toast.success(t("participant_removed_from_experiment"));
                   await fetchExperimentParticipants();
                 }
               }}

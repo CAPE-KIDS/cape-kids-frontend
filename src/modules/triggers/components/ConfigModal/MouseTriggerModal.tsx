@@ -7,13 +7,14 @@ import { capitalize, random } from "lodash";
 import { Trigger } from "../../types";
 import { TriggerActionsRegistry } from "../../TriggerActionsRegistry";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   onClose: () => void;
 }
 
 const mouseEvents = [
-  { value: "click", label: "Click" },
+  { value: "click", label: "click" },
   // { value: "hover", label: "Hover" },
   // { value: "wheel", label: "Wheel" },
   // { value: "rightClick", label: "Right Click" },
@@ -27,6 +28,7 @@ const mouseActions = Object.values(TriggerActionsRegistry).map((action) => ({
 }));
 
 const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
+  const { t } = useTranslation("common");
   const { blocks, addTriggerToBlock, updateStep } = useEditorStore();
   const [eventType, setEventType] = useState(mouseEvents[0].value);
   const [target, setTarget] = useState("");
@@ -37,12 +39,12 @@ const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
     const isBlock = blocks.find((block) => block.id === target);
 
     if (!target) {
-      toast.error("Please add a target.");
+      toast.error(t("please_add_target"));
       return;
     }
 
     if (!action) {
-      toast.error("Please add the action.");
+      toast.error(t("please_add_action"));
       return;
     }
 
@@ -67,7 +69,7 @@ const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
     if (block.type === "screen") {
       return {
         value: block.id,
-        label: "Screen",
+        label: t("screen"),
       };
     }
     return {
@@ -81,11 +83,11 @@ const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
       <div className="flex flex-col gap-3 text-sm">
         {/* Event type */}
         <div>
-          <label>Type:</label>
+          <label>{t("type")}</label>
           <CustomSelect
             options={mouseEvents.map((ev) => ({
               value: ev.value,
-              label: ev.label,
+              label: t(ev.label) || ev.label,
             }))}
             value={eventType}
             onChange={(value) => setEventType(value)}
@@ -98,14 +100,14 @@ const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
               dropdownStyle:
                 "absolute z-10 bg-white border w-full mt-1 rounded-md shadow-sm max-h-60 overflow-y-auto",
               showToggle: true,
-              placeholder: "Select an event",
+              placeholder: t("select_event"),
             }}
           />
         </div>
 
         {/* Target */}
         <div>
-          <label>Target:</label>
+          <label>{t("target")}</label>
           <CustomSelect
             options={[...(blocks.map((t) => formatDisplay(t)) as Option[])]}
             value={target}
@@ -119,18 +121,18 @@ const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
               dropdownStyle:
                 "absolute z-10 bg-white border w-full mt-1 rounded-md shadow-sm max-h-60 overflow-y-auto",
               showToggle: true,
-              placeholder: "Select a target",
+              placeholder: t("select_target"),
             }}
           />
         </div>
 
         {/* Actions */}
         <div>
-          <label>Action</label>
+          <label>{t("action")}</label>
           <CustomSelect
             options={mouseActions.map((action) => ({
               value: action.value,
-              label: action.label,
+              label: t(action.label),
             }))}
             value={action}
             onChange={(value) => setAction(value)}
@@ -143,20 +145,20 @@ const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
               dropdownStyle:
                 "absolute z-10 bg-white border w-full mt-1 rounded-md shadow-sm max-h-60 overflow-y-auto",
               showToggle: true,
-              placeholder: "Select an action",
+              placeholder: t("select_action"),
             }}
           />
         </div>
 
         {/* Description */}
         <label>
-          Description (optional):
+          {t("description")} ({t("optional")}):
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full border rounded px-2 py-1 mt-1"
             rows={2}
-            placeholder="Describe the trigger action"
+            placeholder={t("describe_trigger_action")}
           />
         </label>
 
@@ -166,13 +168,13 @@ const MouseTriggerModal: React.FC<Props> = ({ onClose }) => {
             onClick={onClose}
             className="text-sm px-3 py-1 rounded border border-gray-300 hover:bg-gray-100"
           >
-            Cancelar
+            {t("cancel")}
           </button>
           <button
             onClick={handleSave}
             className="text-sm px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
           >
-            Salvar
+            {t("save")}
           </button>
         </div>
       </div>

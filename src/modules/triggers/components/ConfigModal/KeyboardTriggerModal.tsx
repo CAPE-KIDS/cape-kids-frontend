@@ -8,6 +8,7 @@ import { Trigger } from "../../types";
 import { TriggerActionsRegistry } from "../../TriggerActionsRegistry";
 import KeyCaptureInput from "@/components/KeyCaptureInput";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   onClose: () => void;
@@ -19,6 +20,7 @@ const keyboardActions = Object.values(TriggerActionsRegistry).map((action) => ({
 }));
 
 const KeyboardTriggerModal: React.FC<Props> = ({ onClose }) => {
+  const { t } = useTranslation("common");
   const { blocks, addTriggerToBlock, updateStep } = useEditorStore();
   const [keyCombo, setKeyCombo] = useState("");
   const [action, setAction] = useState("");
@@ -26,12 +28,12 @@ const KeyboardTriggerModal: React.FC<Props> = ({ onClose }) => {
 
   const handleSave = () => {
     if (keyCombo === "" || !keyCombo) {
-      toast.error("Please add a key to the trigger");
+      toast.error(t("please_add_key"));
       return;
     }
 
     if (!action) {
-      toast.error("Please add the action.");
+      toast.error(t("please_add_action"));
       return;
     }
 
@@ -57,16 +59,19 @@ const KeyboardTriggerModal: React.FC<Props> = ({ onClose }) => {
   };
 
   return (
-    <ModalBase title="Keyboard Trigger" onClose={onClose}>
+    <ModalBase title={t("keyboard_modal_title")} onClose={onClose}>
       <div className="flex flex-col gap-3 text-sm">
         {/* Key Combo */}
         <KeyCaptureInput value={keyCombo} onKeyCapture={setKeyCombo} />
 
         {/* Action */}
         <div>
-          <label>Action</label>
+          <label>{t("action")}</label>
           <CustomSelect
-            options={keyboardActions}
+            options={keyboardActions.map((action) => ({
+              value: action.value,
+              label: t(action.label),
+            }))}
             value={action}
             onChange={setAction}
             config={{
@@ -78,20 +83,20 @@ const KeyboardTriggerModal: React.FC<Props> = ({ onClose }) => {
               dropdownStyle:
                 "absolute z-10 bg-white border w-full mt-1 rounded-md shadow-sm max-h-60 overflow-y-auto",
               showToggle: true,
-              placeholder: "Select an action",
+              placeholder: t("select_action"),
             }}
           />
         </div>
 
         {/* Description */}
         <label>
-          Description (optional):
+          {t("description")} ({t("optional")}):
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full border rounded px-2 py-1 mt-1"
             rows={2}
-            placeholder="Describe the trigger action"
+            placeholder={t("describe_trigger_action")}
           />
         </label>
 

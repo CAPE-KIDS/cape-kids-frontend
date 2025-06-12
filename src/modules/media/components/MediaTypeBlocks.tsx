@@ -8,8 +8,8 @@ export const MediaTypeBlocks = () => {
     <div className="flex gap-1">
       <TextMedia />
       <ImageMedia />
-      <VideoMedia />
-      <AudioMedia />
+      {/* <VideoMedia />
+      <AudioMedia /> */}
     </div>
   );
 };
