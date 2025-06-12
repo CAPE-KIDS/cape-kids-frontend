@@ -5,11 +5,13 @@ import { useCanvasStore } from "../store/useCanvasStore";
 import { StepResult, useResultsStore } from "@/stores/results/useResultsStore";
 import { Tooltip } from "@/components/Tooltip";
 import { useAuthStore } from "@/stores/auth/useAuthStore";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { API } from "@/utils/api";
 import { toast } from "sonner";
 
 const SaveScreen = () => {
+  const params = useParams<{ id: string }>();
+  const sourceId = params.id;
   const { authState } = useAuthStore();
   const path = usePathname();
   const { steps } = useCanvasStore();
@@ -29,7 +31,7 @@ const SaveScreen = () => {
   );
 
   const saveResults = async () => {
-    if (hasSavedRef.current) return;
+    if (hasSavedRef.current || status) return;
     hasSavedRef.current = true;
     setStatus("saving");
 
@@ -47,6 +49,7 @@ const SaveScreen = () => {
     });
 
     const formatedResults = allResults.map((result) => ({
+      sourceId,
       timelineStepId: result.timelineStepId,
       startedAt: result.startedAt,
       completedAt: result.completedAt,

@@ -13,6 +13,7 @@ export type FormatedParticipantsType = {
   gender: string;
   nativeLanguage: string | undefined;
   isInExperiment: boolean;
+  completedAt?: string;
 };
 
 interface ParticipanteState {
@@ -22,6 +23,7 @@ interface ParticipanteState {
   formatParticipants: (
     participants: ParticipantSchemaType[]
   ) => FormatedParticipantsType[];
+  formatParticipantsInExperiment: (data: any[]) => FormatedParticipantsType[];
   removeParticipant: (
     experimentId: string,
     participantId: string
@@ -34,6 +36,8 @@ export const useParticipantsStore = create<ParticipanteState>((set, get) => ({
   },
   getParticipants: async () => {
     const { authState } = useAuthStore.getState();
+
+    if (!authState.token) return;
 
     const request = await fetch(API.GET_PARTICIPANTS, {
       method: "GET",
@@ -52,6 +56,7 @@ export const useParticipantsStore = create<ParticipanteState>((set, get) => ({
   },
   formatParticipants: (participants) => {
     const { selectedExperimentParticipants } = useExperimentsStore.getState();
+
     const formatedParticipans = participants.map((participant) => ({
       id: participant.id,
       name: participant.profile.fullName,
@@ -59,10 +64,31 @@ export const useParticipantsStore = create<ParticipanteState>((set, get) => ({
       gender: participant.profile.metadata.participant.gender,
       nativeLanguage: participant.profile.metadata.participant.nativeLanguage,
       isInExperiment: selectedExperimentParticipants.some(
-        (p) => p.id === participant.id
+        (p) => p.user.id === participant.id
       ),
     }));
     return formatedParticipans;
+  },
+  formatParticipantsInExperiment: (data) => {
+    const { selectedExperimentParticipants } = useExperimentsStore.getState();
+    const formatedParticipans = data.map((d: any) => {
+      const participant = d.user;
+
+      if (!participant) return null;
+
+      return {
+        id: participant.id,
+        name: participant.profile.fullName,
+        age: participant.profile.metadata.participant.age,
+        gender: participant.profile.metadata.participant.gender,
+        nativeLanguage: participant.profile.metadata.participant.nativeLanguage,
+        isInExperiment: selectedExperimentParticipants.some(
+          (p) => p.user.id === participant.id
+        ),
+        completedAt: d.completedAt,
+      };
+    });
+    return formatedParticipans as FormatedParticipantsType[];
   },
   removeParticipant: async (experimentId, participantId) => {
     const { authState } = useAuthStore.getState();

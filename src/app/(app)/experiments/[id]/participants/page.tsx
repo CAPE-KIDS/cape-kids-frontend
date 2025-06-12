@@ -16,6 +16,7 @@ import {
 } from "@/stores/participants/participantsStore";
 import { confirm } from "@/components/confirm/confirm";
 import { useTranslation } from "react-i18next";
+import { exportRawJson, exportResultsToExcel } from "@/utils/functions";
 
 const ExperimentParticipants = () => {
   const { t } = useTranslation("common");
@@ -28,13 +29,15 @@ const ExperimentParticipants = () => {
     setSelectedExperiment,
     selectedExperiment,
     getExperimentParticipants,
+    getUserExperimentResult,
   } = useExperimentsStore();
-  const { getParticipants, formatParticipants, removeParticipant } =
+  const { getParticipants, removeParticipant, formatParticipantsInExperiment } =
     useParticipantsStore();
   const { authState } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rows, setRows] = useState<FormatedParticipantsType[] | []>([]);
+  const [fecthingParticipants, setFecthingParticipants] = useState(false);
 
   const fetchExperiment = async () => {
     const experiment = await getExperimentById(experimentId);
@@ -44,27 +47,31 @@ const ExperimentParticipants = () => {
   };
 
   const fetchParticipants = async () => {
+    setFecthingParticipants(true);
+
     const response = await getParticipants();
-    if (response.error) {
+    setFecthingParticipants(false);
+    if (response?.error) {
       console.log("Error fetching participants: ", response.error);
       return;
     }
   };
 
   const fetchExperimentParticipants = async () => {
+    if (!authState.token || !experimentId) return;
     const response = await getExperimentParticipants(experimentId);
-    if (response.error) {
+    if (response?.error) {
       console.log("Error fetching experiment participants: ", response.error);
       return;
     }
 
-    const formatedParticipants = formatParticipants(response.data);
+    const formatedParticipants =
+      response?.data && formatParticipantsInExperiment(response?.data);
     setRows(formatedParticipants);
   };
 
   useEffect(() => {
     if (!authState.token) return;
-
     fetchParticipants();
     fetchExperimentParticipants();
 
@@ -82,14 +89,27 @@ const ExperimentParticipants = () => {
     return;
   }, [experimentId, authState]);
 
-  useEffect(() => {
-    if (selectedExperiment) {
-      console.log("Selected Experiment: ", selectedExperiment);
+  const getUserResults = async (
+    user: FormatedParticipantsType,
+    type: string
+  ) => {
+    const results = await getUserExperimentResult(experimentId, user.id);
+    if (results.error) {
+      toast.error(t("error_fetching_results"));
+      return;
     }
-  }, [selectedExperiment]);
 
-  const editParticipant = (id: string) => {
-    console.log("Edit participant with id: ", id);
+    if (results.data.length === 0) {
+      toast.error(t("sucess_fetching_results_empty"));
+      return;
+    }
+
+    if (type === "xlsx") {
+      exportResultsToExcel(results.data, user);
+    }
+    if (type === "json") {
+      exportRawJson(results.data, user);
+    }
   };
 
   const removeParticipantFromExperiment = async (id: string) => {
@@ -212,37 +232,79 @@ const ExperimentParticipants = () => {
             onAction={() => setIsModalOpen(true)}
           />
         </div>
-        {rows.length > 0 ? (
-          <DataTable
-            headers={[
-              { key: "name", label: t("name") },
-              { key: "age", label: t("age") },
-              { key: "gender", label: t("gender") },
-              { key: "nativeLanguage", label: t("language") },
-            ]}
-            rows={rows}
-            withQuickActions
-            actions={[
-              // { label: "Edit", onClick: (row) => editParticipant(row.id) },
-              {
-                label: "Remove",
-                onClick: async (row) => {
-                  const ok = await confirm({
-                    title: t("participant_remove_confirmation"),
-                    message: t("participant_remove_confirmation_message"),
-                  });
-                  if (!ok) return;
-
-                  await removeParticipantFromExperiment(`${row.id}`);
-                },
-              },
-            ]}
-            onReorder={(newOrder) => console.log("Reordered: ", newOrder)}
-          />
+        {fecthingParticipants ? (
+          <div>{t("loading")}</div>
         ) : (
-          <div className="flex h-full w-full">
-            <p className="text-gray-500">{t("no_participants_found")}</p>
-          </div>
+          <>
+            {rows?.length > 0 ? (
+              <DataTable
+                headers={[
+                  { key: "name", label: t("name") },
+                  { key: "age", label: t("age") },
+                  { key: "gender", label: t("gender") },
+                  { key: "nativeLanguage", label: t("language") },
+                ]}
+                rows={rows}
+                withQuickActions
+                actions={(row) => {
+                  return row.completedAt
+                    ? [
+                        {
+                          label: t("results_xlsx"),
+                          onClick: async (row) => {
+                            await getUserResults(
+                              row as FormatedParticipantsType,
+                              "xlsx"
+                            );
+                          },
+                        },
+                        {
+                          label: t("results_json"),
+                          onClick: async (row) => {
+                            await getUserResults(
+                              row as FormatedParticipantsType,
+                              "json"
+                            );
+                          },
+                        },
+                        {
+                          label: t("remove"),
+                          onClick: async (row) => {
+                            const ok = await confirm({
+                              title: t("participant_remove_confirmation"),
+                              message: t(
+                                "participant_remove_confirmation_data_lost_message"
+                              ),
+                            });
+                            if (!ok) return;
+
+                            await removeParticipantFromExperiment(`${row.id}`);
+                          },
+                        },
+                      ]
+                    : [
+                        {
+                          label: t("remove"),
+                          onClick: async (row) => {
+                            const ok = await confirm({
+                              title: t("participant_remove_confirmation"),
+                              message: "",
+                            });
+                            if (!ok) return;
+
+                            await removeParticipantFromExperiment(`${row.id}`);
+                          },
+                        },
+                      ];
+                }}
+                onReorder={(newOrder) => console.log("Reordered: ", newOrder)}
+              />
+            ) : (
+              <div className="flex h-full w-full">
+                <p className="text-gray-500">{t("no_participants_found")}</p>
+              </div>
+            )}
+          </>
         )}
       </div>
       <ParticipantModal

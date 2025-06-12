@@ -211,5 +211,13 @@
   "override_stimulus_duration": "Substituir tempo entre estimulos?",
   "multi_trigger_modal_title": "Configuração de Estímulos Multi Trigger",
   "tooltip_level": "Habilitar configurações para lidar com nível",
-  "settings": "Configurações"
+  "settings": "Configurações",
+  "results_xlsx": "Resultados (xlsx)",
+  "results_json": "Resultados (json)",
+  "error_fetching_results": "Erro ao buscar resultados do usuário",
+  "sucess_fetching_results_empty": "O usuário ainda não possui resultados para este experimento.",
+  "user_not_authenticated": "Usuário não autenticado",
+  "experiment_already_completed": "Você já completou este experimento.",
+  "you_have_already_completed_this_experiment": "Fale com o responsável pelo experimento para verificar seus resultados.",
+  "participant_remove_confirmation_data_lost_message": "Esse participante já realizou o experimento e possui dados salvos."
 }

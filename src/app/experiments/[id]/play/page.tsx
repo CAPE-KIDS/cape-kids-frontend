@@ -3,6 +3,7 @@ import CanvasDebugger from "@/modules/canvas/components/CanvasDebugger";
 import CanvasRunner from "@/modules/canvas/components/CanvasRunner";
 import { useCanvasStore } from "@/modules/canvas/store/useCanvasStore";
 import { useAuthStore } from "@/stores/auth/useAuthStore";
+import { useExperimentsStore } from "@/stores/experiments/experimentsStore";
 import { useResultsStore } from "@/stores/results/useResultsStore";
 import { API } from "@/utils/api";
 import { compileTimeline } from "@/utils/functions";
@@ -10,18 +11,37 @@ import { TimelineStep } from "@shared/timeline";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 const PlayExperiment = () => {
   const { t: tC } = useTranslation("common");
   const { authState } = useAuthStore();
   const searchParams = useParams();
-  const stepId = searchParams.id as string;
+  const experimentId = searchParams.id as string;
   const [started, setStarted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [steps, setSteps] = useState<TimelineStep[] | null>(null);
+  const { getUserExperimentResult } = useExperimentsStore();
+  const [hasResults, setHasResults] = useState(false);
 
   const compileSteps = async () => {
-    const request = await fetch(API.EXPERIMENT_BY_ID(stepId || ""), {
+    if (!authState.user?.id) {
+      console.error("User not authenticated");
+      toast.error(tC("user_not_authenticated"));
+      setLoading(false);
+      return;
+    }
+    const hasResults = await getUserExperimentResult(
+      experimentId,
+      authState.user.id
+    );
+    if (hasResults.data.length > 0) {
+      setHasResults(true);
+      setLoading(false);
+      return;
+    }
+
+    const request = await fetch(API.EXPERIMENT_BY_ID(experimentId || ""), {
       headers: {
         Authorization: `Bearer ${authState.token}`,
       },
@@ -57,6 +77,21 @@ const PlayExperiment = () => {
       setStarted(true);
     }, 500);
   };
+
+  if (hasResults) {
+    return (
+      <div className="w-screen h-screen bg-black flex items-center justify-center">
+        <div className="bg-white p-6 rounded shadow-lg text-center">
+          <h1 className="text-2xl mb-4">
+            {tC("experiment_already_completed")}
+          </h1>
+          <p className="text-gray-600">
+            {tC("you_have_already_completed_this_experiment")}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

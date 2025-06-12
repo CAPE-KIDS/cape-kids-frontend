@@ -61,9 +61,9 @@ export default function Home() {
   return (
     <main className="w-full h-full px-4 bg-blue-500 flex items-center justify-center">
       <div>
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-0 right-0 z-50 shadow-2xl shadow-black">
           <select
-            className="bg-white text-blue-500 font-semibold px-2 py-2 rounded-lg text-xs"
+            className="bg-white text-blue-500 font-semibold px-2 py-2 rounded-b-lg text-xs"
             value={i18n.language}
             onChange={(e) => {
               const newLang = e.target.value;

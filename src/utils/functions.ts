@@ -4,6 +4,9 @@ import { Trigger } from "@/modules/triggers/types";
 import { TimelineStep } from "@shared/timeline";
 import _ from "lodash";
 import { API } from "@/utils/api";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { FormatedParticipantsType } from "@/stores/participants/participantsStore";
 
 export const getRelativeSize = (px: number, total: number) => {
   return (px / total) * 100;
@@ -322,4 +325,45 @@ export function normalizeKeyCombo(e: KeyboardEvent): string | null {
       : [...modifiers, mainKey].join("+");
 
   return combo;
+}
+
+export function exportResultsToExcel(
+  results: any[],
+  user: FormatedParticipantsType
+) {
+  const formatedName = user.name.replace(/\s+/g, "_").toLowerCase();
+  const data = results.map((r) => ({
+    Name: user.name,
+    Age: user.age,
+    Email: r.participant.email,
+    "Start Time": r.startedAt,
+    "End Time": r.completedAt,
+    "Response time (ms)":
+      new Date(r.completedAt).getTime() - new Date(r.startedAt).getTime(),
+    "Step Title": r.timelineStep?.metadata?.title || "",
+    "Step Type": r.metadata.stepType,
+    "Step Order": r.timelineStep?.orderIndex ?? "",
+    Interactions: (r.metadata.interactions || [])
+      .map((i) => `${i.type} (${i.target})`)
+      .join("; "),
+    "Is Correct?": r.metadata.isCorrect,
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Results");
+
+  const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  saveAs(
+    new Blob([wbout], { type: "application/octet-stream" }),
+    `${formatedName}-results-${user.id}.xlsx`
+  );
+}
+
+export function exportRawJson(results: any[], user: FormatedParticipantsType) {
+  const formatedName = user.name.replace(/\s+/g, "_").toLowerCase();
+  const blob = new Blob([JSON.stringify(results, null, 2)], {
+    type: "application/json",
+  });
+  saveAs(blob, `${formatedName}-raw-results-${user.id}.json`);
 }

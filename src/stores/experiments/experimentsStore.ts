@@ -9,6 +9,18 @@ import { RestResponseSchemaType } from "@shared/apiResponse";
 import { useAuthStore } from "../auth/useAuthStore";
 import { ParticipantSchemaType } from "@shared/user";
 
+interface ExperimentParticipantSchemaFe {
+  id: string;
+  createdAt: string;
+  completedAt: string | null;
+  user: {
+    id: string;
+    email: string;
+    role: string;
+    profile: ParticipantSchemaType;
+  };
+}
+
 interface ExperimentsState {
   experiments: ExperimentSchemaWithTimelineType[];
   setExperiments: (experiments: ExperimentSchemaWithTimelineType[]) => void;
@@ -21,7 +33,7 @@ interface ExperimentsState {
   ) => Promise<ExperimentSchemaWithTimelineType[]>;
   getExperimentById: (id: string) => Promise<RestResponseSchemaType>;
   selectedExperiment: ExperimentSchemaWithTimelineType | null;
-  selectedExperimentParticipants: ParticipantSchemaType[];
+  selectedExperimentParticipants: ExperimentParticipantSchemaFe[];
   setSelectedExperiment: (
     experiment: ExperimentSchemaWithTimelineType | null
   ) => void;
@@ -35,6 +47,10 @@ interface ExperimentsState {
     userId: string
   ) => Promise<RestResponseSchemaType>;
   getExperimentParticipants: (
+    experimentId: string
+  ) => Promise<RestResponseSchemaType>;
+  getUserExperimentResult: (
+    userId: string,
     experimentId: string
   ) => Promise<RestResponseSchemaType>;
   clearExperiments: () => void;
@@ -100,6 +116,8 @@ export const useExperimentsStore = create<ExperimentsState>((set, get) => ({
 
   getExperimentById: async (id: string) => {
     const { authState } = useAuthStore.getState();
+    if (!authState.token) return;
+
     const request = await fetch(`${API.EXPERIMENT_BY_ID(id)}`, {
       method: "GET",
       headers: {
@@ -157,6 +175,7 @@ export const useExperimentsStore = create<ExperimentsState>((set, get) => ({
 
   getExperimentParticipants: async (experimentId: string) => {
     const { authState } = useAuthStore.getState();
+    if (!authState.token) return;
 
     const request = await fetch(
       `${API.GET_EXPERIMENT_PARTICIPANTS(experimentId)}`,
@@ -173,6 +192,23 @@ export const useExperimentsStore = create<ExperimentsState>((set, get) => ({
     if (!response.error) {
       set({ selectedExperimentParticipants: response.data });
     }
+    return response;
+  },
+  getUserExperimentResult: async (userId: string, experimentId: string) => {
+    const { authState } = useAuthStore.getState();
+
+    const request = await fetch(
+      API.GET_USER_EXPERIMENT_RESULT(userId, experimentId),
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authState.token}`,
+        },
+      }
+    );
+
+    const response = await request.json();
     return response;
   },
   clearExperiments: () => set({ experiments: [], selectedExperiment: null }),

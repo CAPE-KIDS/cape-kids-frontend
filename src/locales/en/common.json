@@ -208,5 +208,13 @@
   "override_stimulus_duration": "Override inter stimulus time?",
   "multi_trigger_modal_title": "Multi Trigger Stimuli Configuration",
   "tooltip_level": "Enable settings for handle with level",
-  "settings": "Settings"
+  "settings": "Settings",
+  "results_xlsx": "Results (xlsx)",
+  "results_json": "Results (json)",
+  "error_fetching_results": "Error fetching user results",
+  "sucess_fetching_results_empty": "The user has no results for this experiment yet.",
+  "user_not_authenticated": "User not authenticated",
+  "experiment_already_completed": "You have already completed this experiment.",
+  "you_have_already_completed_this_experiment": "Talk to the person in charge of the experiment to check your results.",
+  "participant_remove_confirmation_data_lost_message": "This participant already has data collected for this experiment."
 }

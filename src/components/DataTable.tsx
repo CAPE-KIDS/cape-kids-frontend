@@ -18,11 +18,13 @@ type Row = Record<string, React.ReactNode> & {
   id: string | number;
 };
 
+type Action = { label: string; onClick: (row: Row) => void };
+
 type DataTableProps = {
   headers: Header[];
   rows: Row[];
   withQuickActions?: boolean;
-  actions?: { label: string; onClick: (row: Row) => void }[];
+  actions?: Action[] | ((row: Row) => Action[]);
   withAddButton?: boolean;
   addAction?: (id: string | number) => void;
   onReorder?: (newOrder: (string | number)[]) => void;
@@ -114,7 +116,9 @@ const DataTable: React.FC<DataTableProps> = ({
                       row={row}
                       headers={headers}
                       withQuickActions={withQuickActions}
-                      actions={actions}
+                      actions={
+                        typeof actions === "function" ? actions(row) : actions
+                      }
                       openRowId={openRowId}
                       setOpenRowId={setOpenRowId}
                       dropdownRef={dropdownRef}
@@ -184,7 +188,7 @@ const DataRow: React.FC<DataRowProps> = ({
           {row[header.key]}
         </td>
       ))}
-      {withQuickActions && (
+      {withQuickActions && actions.length > 0 && (
         <td className="px-4 py-3 text-right" ref={quickActionRef}>
           <div
             className="inline-block"

@@ -28,6 +28,8 @@ export const API = {
 
   // Experiment Results
   SAVE_RESULTS: `${API_URL}/experiment-results`,
+  GET_USER_EXPERIMENT_RESULT: (experimentId: string, userId: string) =>
+    `${API_URL}/experiment-results/experiment/${experimentId}/participant/${userId}`,
 
   // Timeline
   GET_TIMELINE_ID_BY_SOURCE_ID: (sourceId: string) =>

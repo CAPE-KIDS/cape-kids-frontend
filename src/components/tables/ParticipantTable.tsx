@@ -36,12 +36,12 @@ const ParticipantTable: React.FC<ParticipantTableProps> = ({
   const [openRowId, setOpenRowId] = useState<string | number | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [currentOrder, setCurrentOrder] = useState<(string | number)[]>(
-    rows.map((r) => r.id)
+    rows.map((r) => r?.id)
   );
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
-    setCurrentOrder(rows.map((r) => r.id));
+    setCurrentOrder(rows.map((r) => r?.id));
   }, [rows]);
 
   return (
@@ -62,8 +62,8 @@ const ParticipantTable: React.FC<ParticipantTableProps> = ({
               </tr>
             </thead>
             <tbody>
-              {currentOrder.map((id) => {
-                const row = rows.find((r) => r.id === id);
+              {currentOrder?.map((id) => {
+                const row = rows.find((r) => r?.id === id);
                 if (!row) return null;
                 return (
                   <DataRow
