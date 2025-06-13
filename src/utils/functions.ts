@@ -344,7 +344,9 @@ export function exportResultsToExcel(
     "Step Type": r.metadata.stepType,
     "Step Order": r.timelineStep?.orderIndex ?? "",
     Interactions: (r.metadata.interactions || [])
-      .map((i) => `${i.type} (${i.target})`)
+      .map(
+        (i) => `${i.type} ${i.key ? `(${i.key})` : `(targetId: ${i.target})`} `
+      )
       .join("; "),
     "Is Correct?": r.metadata.isCorrect,
   }));

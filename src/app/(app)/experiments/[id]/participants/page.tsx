@@ -185,41 +185,43 @@ const ExperimentParticipants = () => {
           </div>
 
           {/* Access code */}
-          <div className="flex flex-col space-y-1 max-w-[190px]">
-            <div className="flex justify-between items-center">
-              <label className="font-light text-xs text-gray-400">
-                {t("access_code")}
-              </label>
-            </div>
-            <div className="flex items-center gap-2">
-              <div
-                className="bg-[#EBEFFF] rounded-lg p-2 flex-1 select-none truncate whitespace-nowrap overflow-hidden focus:outline-none focus:ring focus:ring-blue-300 cursor-pointer"
-                tabIndex={0}
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    String(selectedExperiment?.experiment.accessCode)
-                  );
-                  toast.success(t("access_code_copied"));
-                }}
-              >
-                {selectedExperiment?.experiment.accessCode}
+          {selectedExperiment?.experiment.accessCode && (
+            <div className="flex flex-col space-y-1 max-w-[190px]">
+              <div className="flex justify-between items-center">
+                <label className="font-light text-xs text-gray-400">
+                  {t("access_code")}
+                </label>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    String(selectedExperiment?.experiment.accessCode)
-                  );
-                  toast.success(t("access_code_copied"));
-                }}
-              >
-                <Copy
-                  size={20}
-                  className="text-gray-500 hover:text-blue-500 cursor-pointer"
-                />
-              </button>
+              <div className="flex items-center gap-2">
+                <div
+                  className="bg-[#EBEFFF] rounded-lg p-2 flex-1 select-none truncate whitespace-nowrap overflow-hidden focus:outline-none focus:ring focus:ring-blue-300 cursor-pointer"
+                  tabIndex={0}
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      String(selectedExperiment?.experiment.accessCode)
+                    );
+                    toast.success(t("access_code_copied"));
+                  }}
+                >
+                  {selectedExperiment?.experiment.accessCode}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      String(selectedExperiment?.experiment.accessCode)
+                    );
+                    toast.success(t("access_code_copied"));
+                  }}
+                >
+                  <Copy
+                    size={20}
+                    className="text-gray-500 hover:text-blue-500 cursor-pointer"
+                  />
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
