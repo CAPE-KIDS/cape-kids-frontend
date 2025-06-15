@@ -15,10 +15,12 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useTasksStore } from "@/stores/tasks/tasksStore";
 import _ from "lodash";
+import { useAuthStore } from "@/stores/auth/useAuthStore";
 
 const CreateTasks = () => {
   const router = useRouter();
   const { user } = useAuth();
+  const { authState } = useAuthStore();
   const { createTask } = useTasksStore();
   const {
     register,
@@ -52,6 +54,14 @@ const CreateTasks = () => {
       console.log("errors", errors);
     }
   }, [errors]);
+
+  useEffect(() => {
+    if (!authState.token) return;
+    if (authState.user?.profile.profileType === "participant") {
+      router.push("/experiments");
+      return;
+    }
+  }, [authState]);
 
   return (
     <div className="flex flex-col h-full">

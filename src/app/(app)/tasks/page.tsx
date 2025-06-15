@@ -8,22 +8,32 @@ import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
 import { useTranslation } from "react-i18next";
 import TasksTable from "@/components/tables/TasksTable";
+import { useAuthStore } from "@/stores/auth/useAuthStore";
 
 const Tasks = () => {
   const { t } = useTranslation("common");
+  const { authState } = useAuthStore();
   const router = useRouter();
   const { token, user } = useAuth();
   const { tasks, getUserTasks } = useTasksStore();
   const [loading, setLoading] = React.useState(true);
 
+  const fetchTasks = async () => {
+    if (!authState.token) return;
+    await getUserTasks(authState.token);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    if (!token) return;
-    const fetchTasks = async () => {
-      await getUserTasks(token);
-      setLoading(false);
-    };
+    if (!authState.token) return;
+
+    if (authState.user?.profile.profileType === "participant") {
+      router.push("/experiments");
+      return;
+    }
+
     fetchTasks();
-  }, [token]);
+  }, [authState]);
 
   return (
     <div>

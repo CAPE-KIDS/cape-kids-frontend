@@ -3,7 +3,7 @@ import PageHeader from "@/components/PageHeader";
 import { useAuthStore } from "@/stores/auth/useAuthStore";
 import { useExperimentsStore } from "@/stores/experiments/experimentsStore";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
@@ -38,6 +38,7 @@ const ExperimentParticipants = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rows, setRows] = useState<FormatedParticipantsType[] | []>([]);
   const [fecthingParticipants, setFecthingParticipants] = useState(false);
+  const router = useRouter();
 
   const fetchExperiment = async () => {
     const experiment = await getExperimentById(experimentId);
@@ -72,6 +73,12 @@ const ExperimentParticipants = () => {
 
   useEffect(() => {
     if (!authState.token) return;
+
+    if (authState.user?.profile.profileType === "participant") {
+      router.push("/experiments");
+      return;
+    }
+
     fetchParticipants();
     fetchExperimentParticipants();
 

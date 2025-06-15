@@ -132,7 +132,6 @@
   "select": "Selecionar",
   "inactivity_message": "Recomendamos que você atualize a página para evitar problemas de desempenho ou perda de dados. Isso pode acontecer quando a sessão fica inativa por um período prolongado.",
   "inactivity_refresh": "Atualizar Página",
-
   "repeat_on_wrong_answer": "Repetir ao errar",
   "tooltip_repeat_on_wrong_answer": "Define se o step será repetido após uma resposta errada",
   "error_repeat_amount": "A quantidade de repetições deve ser pelo menos 1",
@@ -228,5 +227,7 @@
   "tasks_total": "Total de Tasks",
   "last_experiments": "Últimos Experimentos",
   "manage_experiments": "Gerenciar Experimentos",
-  "manage_tasks": "Gerenciar Tasks"
+  "manage_tasks": "Gerenciar Tasks",
+  "start_experiment": "Iniciar experimento",
+  "Preview": "Visualizar"
 }

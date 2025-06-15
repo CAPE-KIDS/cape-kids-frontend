@@ -53,6 +53,11 @@ const CreateExperimentsTimeline = () => {
   useEffect(() => {
     if (!authState.token) return;
 
+    if (authState.user?.profile.profileType === "participant") {
+      router.push("/experiments");
+      return;
+    }
+
     fetchTasks();
 
     const selected = experiments.find(

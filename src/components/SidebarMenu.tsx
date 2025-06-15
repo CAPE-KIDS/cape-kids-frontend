@@ -93,7 +93,7 @@ export default function SidebarMenu() {
       title: t("navigation.dashboard"),
       icon: LayoutDashboard,
       url: "/dashboard",
-      visible: authState.user?.profile.profileType !== "participant",
+      adminOnly: true,
     },
     {
       title: t("navigation.experiments"),
@@ -107,8 +107,18 @@ export default function SidebarMenu() {
       url: "/tasks",
       adminOnly: true,
     },
-    { title: t("navigation.participants"), icon: Users, url: "/participants" },
-    { title: t("navigation.reports"), icon: FileChartColumn, url: "/reports" },
+    {
+      title: t("navigation.participants"),
+      icon: Users,
+      url: "/participants",
+      adminOnly: true,
+    },
+    // {
+    //   title: t("navigation.reports"),
+    //   icon: FileChartColumn,
+    //   url: "/reports",
+    //   adminOnly: true,
+    // },
     { title: t("navigation.settings"), icon: Settings, url: "/settings" },
   ];
 

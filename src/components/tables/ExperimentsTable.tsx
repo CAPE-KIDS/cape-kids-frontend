@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { MoreVertical } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { confirm } from "../confirm/confirm";
+import { useAuthStore } from "@/stores/auth/useAuthStore";
 
 type Experiment = {
   id: string;
@@ -32,6 +33,7 @@ type Props = {
 const ExperimentsTable: React.FC<Props> = ({ experiments, pagination }) => {
   const router = useRouter();
   const { t: tC } = useTranslation("common");
+  const { authState } = useAuthStore();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -59,6 +61,12 @@ const ExperimentsTable: React.FC<Props> = ({ experiments, pagination }) => {
     switch (action) {
       case "view":
         router.push(`/experiments/${selectedId}/timeline`);
+        break;
+      case "preview":
+        window.open(`/experiments/${selectedId}/preview`, "_blank");
+        break;
+      case "start":
+        window.open(`/experiments/${selectedId}/play`, "_blank");
         break;
       case "participants":
         router.push(`/experiments/${selectedId}/participants`);
@@ -169,24 +177,41 @@ const ExperimentsTable: React.FC<Props> = ({ experiments, pagination }) => {
         />
       )}
 
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <MenuItem onClick={() => handleAction("view")}>
-          {tC("view_timeline")}
-        </MenuItem>
-        <MenuItem onClick={() => handleAction("participants")}>
-          {tC("manage_participants")}
-        </MenuItem>
-        {/* <MenuItem onClick={() => handleAction("edit")}>{tC("edit")}</MenuItem> */}
-        <MenuItem onClick={() => handleAction("delete")}>
-          {tC("delete")}
-        </MenuItem>
-      </Menu>
+      {authState.user?.profile.profileType !== "participant" ? (
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem onClick={() => handleAction("view")}>
+            {tC("view_timeline")}
+          </MenuItem>
+          {/* <MenuItem onClick={() => handleAction("preview")}>
+            {tC("Preview")}
+          </MenuItem> */}
+          <MenuItem onClick={() => handleAction("participants")}>
+            {tC("manage_participants")}
+          </MenuItem>
+          {/* <MenuItem onClick={() => handleAction("edit")}>{tC("edit")}</MenuItem> */}
+          <MenuItem onClick={() => handleAction("delete")}>
+            {tC("delete")}
+          </MenuItem>
+        </Menu>
+      ) : (
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem onClick={() => handleAction("start")}>
+            {tC("start_experiment")}
+          </MenuItem>
+        </Menu>
+      )}
     </Paper>
   );
 };
