@@ -1,7 +1,7 @@
 "use client";
 import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useExperimentsStore } from "@/stores/experiments/experimentsStore";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,9 @@ import NProgress from "nprogress";
 import { useTimelineStore } from "@/stores/timeline/timelineStore";
 import { useAuthStore } from "@/stores/auth/useAuthStore";
 import { useTranslation } from "react-i18next";
+import { ExperimentSchemaWithTimelineType } from "@shared/experiments";
+import DataTable from "@/components/DataTable";
+import ExperimentsTable from "@/components/tables/ExperimentsTable";
 
 const Experiments = () => {
   const router = useRouter();
@@ -18,6 +21,10 @@ const Experiments = () => {
   const { getTasks } = useTimelineStore();
   const { t: tC } = useTranslation("common");
   const { t: tE } = useTranslation("experiments");
+
+  const [experimentsToShow, setExperimentsToShow] = useState<
+    ExperimentSchemaWithTimelineType[] | null
+  >(null);
 
   const fetchExperiments = async () => {
     if (!authState.token) return;
@@ -71,7 +78,8 @@ const Experiments = () => {
         )}
 
         {!loading &&
-          experiments.length === 0 &&
+          experimentsToShow &&
+          experimentsToShow.length === 0 &&
           (authState.user?.profile.profileType === "participant" ? (
             <div className="p-6">
               <p className="text-gray-500">{tE("not_part_experiment")}</p>
@@ -88,39 +96,14 @@ const Experiments = () => {
             </div>
           ))}
 
-        {!loading && experiments.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
-            {experiments.map((e) => (
-              <div
-                key={e.experiment.id}
-                className="bg-white shadow-md rounded-lg p-4"
-              >
-                <h2 className="text-lg font-semibold">{e.experiment.title}</h2>
-                <p className="text-gray-500">{e.experiment.description}</p>
-                {authState.user?.profile.profileType === "participant" ? (
-                  <Link
-                    className="cursor-pointer text-blue-500 mt-4 block"
-                    href={`/experiments/${e.experiment.id}/play`}
-                    target="_blank"
-                  >
-                    {tE("view_experiment")}
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    className="text-blue-500 hover:underline cursor-pointer"
-                    onClick={() => {
-                      setTimeout(() => {
-                        NProgress.start();
-                        router.push(`/experiments/${e.experiment.id}/timeline`);
-                      }, 100);
-                    }}
-                  >
-                    {tC("view_timeline")}
-                  </button>
-                )}
-              </div>
-            ))}
+        {!loading && experimentsToShow && experimentsToShow.length > 0 && (
+          <div className="p-6">
+            <ExperimentsTable
+              pagination={true}
+              experiments={experimentsToShow.map(
+                ({ experiment }) => experiment
+              )}
+            />
           </div>
         )}
       </div>

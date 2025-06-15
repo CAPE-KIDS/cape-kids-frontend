@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
 import { useTranslation } from "react-i18next";
+import TasksTable from "@/components/tables/TasksTable";
 
 const Tasks = () => {
   const { t } = useTranslation("common");
@@ -67,31 +68,11 @@ const Tasks = () => {
         )}
 
         {!loading && tasks.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
-            {tasks.map((e) => (
-              <div
-                key={e.task.id}
-                className="bg-white shadow-md rounded-lg p-4"
-              >
-                <h2 className="text-lg font-semibold">{e.task.title}</h2>
-                <p className="text-gray-500 h-12 line-clamp-2 overflow-hidden">
-                  {e.task.description}
-                </p>
-                <button
-                  type="button"
-                  href={`/tasks/${e.task.id}/timeline`}
-                  className="text-blue-500 hover:underline cursor-pointer"
-                  onClick={() => {
-                    setTimeout(() => {
-                      NProgress.start();
-                      router.push(`/tasks/${e.task.id}/timeline`);
-                    }, 100);
-                  }}
-                >
-                  {t("view_timeline")}
-                </button>
-              </div>
-            ))}
+          <div className="p-6">
+            <TasksTable
+              pagination={true}
+              tasks={tasks.map(({ task }) => task)}
+            />
           </div>
         )}
       </div>

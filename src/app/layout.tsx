@@ -28,7 +28,7 @@ export default function RootLayout({
       </Head>
       <html lang="en">
         <AuthProvider>
-          <body className={`${inter.className} antialiased`}>
+          <body className={`${inter.className} antialiased isolate root`}>
             <Toaster position="top-right" richColors />
 
             <ConfirmProvider>

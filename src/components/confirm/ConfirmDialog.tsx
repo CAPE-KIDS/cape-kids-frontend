@@ -1,6 +1,6 @@
+import { Modal, Box, Typography, Button, Stack } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
-// ConfirmDialog.tsx
 export default function ConfirmDialog({
   open,
   title,
@@ -17,28 +17,51 @@ export default function ConfirmDialog({
   onClose: (result: boolean) => void;
 }) {
   const { t: tC } = useTranslation("common");
-  if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-[400] flex items-center justify-center">
-      <div className="bg-white p-3 rounded shadow max-w-sm w-full">
-        <h2 className="text-lg font-bold mb-2">{title}</h2>
-        <p className="mb-4">{message}</p>
-        <div className="flex justify-end gap-2">
-          <button
+    <Modal
+      open={open}
+      onClose={() => onClose(false)}
+      aria-labelledby="confirm-dialog-title"
+    >
+      <Box
+        className="bg-white rounded shadow max-w-sm w-full p-4"
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <Typography
+          id="confirm-dialog-title"
+          variant="h6"
+          className="!mb-2 !font-bold"
+        >
+          {title}
+        </Typography>
+        <Typography className="!mb-4 !text-sm text-gray-700">
+          {message}
+        </Typography>
+
+        <Stack direction="row" spacing={1} justifyContent="flex-end">
+          <Button
+            variant="outlined"
+            size="small"
             onClick={() => onClose(false)}
-            className="px-4 py-2 border text-xs cursor-pointer"
           >
             {cancelLabel || tC("cancel")}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
             onClick={() => onClose(true)}
-            className="px-4 py-2 bg-blue-600 text-white text-xs cursor-pointer"
           >
             {confirmLabel || tC("confirm")}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </Stack>
+      </Box>
+    </Modal>
   );
 }

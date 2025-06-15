@@ -219,5 +219,14 @@
   "user_not_authenticated": "Usuário não autenticado",
   "experiment_already_completed": "Você já completou este experimento.",
   "you_have_already_completed_this_experiment": "Fale com o responsável pelo experimento para verificar seus resultados.",
-  "participant_remove_confirmation_data_lost_message": "Esse participante já realizou o experimento e possui dados salvos."
+  "participant_remove_confirmation_data_lost_message": "Esse participante já realizou o experimento e possui dados salvos.",
+  "confirm_generic": "Você tem certeza?",
+  "dashboard_title": "Dashboard",
+  "dashboard_subtitle": "Informações rápidas sobre seus projetos",
+  "experiments_total": "Total de Experimentos",
+  "participants_total": "Total de Participantes",
+  "tasks_total": "Total de Tasks",
+  "last_experiments": "Últimos Experimentos",
+  "manage_experiments": "Gerenciar Experimentos",
+  "manage_tasks": "Gerenciar Tasks"
 }
