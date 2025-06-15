@@ -23,6 +23,7 @@ const PlayExperiment = () => {
   const [steps, setSteps] = useState<TimelineStep[] | null>(null);
   const { getUserExperimentResult } = useExperimentsStore();
   const [hasResults, setHasResults] = useState(false);
+  const [notAllowed, setNotAllowed] = useState(false);
 
   const compileSteps = async () => {
     if (!authState.user?.id) {
@@ -53,6 +54,18 @@ const PlayExperiment = () => {
       setLoading(false);
       return;
     }
+
+    console.log("Experiment data:", response.data.experiment.participants);
+    const isUserInExperiment = response.data.experiment.participants.some(
+      (participant) => participant.user.id === authState.user?.id
+    );
+
+    console.log("Is user in experiment:", isUserInExperiment);
+    if (!isUserInExperiment) {
+      setNotAllowed(true);
+      setLoading(false);
+      return;
+    }
     const compiledSteps = await compileTimeline(response.data.timeline.steps);
     setSteps(compiledSteps);
     setLoading(false);
@@ -77,6 +90,18 @@ const PlayExperiment = () => {
       setStarted(true);
     }, 500);
   };
+
+  if (notAllowed) {
+    return (
+      <div className="w-screen h-screen bg-black flex items-center justify-center">
+        <div className="bg-white p-6 rounded shadow-lg text-center">
+          <p className="text-gray-600">
+            {tC("user_not_authorized_to_play_experiment")}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (hasResults) {
     return (
