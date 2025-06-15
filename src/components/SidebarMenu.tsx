@@ -93,6 +93,7 @@ export default function SidebarMenu() {
       title: t("navigation.dashboard"),
       icon: LayoutDashboard,
       url: "/dashboard",
+      visible: authState.user?.profile.profileType !== "participant",
     },
     {
       title: t("navigation.experiments"),
@@ -157,11 +158,18 @@ export default function SidebarMenu() {
           MENU
         </p>
         <ul className="space-y-2">
-          {menuItems.map((item) => (
-            <li key={item.title}>
-              <MenuItem {...item} collapsed={collapsed} />
-            </li>
-          ))}
+          {menuItems.map((item) => {
+            if (item.visible === false) return null;
+            return (
+              <li key={item.title}>
+                <MenuItem
+                  {...item}
+                  collapsed={collapsed}
+                  adminOnly={item.adminOnly}
+                />
+              </li>
+            );
+          })}
         </ul>
       </div>
 

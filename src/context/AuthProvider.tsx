@@ -59,6 +59,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem("user", JSON.stringify(response.data?.user));
         setUser(response.data.user);
         setToken(response.data.token);
+
+        if (response.data.user.profile.profileType === "participant") {
+          router.push("/experiments");
+          return response;
+        }
         router.push("/dashboard");
       }
       return response;

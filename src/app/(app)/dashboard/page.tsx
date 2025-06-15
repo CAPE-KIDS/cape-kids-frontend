@@ -10,6 +10,7 @@ import ExperimentsTable from "@/components/tables/ExperimentsTable";
 import _ from "lodash";
 import { useTasksStore } from "@/stores/tasks/tasksStore";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Dashboard = () => {
   const { t } = useTranslation("common");
@@ -22,6 +23,7 @@ const Dashboard = () => {
   const [lastExperiments, setLastExperiments] = useState<
     ExperimentSchemaWithTimelineType[] | null
   >(null);
+  const router = useRouter();
 
   const fetchAll = async () => {
     if (!authState.token) return;
@@ -37,6 +39,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!authState.token) return;
+
+    if (authState.user?.profile.profileType === "participant") {
+      router.push("/experiments");
+      return;
+    }
 
     fetchAll();
   }, [authState]);
