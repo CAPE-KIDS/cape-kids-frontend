@@ -44,6 +44,10 @@ const Experiments = () => {
     fetchTasks();
   }, [authState.token]);
 
+  useEffect(() => {
+    setExperimentsToShow(experiments);
+  }, [experiments]);
+
   return (
     <div>
       <PageHeader
