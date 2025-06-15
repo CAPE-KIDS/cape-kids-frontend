@@ -26,7 +26,6 @@ const Dashboard = () => {
   const fetchExperiments = async () => {
     if (!authState.token) return;
     await getUserExperiments(authState.token);
-    setLoading(false);
   };
 
   const fetchParticipants = async () => {
@@ -45,6 +44,7 @@ const Dashboard = () => {
     fetchExperiments();
     fetchParticipants();
     fetchTasks();
+    setLoading(false);
   }, [authState]);
 
   useEffect(() => {
@@ -65,8 +65,12 @@ const Dashboard = () => {
         subtitle={t("dashboard_subtitle")}
       />
 
-      <div className="p-6 flex-1 overflow-auto h-full">
-        {experiments.length > 0 ? (
+      {loading ? (
+        <div className="flex items-center justify-center h-full">
+          {t("loading")}
+        </div>
+      ) : (
+        <div className="p-6 flex-1 overflow-auto h-full">
           <div className="flex flex-col justify-between gap-6 h-full">
             <div>
               <div className="flex flex-row gap-6 flex-1">
@@ -140,10 +144,8 @@ const Dashboard = () => {
               )}
             </div>
           </div>
-        ) : (
-          <div></div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
