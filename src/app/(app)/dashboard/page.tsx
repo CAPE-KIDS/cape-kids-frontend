@@ -23,28 +23,22 @@ const Dashboard = () => {
     ExperimentSchemaWithTimelineType[] | null
   >(null);
 
-  const fetchExperiments = async () => {
+  const fetchAll = async () => {
     if (!authState.token) return;
-    await getUserExperiments(authState.token);
-  };
 
-  const fetchParticipants = async () => {
-    if (!authState.token) return;
-    await getParticipants();
-  };
-
-  const fetchTasks = async () => {
-    if (!authState.token) return;
-    await getUserTasks(authState.token);
+    setLoading(true);
+    await Promise.all([
+      getUserExperiments(authState.token),
+      getParticipants(),
+      getUserTasks(authState.token),
+    ]);
+    setLoading(false);
   };
 
   useEffect(() => {
     if (!authState.token) return;
 
-    fetchExperiments();
-    fetchParticipants();
-    fetchTasks();
-    setLoading(false);
+    fetchAll();
   }, [authState]);
 
   useEffect(() => {
