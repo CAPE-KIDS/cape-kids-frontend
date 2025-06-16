@@ -230,5 +230,6 @@
   "manage_tasks": "Gerenciar Tasks",
   "start_experiment": "Iniciar experimento",
   "Preview": "Visualizar",
-  "user_not_authorized_to_play_experiment": "Usuário não autorizado para este experimento"
+  "user_not_authorized_to_play_experiment": "Usuário não autorizado para este experimento",
+  "stimuli_saved_successfully": "Estimulo salvo com sucesso"
 }
