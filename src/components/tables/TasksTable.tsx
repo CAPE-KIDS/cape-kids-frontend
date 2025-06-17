@@ -63,6 +63,9 @@ const TasksTable: React.FC<Props> = ({ tasks, pagination }) => {
       case "view":
         router.push(`/tasks/${selectedId}/timeline`);
         break;
+      case "preview":
+        window.open(`/preview?id=${selectedId}`, "_blank");
+        break;
       case "edit":
         router.push(`/tasks/${selectedId}/edit`);
         break;
@@ -97,7 +100,7 @@ const TasksTable: React.FC<Props> = ({ tasks, pagination }) => {
 
   return (
     <Paper className="!shadow-none">
-      <TableContainer sx={{ maxHeight: 400 }}>
+      <TableContainer sx={{ maxHeight: 500 }}>
         <Table stickyHeader className="!w-full !text-sm !border-collapse">
           <TableHead>
             <TableRow className="!bg-white !border-b !border-gray-300">
@@ -201,10 +204,13 @@ const TasksTable: React.FC<Props> = ({ tasks, pagination }) => {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <MenuItem onClick={() => handleAction("view")}>
+        {/* <MenuItem onClick={() => handleAction("view")}>
           {tC("view_timeline")}
+        </MenuItem> */}
+        <MenuItem onClick={() => handleAction("view")}>{tC("edit")}</MenuItem>
+        <MenuItem onClick={() => handleAction("preview")}>
+          {tC("Preview")}
         </MenuItem>
-        <MenuItem onClick={() => handleAction("edit")}>{tC("edit")}</MenuItem>
         <MenuItem onClick={() => handleAction("delete")}>
           {tC("delete")}
         </MenuItem>

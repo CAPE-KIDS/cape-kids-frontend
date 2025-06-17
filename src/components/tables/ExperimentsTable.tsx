@@ -63,7 +63,7 @@ const ExperimentsTable: React.FC<Props> = ({ experiments, pagination }) => {
         router.push(`/experiments/${selectedId}/timeline`);
         break;
       case "preview":
-        window.open(`/experiments/${selectedId}/preview`, "_blank");
+        window.open(`/preview?id=${selectedId}`, "_blank");
         break;
       case "start":
         window.open(`/experiments/${selectedId}/play`, "_blank");
@@ -105,7 +105,7 @@ const ExperimentsTable: React.FC<Props> = ({ experiments, pagination }) => {
 
   return (
     <Paper className="!shadow-none">
-      <TableContainer sx={{ maxHeight: 400 }}>
+      <TableContainer sx={{ maxHeight: 500 }}>
         <Table stickyHeader className="!w-full !text-sm !border-collapse">
           <TableHead>
             <TableRow className="!bg-white !border-b !border-gray-300">
@@ -185,16 +185,17 @@ const ExperimentsTable: React.FC<Props> = ({ experiments, pagination }) => {
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          <MenuItem onClick={() => handleAction("view")}>
-            {tC("view_timeline")}
-          </MenuItem>
-          {/* <MenuItem onClick={() => handleAction("preview")}>
+          <MenuItem onClick={() => handleAction("view")}>{tC("edit")}</MenuItem>
+          <MenuItem onClick={() => handleAction("preview")}>
             {tC("Preview")}
+          </MenuItem>
+          {/* <MenuItem onClick={() => handleAction("view")}>
+            {tC("view_timeline")}
           </MenuItem> */}
+
           <MenuItem onClick={() => handleAction("participants")}>
             {tC("manage_participants")}
           </MenuItem>
-          {/* <MenuItem onClick={() => handleAction("edit")}>{tC("edit")}</MenuItem> */}
           <MenuItem onClick={() => handleAction("delete")}>
             {tC("delete")}
           </MenuItem>

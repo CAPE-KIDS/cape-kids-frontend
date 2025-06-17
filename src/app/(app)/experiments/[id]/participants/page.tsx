@@ -17,6 +17,7 @@ import {
 import { confirm } from "@/components/confirm/confirm";
 import { useTranslation } from "react-i18next";
 import { exportRawJson, exportResultsToExcel } from "@/utils/functions";
+import ParticipantTable from "@/components/tables/ParticipantTable";
 
 const ExperimentParticipants = () => {
   const { t } = useTranslation("common");
@@ -132,7 +133,7 @@ const ExperimentParticipants = () => {
 
   if (loading) return <div>{t("loading")}</div>;
 
-  const experimentUrl = `http://localhost:3001/experiments/${experimentId}/join`;
+  const experimentUrl = `${window?.location.origin}/experiments/${experimentId}/join`;
 
   return (
     <div>
@@ -246,7 +247,7 @@ const ExperimentParticipants = () => {
         ) : (
           <>
             {rows?.length > 0 ? (
-              <DataTable
+              <ParticipantTable
                 headers={[
                   { key: "name", label: t("name") },
                   { key: "age", label: t("age") },
@@ -254,59 +255,60 @@ const ExperimentParticipants = () => {
                   { key: "nativeLanguage", label: t("language") },
                 ]}
                 rows={rows}
-                withQuickActions
+                pagination={true}
                 actions={(row) => {
-                  return row.completedAt
-                    ? [
-                        {
-                          label: t("results_xlsx"),
-                          onClick: async (row) => {
-                            await getUserResults(
-                              row as FormatedParticipantsType,
-                              "xlsx"
-                            );
-                          },
+                  if (row.completedAt) {
+                    return [
+                      {
+                        label: t("results_xlsx"),
+                        onClick: async (r) => {
+                          await getUserResults(
+                            r as FormatedParticipantsType,
+                            "xlsx"
+                          );
                         },
-                        {
-                          label: t("results_json"),
-                          onClick: async (row) => {
-                            await getUserResults(
-                              row as FormatedParticipantsType,
-                              "json"
-                            );
-                          },
+                      },
+                      {
+                        label: t("results_json"),
+                        onClick: async (r) => {
+                          await getUserResults(
+                            r as FormatedParticipantsType,
+                            "json"
+                          );
                         },
-                        {
-                          label: t("remove"),
-                          onClick: async (row) => {
-                            const ok = await confirm({
-                              title: t("participant_remove_confirmation"),
-                              message: t(
-                                "participant_remove_confirmation_data_lost_message"
-                              ),
-                            });
-                            if (!ok) return;
-
-                            await removeParticipantFromExperiment(`${row.id}`);
-                          },
+                      },
+                      {
+                        label: t("remove"),
+                        onClick: async (r) => {
+                          const ok = await confirm({
+                            title: t("participant_remove_confirmation"),
+                            message: t(
+                              "participant_remove_confirmation_data_lost_message"
+                            ),
+                          });
+                          if (ok) {
+                            await removeParticipantFromExperiment(`${r.id}`);
+                          }
                         },
-                      ]
-                    : [
-                        {
-                          label: t("remove"),
-                          onClick: async (row) => {
-                            const ok = await confirm({
-                              title: t("participant_remove_confirmation"),
-                              message: "",
-                            });
-                            if (!ok) return;
-
-                            await removeParticipantFromExperiment(`${row.id}`);
-                          },
+                      },
+                    ];
+                  } else {
+                    return [
+                      {
+                        label: t("remove"),
+                        onClick: async (r) => {
+                          const ok = await confirm({
+                            title: t("participant_remove_confirmation"),
+                            message: "",
+                          });
+                          if (ok) {
+                            await removeParticipantFromExperiment(`${r.id}`);
+                          }
                         },
-                      ];
+                      },
+                    ];
+                  }
                 }}
-                onReorder={(newOrder) => console.log("Reordered: ", newOrder)}
               />
             ) : (
               <div className="flex h-full w-full">

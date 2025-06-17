@@ -5,9 +5,12 @@ import { useExperimentsStore } from "@/stores/experiments/experimentsStore";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 const ExperimentParticipantJoin = () => {
+  const { t } = useTranslation("common");
+  const { t: tE } = useTranslation("experiments");
   const params = useParams();
   const experimentId = params.id as string;
   const {
@@ -52,67 +55,74 @@ const ExperimentParticipantJoin = () => {
     }
   }, [selectedExperiment]);
 
-  const handleJoin = async () => {
+  const join = async () => {
     if (!authState.user?.id) return;
+    const response = await joinExperiment(
+      experimentId,
+      authState.user.id,
+      accessCode
+    );
 
-    if (accessCode === selectedExperiment?.experiment.accessCode) {
-      const response = await joinExperiment(
-        experimentId,
-        authState.user.id,
-        accessCode
-      );
-
-      if (response.error) {
-        toast.error(response.message);
-        setAuthorized(false);
-        return;
-      }
-
-      toast.success("You have joined the experiment successfully");
-      setAuthorized(true);
+    if (response.error) {
+      toast.error(t("failed_joining_experiment"));
+      setAuthorized(false);
       return;
     }
 
-    toast.error("Invalid access code");
-    setAuthorized(false);
-    setAccessCode("");
+    toast.success(t("sucess_joining_experiment"));
+    setAuthorized(true);
+    return;
   };
 
-  if (loading) return <div>Loading...</div>;
+  const handleJoin = async () => {
+    if (
+      selectedExperiment?.experiment.accessCode &&
+      accessCode !== selectedExperiment?.experiment.accessCode
+    ) {
+      toast.error(t("invalid_access_code"));
+      setAuthorized(false);
+      setAccessCode("");
+      return;
+    }
+
+    join();
+  };
+
+  if (loading) return <div>{t("loading")}</div>;
 
   return (
     <div>
       <PageHeader
-        title="Joining Experiment"
-        subtitle="You can join the experiment using the access code"
+        title={t("join_experiment_title")}
+        subtitle={t("join_experiment_subtitle")}
       >
         <div className="button">
           <Link
             className="cursor-pointer text-white rounded-lg px-4 py-3 bg-blue-600 transition duration-200"
             href={"/experiments/create"}
           >
-            Create Experiment
+            {tE("create_experiment")}
           </Link>
         </div>
       </PageHeader>
 
       {authorized ? (
         <div className="px-6 py-4">
-          <p>You have successfully joined.</p>
-          <p>You can close this tab.</p>
+          <p>{t("sucessfully_joined_experiment")}</p>
+          <p>{t("you_can_close_this_window")}</p>
         </div>
-      ) : (
+      ) : selectedExperiment?.experiment.accessCode ? (
         <div className="px-6 py-4">
           <div className="mt-4 text-lg font-medium text-gray-800 mb-4">
-            <span className="text-blue-700">Experiment:</span>{" "}
+            <span className="text-blue-700">{t("Experiment")}:</span>{" "}
             {selectedExperiment?.experiment.title}
           </div>
           <div className="mt-4 text-lg font-medium text-gray-800 mb-4">
-            <span className="text-blue-700">Description:</span>{" "}
+            <span className="text-blue-700">{t("description")}:</span>{" "}
             {selectedExperiment?.experiment.description}
           </div>
           <div className="max-w-[900px] w-full ">
-            <p className="mb-2">To join the experiment type the access code </p>
+            <p className="mb-2">{t("type_access_code_to_join")} </p>
             <input
               className="bg-[#EBEFFF] border border-blue-300 rounded-lg p-2 w-full focus:outline-none focus:ring focus:ring-blue-300"
               placeholder="XXXX-XXXX-XXXX"
@@ -124,9 +134,31 @@ const ExperimentParticipantJoin = () => {
               onClick={handleJoin}
               className="mt-4 bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition duration-200"
             >
-              Join
+              {t("join_experiment")}
             </button>
           </div>
+        </div>
+      ) : (
+        <div className="px-6 py-4">
+          <div className="mt-4 text-lg font-medium text-gray-800 mb-4">
+            <span className="text-blue-700">{t("Experiment")}:</span>{" "}
+            {selectedExperiment?.experiment.title}
+          </div>
+          <div className="mt-4 text-lg font-medium text-gray-800 mb-4">
+            <span className="text-blue-700">{t("description")}:</span>{" "}
+            {selectedExperiment?.experiment.description}
+          </div>
+
+          <p className="text-lg font-medium text-gray-800 mb-4">
+            {t("does_not_require_access_code")}
+          </p>
+          <button
+            type="button"
+            onClick={handleJoin}
+            className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition duration-200"
+          >
+            {t("join_experiment")}
+          </button>
         </div>
       )}
     </div>

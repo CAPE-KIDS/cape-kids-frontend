@@ -111,7 +111,8 @@ const ParticipantModal = ({
                 { key: "nativeLanguage", label: t("language") },
               ]}
               rows={selectedParticipants}
-              withAddButton={true}
+              pagination={true}
+              withSimpleAddRemove={true}
               addAction={async (id) => {
                 const response = await addParticipantToExperiment(
                   experimentId,
@@ -124,8 +125,8 @@ const ParticipantModal = ({
                   await fetchExperimentParticipants();
                 }
               }}
-              removeAction={async (id: string) => {
-                const response = await removeParticipant(experimentId, id);
+              removeAction={async (id) => {
+                const response = await removeParticipant(experimentId, `${id}`);
                 if (response.error) {
                   toast.error(t("paticipant_not_in_experiment"));
                 } else {

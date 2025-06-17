@@ -229,5 +229,16 @@
   "start_experiment": "Start experiment",
   "Preview": "Preview",
   "user_not_authorized_to_play_experiment": "User not authorized for this experiment",
-  "stimuli_saved_successfully": "Stimuli saved successfully"
+  "stimuli_saved_successfully": "Stimuli saved successfully",
+  "failed_joining_experiment": "Failed joining experiment. Check if you aren't already in the experiment.",
+  "sucess_joining_experiment": "Successfully joined the experiment",
+  "invalid_access_code": "Invalid access code",
+  "join_experiment_title": "Join experiment",
+  "join_experiment_subtitle": "You can join the experiment using the access code if required",
+  "sucessfully_joined_experiment": "You have successfully joined the experiment",
+  "error_joining_experiment": "Error joining experiment",
+  "you_can_close_this_window": "You can close this window now",
+  "type_access_code_to_join": "To join the experiment type the access code",
+  "join_experiment": "Join Experiment",
+  "does_not_require_access_code": "This experiment does not require an access code"
 }

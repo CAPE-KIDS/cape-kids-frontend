@@ -42,6 +42,7 @@ const CreateExperiments = () => {
   });
 
   const onSubmit = async (data: CreateExperimentSchemaType) => {
+    console.log("Submitting experiment data:", data);
     if (!token) return;
     const response = await createExperiment(token, data);
 
@@ -92,7 +93,7 @@ const CreateExperiments = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          handleSubmit(onSubmit);
+          handleSubmit(onSubmit)(e);
         }}
         className="flex flex-col justify-between h-full"
       >

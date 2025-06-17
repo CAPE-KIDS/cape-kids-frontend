@@ -1,53 +1,37 @@
-// components/ui/Tooltip.tsx
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import { Info } from "lucide-react";
-import {
-  useFloating,
-  offset,
-  flip,
-  shift,
-  arrow,
-  Placement,
-  useInteractions,
-  useHover,
-} from "@floating-ui/react";
+import TooltipMui, {
+  TooltipProps as MuiTooltipProps,
+} from "@mui/material/Tooltip";
 
 type TooltipProps = {
   children: ReactNode;
-  placement?: Placement;
+  placement?: MuiTooltipProps["placement"];
 };
 
 export function Tooltip({ children, placement = "top" }: TooltipProps) {
-  const [open, setOpen] = useState(false);
-
-  const { refs, floatingStyles, context } = useFloating({
-    open,
-    onOpenChange: setOpen,
-    middleware: [offset(8), flip(), shift()],
-    placement,
-  });
-
-  const hover = useHover(context, { move: false, delay: 100 });
-  const { getReferenceProps, getFloatingProps } = useInteractions([hover]);
-
   return (
-    <div className="relative inline-block">
-      <Info
-        size={16}
-        ref={refs.setReference}
-        {...getReferenceProps()}
-        className="text-blue-500 cursor-pointer hover:opacity-80"
-      />
-      {open && (
-        <div
-          ref={refs.setFloating}
-          style={floatingStyles}
-          {...getFloatingProps()}
-          className="z-50 min-w-[200px] max-w-xs rounded-md bg-gray-900 px-3 py-2 text-sm text-white shadow-lg"
-        >
-          {children}
-        </div>
-      )}
-    </div>
+    <TooltipMui
+      title={children}
+      placement={placement}
+      arrow
+      enterDelay={100}
+      slotProps={{
+        tooltip: {
+          className:
+            "!bg-gray-900 !px-3 !py-2 !text-sm !text-white !rounded-md !shadow-lg !max-w-xs",
+        },
+        arrow: {
+          className: "!text-gray-900",
+        },
+      }}
+    >
+      <span className="inline-flex items-center">
+        <Info
+          size={16}
+          className="text-blue-500 cursor-pointer hover:opacity-80"
+        />
+      </span>
+    </TooltipMui>
   );
 }

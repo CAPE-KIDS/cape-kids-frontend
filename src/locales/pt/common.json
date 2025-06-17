@@ -231,5 +231,16 @@
   "start_experiment": "Iniciar experimento",
   "Preview": "Visualizar",
   "user_not_authorized_to_play_experiment": "Usuário não autorizado para este experimento",
-  "stimuli_saved_successfully": "Estimulo salvo com sucesso"
+  "stimuli_saved_successfully": "Estimulo salvo com sucesso",
+  "failed_joining_experiment": "Falha ao entrar no experimento. Verifique se você já não está participando deste experimento.",
+  "sucess_joining_experiment": "Entrou no experimento com sucesso",
+  "invalid_access_code": "Código de acesso inválido",
+  "join_experiment_title": "Entrar no experimento",
+  "join_experiment_subtitle": "Você pode entrar no experimento usando o código de acesso, se necessário",
+  "sucessfully_joined_experiment": "Você entrou no experimento com sucesso",
+  "error_joining_experiment": "Erro ao entrar no experimento",
+  "you_can_close_this_window": "Você pode fechar esta janela agora",
+  "type_access_code_to_join": "Para entrar no experimento, digite o código de acesso",
+  "join_experiment": "Entrar no experimento",
+  "does_not_require_access_code": "Este experimento não requer um código de acesso"
 }
