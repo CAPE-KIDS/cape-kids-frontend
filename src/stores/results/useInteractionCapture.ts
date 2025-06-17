@@ -26,7 +26,7 @@ export const useInteractionCapture = () => {
 
       captureInteraction({
         type: e.type,
-        timestamp: Date.now(),
+        timestamp: performance.now(),
         target: blockId || target || "Screen",
         x,
         y,
@@ -39,7 +39,7 @@ export const useInteractionCapture = () => {
 
       captureInteraction({
         type: "keydown",
-        timestamp: Date.now(),
+        timestamp: performance.now(),
         target: activeResultId,
         key: keyCombo,
       });

@@ -1,7 +1,6 @@
-import { useEffect } from "react";
-import { Trigger } from "./types";
+import { useEffect, useMemo } from "react";
+import { Trigger, TriggerContext } from "./types";
 import { dispatchTriggerAction } from "./dispatcher";
-import { TriggerContext } from "./types";
 import { useResultsStore } from "@/stores/results/useResultsStore";
 
 export const useTimerTriggers = (
@@ -10,13 +9,17 @@ export const useTimerTriggers = (
 ) => {
   const { captureInteraction } = useResultsStore();
 
-  useEffect(() => {
-    if (!context.started) return;
+  const timerTriggers = useMemo(
+    () => triggers.filter((t) => t.metadata.type === "timer"),
+    [triggers]
+  );
 
-    const timerTriggers = triggers.filter((t) => t.metadata.type === "timer");
+  useEffect(() => {
+    if (!context.started || timerTriggers.length === 0) {
+      return;
+    }
 
     const timers: NodeJS.Timeout[] = [];
-    const intervals: NodeJS.Timeout[] = [];
 
     timerTriggers.forEach((trigger) => {
       const rawDelay = trigger.metadata?.delay;
@@ -24,31 +27,31 @@ export const useTimerTriggers = (
 
       const safeDelay = !isNaN(delay) && delay >= 0 ? delay : 1000;
 
-      let elapsed = 0;
-      // console.log(`⏱️ ${elapsed / 1000}s elapsed`);
-
-      const interval = setInterval(() => {
-        elapsed += 1000;
-        // console.log(`⏱️ ${elapsed / 1000}s elapsed`);
-      }, 1000);
-      intervals.push(interval);
-
       const timeout = setTimeout(() => {
+        console.log(`🔥 Disparando trigger: ${trigger.id} após ${safeDelay}ms`);
+
+        const timestamp = performance.now();
         captureInteraction({
           type: "timer",
-          timestamp: Date.now(),
+          timestamp,
+          expectedTime: safeDelay,
           target: trigger.id,
         });
 
         dispatchTriggerAction(trigger, context);
-        clearInterval(interval);
       }, safeDelay);
+
       timers.push(timeout);
     });
 
     return () => {
       timers.forEach(clearTimeout);
-      intervals.forEach(clearInterval);
     };
-  }, [context.activeStepId, context.started]);
+  }, [
+    context.started,
+    context.activeStepId,
+    timerTriggers,
+    captureInteraction,
+    context,
+  ]);
 };

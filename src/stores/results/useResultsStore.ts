@@ -4,6 +4,7 @@ import { create } from "zustand";
 export interface Interaction {
   type: string;
   timestamp: number;
+  expectedTime?: number;
   target?: EventTarget | string;
   key?: string;
   x?: number;
@@ -34,11 +35,12 @@ interface ResultsState {
   showTryAgainTimeout: NodeJS.Timeout | null;
   setShowTryAgain: (delay: number) => void;
   startStepResult: (
+    startedAt: number,
     stepId: string,
     timelineId: string,
     stepType: string
   ) => void;
-  completeStepResult: () => void;
+  completeStepResult: (completedAt: number) => void;
   updateCurrentResult: (
     patch: Partial<StepResult>,
     callback?: () => void
@@ -60,20 +62,19 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
   startTime: null,
   showTryAgain: false,
   showTryAgainTimeout: null,
-  startStepResult: (stepId, timelineId, stepType) => {
-    const now = Date.now();
+  startStepResult: (startedAt, stepId, timelineId, stepType) => {
     const newResult: StepResult = {
       stepId,
       timelineStepId: timelineId,
       stepType,
-      startedAt: now,
+      startedAt: startedAt,
       interactions: [],
     };
 
     set({
       currentResult: newResult,
       activeResultId: stepId,
-      startTime: now,
+      startTime: startedAt,
     });
   },
 
@@ -85,15 +86,14 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
   resetWrongCount: () => {
     set({ wrongCount: 0 });
   },
-  completeStepResult: () => {
+  completeStepResult: (completedAt) => {
     const { currentResult, results } = get();
 
     if (!currentResult) return;
 
-    const now = Date.now();
     const completedResult = {
       ...currentResult,
-      completedAt: now,
+      completedAt: completedAt,
     };
 
     set({
@@ -134,7 +134,7 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
     const { currentResult, startTime } = get();
     if (!currentResult || !startTime) return;
 
-    const timestamp = Date.now();
+    const timestamp = Math.round(performance.now() - startTime);
 
     const updatedResult = {
       ...currentResult,

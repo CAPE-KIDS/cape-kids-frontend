@@ -51,6 +51,7 @@ const CanvasRunner = ({ steps, started }: CanvasRunnerProps) => {
   }, [screenRef.current, screen.width, screen.height]);
 
   useEffect(() => {
+    const startedAt = performance.now();
     const isSaveBlock = steps?.find(
       (step) =>
         step.id === activeStepId && step.metadata?.blocks?.[0]?.type === "save"
@@ -75,10 +76,16 @@ const CanvasRunner = ({ steps, started }: CanvasRunnerProps) => {
 
     if (!started || !activeStepId || isSaveBlock || isFeedbackBlock) return;
 
-    startStepResult(activeStepId, activeStep?.step_id, activeStep?.type || "");
+    startStepResult(
+      startedAt,
+      activeStepId,
+      activeStep?.step_id,
+      activeStep?.type || ""
+    );
 
     return () => {
-      completeStepResult();
+      const completedAt = performance.now();
+      completeStepResult(completedAt);
     };
   }, [activeStepId, started]);
 

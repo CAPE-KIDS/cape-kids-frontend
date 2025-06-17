@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useCanvasStore } from "../store/useCanvasStore";
 import { StepResult, useResultsStore } from "@/stores/results/useResultsStore";
 import { Tooltip } from "@/components/Tooltip";
@@ -18,34 +18,30 @@ const SaveScreen = () => {
   const { results } = useResultsStore();
 
   const [status, setStatus] = useState<"saving" | "done" | null>(null);
-  const [filteredResults, setFilteredResults] = useState<StepResult[]>([]);
-
   const hasSavedRef = useRef(false);
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
-  const filteredSteps = steps.filter(
-    (s) =>
-      !s.metadata?.blocks?.some(
-        (b) => b.type === "feedback" || b.type === "save"
-      )
-  );
+  const filteredSteps = useMemo(() => {
+    return steps.filter(
+      (s) =>
+        !s.metadata?.blocks?.some(
+          (b) => b.type === "feedback" || b.type === "save"
+        )
+    );
+  }, [steps]);
 
-  const saveResults = async () => {
-    if (hasSavedRef.current || status) return;
-    hasSavedRef.current = true;
-    setStatus("saving");
-
+  const processedResults = useMemo(() => {
     const allResults = results.filter((result) => {
       const step = filteredSteps.find((s) => s.id === result.stepId);
+      if (!step) return false;
 
-      if (step?.type === "multi_trigger_stimuli") {
-        const hasMultipleTriggers = step?.metadata?.blocks?.some(
+      if (step.type === "multi_trigger_stimuli") {
+        const hasMultipleTriggers = step.metadata?.blocks?.some(
           (block) => block.triggers && block.triggers.length > 1
         );
         if (!hasMultipleTriggers) return false;
       }
 
-      return step && step.metadata?.blocks?.[0]?.type !== "inter_stimulus";
+      return step.metadata?.blocks?.[0]?.type !== "inter_stimulus";
     });
 
     const formatedResults = allResults.map((result) => ({
@@ -60,6 +56,16 @@ const SaveScreen = () => {
       },
     }));
 
+    return { raw: allResults, formated: formatedResults };
+  }, [results, filteredSteps, sourceId]);
+
+  const saveResults = async () => {
+    if (hasSavedRef.current || status || processedResults.formated.length === 0)
+      return;
+
+    hasSavedRef.current = true;
+    setStatus("saving");
+
     if (!path.includes("preview")) {
       try {
         const request = await fetch(API.SAVE_RESULTS, {
@@ -68,7 +74,7 @@ const SaveScreen = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authState.token}`,
           },
-          body: JSON.stringify(formatedResults),
+          body: JSON.stringify(processedResults.formated),
         });
 
         const response = await request.json();
@@ -88,7 +94,6 @@ const SaveScreen = () => {
       }
     }
 
-    setFilteredResults(allResults);
     setStatus("done");
 
     if (document.fullscreenElement) {
@@ -99,14 +104,14 @@ const SaveScreen = () => {
   };
 
   useEffect(() => {
-    if (!results || results.length === 0 || hasSavedRef.current) return;
+    if (processedResults.raw.length === 0 || hasSavedRef.current) return;
 
-    if (debounceTimer.current) clearTimeout(debounceTimer.current);
-
-    debounceTimer.current = setTimeout(() => {
+    const timer = setTimeout(() => {
       saveResults();
     }, 1000);
-  }, [results]);
+
+    return () => clearTimeout(timer);
+  }, [processedResults]);
 
   const renderTable = () => (
     <div className="mt-6 max-h-[60vh] overflow-auto border rounded">
@@ -121,14 +126,30 @@ const SaveScreen = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredResults.map((step, i) => {
+          {processedResults.raw.map((step, i) => {
             const last = step.interactions.at(-1);
             const endedByTimeout = last?.type === "timer";
-            const duration = step.completedAt - step.startedAt;
+            const duration = Math.round(
+              (step.completedAt ?? 0) - step.startedAt
+            );
+            const deltaTime =
+              last?.expectedTime && duration - last.expectedTime;
             return (
               <tr key={`${step.stepId}-${i}`} className="text-sm">
                 <td className="border p-2">#{i + 1}</td>
-                <td className="border p-2">{duration}ms</td>
+                <td className="border p-2">
+                  {duration}ms
+                  {deltaTime && deltaTime !== duration && (
+                    <Tooltip>
+                      <div className="text-xs text-gray-500">
+                        Diferença entre tempo esperado e real.
+                        <br />
+                        Variações pequenas são normais no navegador. Delta:{" "}
+                        {deltaTime}ms
+                      </div>
+                    </Tooltip>
+                  )}
+                </td>
                 <td className="border p-2">
                   {step.interactions.length === 0
                     ? "Nenhuma"
@@ -182,9 +203,6 @@ const SaveScreen = () => {
         </div>
       ) : status === "done" ? (
         <>
-          {/* <p className="text-xl font-medium">
-            ✅ Resultados salvos com sucesso!
-          </p> */}
           <p className="mt-2 text-gray-600">Você já pode fechar essa janela.</p>
           {renderTable()}
         </>
@@ -193,4 +211,4 @@ const SaveScreen = () => {
   );
 };
 
-export default SaveScreen;
+export default React.memo(SaveScreen);
