@@ -14,8 +14,8 @@ import { TimelineStep } from "@shared/timeline";
 import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
-// Schema de validação
 const CreateExperimentsTimeline = () => {
   const { t: tC } = useTranslation("common");
   const { t: tE } = useTranslation("experiments");
@@ -38,11 +38,23 @@ const CreateExperimentsTimeline = () => {
   const { resetTimeline } = useTimelineStore();
 
   const fetchExperiment = async () => {
-    const experiment = await getExperimentById(experimentId);
-    if (experiment) {
-      setSelectedExperiment(experiment.data);
-      formatToTimeline(experiment.data);
-      setFetched(true);
+    if (fetched) return;
+    setFetched(true);
+    const response = await getExperimentById(experimentId);
+    if (response) {
+      setSelectedExperiment(response.data);
+
+      const isAllowed = response.data.experiment.scientists.some(
+        (s: { user: { id: string } }) => s.user.id === authState.user?.id
+      );
+      if (!isAllowed) {
+        NProgress.start();
+        toast.error(tC("not_allowed_to_edit_experiment"));
+        router.push("/experiments");
+        return;
+      }
+
+      formatToTimeline(response.data);
     }
   };
 
@@ -123,17 +135,29 @@ const CreateExperimentsTimeline = () => {
         <TimelineView />
       </div>
 
-      {/* Submit */}
-      <button
-        type="button"
-        className="bg-blue-500 text-white px-4 py-2 hover:bg-blue-600 transition cursor-pointer"
-        onClick={() => {
-          NProgress.start();
-          router.push(`/experiments/${experimentId}/participants`);
-        }}
-      >
-        {tC("manage_participants")}
-      </button>
+      <div className="w-full gap-[1px] flex">
+        <button
+          type="button"
+          className="bg-blue-500 flex-1 text-white px-4 py-2 hover:bg-blue-600 transition cursor-pointer"
+          onClick={() => {
+            NProgress.start();
+            router.push(`/experiments/${experimentId}/participants`);
+          }}
+        >
+          {tC("manage_participants")}
+        </button>
+
+        <button
+          type="button"
+          className="bg-blue-500 flex-1 text-white px-4 py-2 hover:bg-blue-600 transition cursor-pointer"
+          onClick={() => {
+            NProgress.start();
+            router.push(`/experiments/${experimentId}/scientists`);
+          }}
+        >
+          {tC("manage_scientists")}
+        </button>
+      </div>
 
       <SequentialStimuliConfigModal />
     </div>

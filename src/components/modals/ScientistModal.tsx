@@ -5,43 +5,47 @@ import { Search, X } from "lucide-react";
 import DataTable from "../DataTable";
 import _ from "lodash";
 import {
-  FormatedParticipantsType,
-  useParticipantsStore,
-} from "@/stores/participants/participantsStore";
-import ParticipantTable from "../tables/ParticipantTable";
+  FormatedScientistsType,
+  useScientistsStore,
+} from "@/stores/scientists/scientistsStore";
+import ScientistTable from "../tables/ScientistTable";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
-interface ParticipantModalProps {
+interface ScientistModalProps {
   isOpen: boolean;
   closeModal: () => void;
-  fetchExperimentParticipants: () => Promise<void>;
+  fetchExperimentScientists: () => Promise<void>;
 }
-const ParticipantModal = ({
+const ScientistModal = ({
   isOpen,
   closeModal,
-  fetchExperimentParticipants,
-}: ParticipantModalProps) => {
+  fetchExperimentScientists,
+}: ScientistModalProps) => {
   const { t } = useTranslation("common");
   const params = useParams();
   const experimentId = params.id as string;
   const {
     selectedExperiment,
-    addParticipantToExperiment,
-    selectedExperimentParticipants,
+
+    selectedExperimentScientists,
   } = useExperimentsStore();
-  const { participants, formatParticipants, removeParticipant } =
-    useParticipantsStore();
+  const {
+    scientists,
+    formatScientists,
+    removeScientist,
+    addScientistToExperiment,
+  } = useScientistsStore();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [selectedParticipants, setSelectedParticipants] = useState(
-    formatParticipants(participants)
+  const [selectedScientists, setSelectedScientists] = useState(
+    formatScientists(scientists)
   );
 
   useEffect(() => {
-    setSelectedParticipants(formatParticipants(participants));
-  }, [participants, selectedExperimentParticipants]);
+    setSelectedScientists(formatScientists(scientists));
+  }, [scientists, selectedExperimentScientists]);
 
   if (!isOpen) return null;
   return (
@@ -50,38 +54,35 @@ const ParticipantModal = ({
         title=""
         onClose={() => {
           closeModal();
-          setSelectedParticipants(formatParticipants(participants));
+          setSelectedScientists(formatScientists(scientists));
           setSearchTerm("");
         }}
         styles="w-[900px]"
       >
-        <p className="text-lg mb-4">{t("participant_modal_title")}</p>
-        <p className="text-md">{selectedExperiment.experiment.title}</p>
+        <p className="text-lg mb-4">{t("scientist_modal_title")}</p>
+        <p className="text-md">{selectedExperiment?.experiment.title}</p>
 
         <div className="">
           <div className="flex items-center justify-between mb-4 gap-8 mt-6">
             <span className="text-blue-600 text-lg">
-              {t("participant_modal_list")}
+              {t("scientist_modal_list")}
             </span>
             <div className="search flex relative flex-1 max-w-[372px]">
               <input
                 type="text"
-                placeholder={t("participant_modal_search_placeholder")}
+                placeholder={t("scientist_modal_search_placeholder")}
                 className="border-2 border-blue-300 rounded-lg p-2 w-full text-sm"
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
 
                   _.debounce(() => {
-                    const filteredParticipants = participants.filter(
-                      (participant) =>
-                        participant.profile.fullName
-                          .toLowerCase()
-                          .includes(e.target.value.toLowerCase())
+                    const filteredScientists = scientists.filter((scientist) =>
+                      scientist.profile.fullName
+                        .toLowerCase()
+                        .includes(e.target.value.toLowerCase())
                     );
-                    setSelectedParticipants(
-                      formatParticipants(filteredParticipants)
-                    );
+                    setSelectedScientists(formatScientists(filteredScientists));
                   }, 300)();
                 }}
               />
@@ -93,7 +94,7 @@ const ParticipantModal = ({
                   className="absolute right-2 top-3 text-gray-500 cursor-pointer"
                   onClick={() => {
                     setSearchTerm("");
-                    setSelectedParticipants(formatParticipants(participants));
+                    setSelectedScientists(formatScientists(scientists));
                   }}
                 >
                   <X size={16} />
@@ -103,35 +104,36 @@ const ParticipantModal = ({
           </div>
 
           <div className="overflow-auto h-full max-h-[400px] min-h-[400px]">
-            <ParticipantTable
+            <ScientistTable
               headers={[
                 { key: "name", label: t("name") },
-                { key: "age", label: t("age") },
-                { key: "gender", label: t("gender") },
-                { key: "nativeLanguage", label: t("language") },
+                { key: "email", label: t("email") },
+                { key: "institution", label: t("institution") },
+                { key: "department", label: t("department") },
+                { key: "isOwner", label: t("creator") },
               ]}
-              rows={selectedParticipants}
+              rows={selectedScientists}
               pagination={true}
               withSimpleAddRemove={true}
               addAction={async (id) => {
-                const response = await addParticipantToExperiment(
+                const response = await addScientistToExperiment(
                   experimentId,
                   `${id}`
                 );
                 if (response.error) {
                   toast.error(t(response.message));
                 } else {
-                  toast.success(t("participant_added_to_experiment"));
-                  await fetchExperimentParticipants();
+                  toast.success(t("scientist_added_to_experiment"));
+                  await fetchExperimentScientists();
                 }
               }}
               removeAction={async (id) => {
-                const response = await removeParticipant(experimentId, `${id}`);
+                const response = await removeScientist(experimentId, `${id}`);
                 if (response.error) {
                   toast.error(t("paticipant_not_in_experiment"));
                 } else {
-                  toast.success(t("participant_removed_from_experiment"));
-                  await fetchExperimentParticipants();
+                  toast.success(t("scientist_removed_from_experiment"));
+                  await fetchExperimentScientists();
                 }
               }}
             />
@@ -142,4 +144,4 @@ const ParticipantModal = ({
   );
 };
 
-export default ParticipantModal;
+export default ScientistModal;

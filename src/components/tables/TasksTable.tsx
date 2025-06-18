@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { MoreVertical } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { confirm } from "../confirm/confirm";
+import Link from "next/link";
 
 type Task = {
   id: string;
@@ -60,15 +61,6 @@ const TasksTable: React.FC<Props> = ({ tasks, pagination }) => {
     if (!selectedId) return;
 
     switch (action) {
-      case "view":
-        router.push(`/tasks/${selectedId}/timeline`);
-        break;
-      case "preview":
-        window.open(`/preview?id=${selectedId}`, "_blank");
-        break;
-      case "edit":
-        router.push(`/tasks/${selectedId}/edit`);
-        break;
       case "delete":
         handleClose();
         const ok = await confirm({
@@ -207,8 +199,14 @@ const TasksTable: React.FC<Props> = ({ tasks, pagination }) => {
         {/* <MenuItem onClick={() => handleAction("view")}>
           {tC("view_timeline")}
         </MenuItem> */}
-        <MenuItem onClick={() => handleAction("view")}>{tC("edit")}</MenuItem>
-        <MenuItem onClick={() => handleAction("preview")}>
+        <MenuItem component={Link} href={`/tasks/${selectedId}/timeline`}>
+          {tC("edit")}
+        </MenuItem>
+        <MenuItem
+          component={Link}
+          href={`/preview?id=${selectedId}`}
+          target="_blank"
+        >
           {tC("Preview")}
         </MenuItem>
         <MenuItem onClick={() => handleAction("delete")}>

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { loginSchema, type LoginSchemaType } from "@shared/user";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import NProgress from "nprogress";
 
 export default function Home() {
   const { t, i18n } = useTranslation("common");
@@ -39,13 +40,14 @@ export default function Home() {
     setAwaiting(true);
     const response = await login(form.email, form.password);
     if (response?.error) {
-      toast.error(response.message);
+      toast.error(t(response.message));
       setLoginError(response.message);
       setAwaiting(false);
 
       return;
     }
     toast.success(t("login_success"));
+    NProgress.start();
   };
 
   useEffect(() => {

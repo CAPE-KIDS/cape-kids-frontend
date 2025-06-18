@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import { ConfirmProvider } from "@/components/confirm/ConfirmProvider";
 import Head from "next/head";
 import { I18nGuard } from "@/locales/i18nGuard";
+import NextTopLoader from "nextjs-toploader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,6 +31,7 @@ export default function RootLayout({
         <AuthProvider>
           <body className={`${inter.className} antialiased isolate root`}>
             <Toaster position="top-right" richColors />
+            <NextTopLoader showSpinner={false} />
 
             <ConfirmProvider>
               <I18nGuard>

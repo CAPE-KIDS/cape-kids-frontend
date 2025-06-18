@@ -17,6 +17,7 @@ import { MoreVertical } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { confirm } from "../confirm/confirm";
 import { useAuthStore } from "@/stores/auth/useAuthStore";
+import Link from "next/link";
 
 type Experiment = {
   id: string;
@@ -59,20 +60,8 @@ const ExperimentsTable: React.FC<Props> = ({ experiments, pagination }) => {
     if (!selectedId) return;
 
     switch (action) {
-      case "view":
-        router.push(`/experiments/${selectedId}/timeline`);
-        break;
-      case "preview":
-        window.open(`/preview?id=${selectedId}`, "_blank");
-        break;
       case "start":
         window.open(`/experiments/${selectedId}/play`, "_blank");
-        break;
-      case "participants":
-        router.push(`/experiments/${selectedId}/participants`);
-        break;
-      case "edit":
-        router.push(`/experiments/${selectedId}/edit`);
         break;
       case "delete":
         handleClose();
@@ -185,16 +174,34 @@ const ExperimentsTable: React.FC<Props> = ({ experiments, pagination }) => {
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          <MenuItem onClick={() => handleAction("view")}>{tC("edit")}</MenuItem>
-          <MenuItem onClick={() => handleAction("preview")}>
+          <MenuItem
+            component={Link}
+            href={`/experiments/${selectedId}/timeline`}
+          >
+            {tC("edit")}
+          </MenuItem>
+          <MenuItem
+            component={Link}
+            href={`/preview?id=${selectedId}`}
+            target="_blank"
+          >
             {tC("Preview")}
           </MenuItem>
           {/* <MenuItem onClick={() => handleAction("view")}>
             {tC("view_timeline")}
           </MenuItem> */}
 
-          <MenuItem onClick={() => handleAction("participants")}>
+          <MenuItem
+            component={Link}
+            href={`/experiments/${selectedId}/participants`}
+          >
             {tC("manage_participants")}
+          </MenuItem>
+          <MenuItem
+            component={Link}
+            href={`/experiments/${selectedId}/scientists`}
+          >
+            {tC("manage_scientists")}
           </MenuItem>
           <MenuItem onClick={() => handleAction("delete")}>
             {tC("delete")}

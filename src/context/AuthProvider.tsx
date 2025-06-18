@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("Login fetch failed", err);
       return {
         error: true,
-        message: "Network error",
+        message: "network_error",
         data: null,
       };
     }

@@ -19,7 +19,6 @@ export default function ({
         <SidebarMenu />
         <InnactivityModal />
         <div className="flex flex-1 flex-col h-screen overflow-auto">
-          <NextTopLoader showSpinner={false} />
           {children}
         </div>
       </div>

@@ -18,6 +18,7 @@ import { confirm } from "@/components/confirm/confirm";
 import { useTranslation } from "react-i18next";
 import { exportRawJson, exportResultsToExcel } from "@/utils/functions";
 import ParticipantTable from "@/components/tables/ParticipantTable";
+import NProgress from "nprogress";
 
 const ExperimentParticipants = () => {
   const { t } = useTranslation("common");
@@ -38,13 +39,25 @@ const ExperimentParticipants = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rows, setRows] = useState<FormatedParticipantsType[] | []>([]);
+  const [fetched, setFetched] = useState(false);
   const [fecthingParticipants, setFecthingParticipants] = useState(false);
   const router = useRouter();
 
   const fetchExperiment = async () => {
-    const experiment = await getExperimentById(experimentId);
-    if (experiment) {
-      setSelectedExperiment(experiment.data);
+    const response = await getExperimentById(experimentId);
+    if (response) {
+      const isAllowed = response.data.experiment.scientists.some(
+        (s: { user: { id: string } }) => s.user.id === authState.user?.id
+      );
+
+      if (!isAllowed) {
+        NProgress.start();
+        toast.error(t("not_allowed_to_edit_experiment"));
+        router.push("/experiments");
+        return;
+      }
+
+      setSelectedExperiment(response.data);
     }
   };
 
@@ -79,7 +92,8 @@ const ExperimentParticipants = () => {
       router.push("/experiments");
       return;
     }
-
+    if (fetched) return;
+    setFetched(true);
     fetchParticipants();
     fetchExperimentParticipants();
 
@@ -151,172 +165,206 @@ const ExperimentParticipants = () => {
         </div>
       </PageHeader>
 
-      <div className="px-6 py-4">
-        <div className="mt-4 text-lg font-medium text-gray-800 mb-4">
-          {selectedExperiment?.experiment.title}
-        </div>
-
-        <div className="flex gap-4 max-w-[900px] w-full ">
-          {/* Access url */}
-          <div className="flex flex-col space-y-1 flex-1 max-w-[625px]">
-            <div className="flex justify-between items-center">
-              <label className="font-light text-xs text-gray-400">
-                {t("access_url")}
-              </label>
+      <div className="flex flex-col h-[calc(100vh-85px)] overflow-hidden justify-between">
+        <div className="flex-1 overflow-y-auto">
+          <div className="px-6 py-4">
+            <div className="mt-4 text-lg font-medium text-gray-800 mb-4">
+              {selectedExperiment?.experiment.title}
             </div>
-            <div className="flex items-center gap-2">
-              <div
-                className="bg-[#EBEFFF] rounded-lg p-2 flex-1 cursor-pointer select-none overflow-hidden focus:outline-none focus:ring focus:ring-blue-300  overlfow-hidden "
-                tabIndex={0}
-                onClick={() => {
-                  navigator.clipboard.writeText(String(experimentUrl));
-                  toast.success(t("access_url_copied"));
-                }}
-              >
-                <span className="line-clamp-1 overlfow-hidden">
-                  {experimentUrl}
-                </span>
+
+            <div className="flex gap-4 max-w-[900px] w-full ">
+              {/* Access url */}
+              <div className="flex flex-col space-y-1 flex-1 max-w-[625px]">
+                <div className="flex justify-between items-center">
+                  <label className="font-light text-xs text-gray-400">
+                    {t("access_url")}
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="bg-[#EBEFFF] rounded-lg p-2 flex-1 cursor-pointer select-none overflow-hidden focus:outline-none focus:ring focus:ring-blue-300  overlfow-hidden "
+                    tabIndex={0}
+                    onClick={() => {
+                      navigator.clipboard.writeText(String(experimentUrl));
+                      toast.success(t("access_url_copied"));
+                    }}
+                  >
+                    <span className="line-clamp-1 overlfow-hidden">
+                      {experimentUrl}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(String(experimentUrl));
+                      toast.success(t("access_url_copied"));
+                    }}
+                  >
+                    <Copy
+                      size={20}
+                      className="text-gray-500 hover:text-blue-500 cursor-pointer"
+                    />
+                  </button>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(String(experimentUrl));
-                  toast.success(t("access_url_copied"));
-                }}
-              >
-                <Copy
-                  size={20}
-                  className="text-gray-500 hover:text-blue-500 cursor-pointer"
-                />
-              </button>
+
+              {/* Access code */}
+              {selectedExperiment?.experiment.accessCode && (
+                <div className="flex flex-col space-y-1 max-w-[190px]">
+                  <div className="flex justify-between items-center">
+                    <label className="font-light text-xs text-gray-400">
+                      {t("access_code")}
+                    </label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="bg-[#EBEFFF] rounded-lg p-2 flex-1 select-none truncate whitespace-nowrap overflow-hidden focus:outline-none focus:ring focus:ring-blue-300 cursor-pointer"
+                      tabIndex={0}
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          String(selectedExperiment?.experiment.accessCode)
+                        );
+                        toast.success(t("access_code_copied"));
+                      }}
+                    >
+                      {selectedExperiment?.experiment.accessCode}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          String(selectedExperiment?.experiment.accessCode)
+                        );
+                        toast.success(t("access_code_copied"));
+                      }}
+                    >
+                      <Copy
+                        size={20}
+                        className="text-gray-500 hover:text-blue-500 cursor-pointer"
+                      />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Access code */}
-          {selectedExperiment?.experiment.accessCode && (
-            <div className="flex flex-col space-y-1 max-w-[190px]">
-              <div className="flex justify-between items-center">
-                <label className="font-light text-xs text-gray-400">
-                  {t("access_code")}
-                </label>
-              </div>
-              <div className="flex items-center gap-2">
-                <div
-                  className="bg-[#EBEFFF] rounded-lg p-2 flex-1 select-none truncate whitespace-nowrap overflow-hidden focus:outline-none focus:ring focus:ring-blue-300 cursor-pointer"
-                  tabIndex={0}
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      String(selectedExperiment?.experiment.accessCode)
-                    );
-                    toast.success(t("access_code_copied"));
-                  }}
-                >
-                  {selectedExperiment?.experiment.accessCode}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      String(selectedExperiment?.experiment.accessCode)
-                    );
-                    toast.success(t("access_code_copied"));
-                  }}
-                >
-                  <Copy
-                    size={20}
-                    className="text-gray-500 hover:text-blue-500 cursor-pointer"
-                  />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="mx-6">
-        <div className="border-t border-indigo-200 my-4" />
-        <div>
-          <SectionHeader
-            title={t("Participants")}
-            actionLabel={t("add_participant")}
-            onAction={() => setIsModalOpen(true)}
-          />
-        </div>
-        {fecthingParticipants ? (
-          <div>{t("loading")}</div>
-        ) : (
-          <>
-            {rows?.length > 0 ? (
-              <ParticipantTable
-                headers={[
-                  { key: "name", label: t("name") },
-                  { key: "age", label: t("age") },
-                  { key: "gender", label: t("gender") },
-                  { key: "nativeLanguage", label: t("language") },
-                ]}
-                rows={rows}
-                pagination={true}
-                actions={(row) => {
-                  if (row.completedAt) {
-                    return [
-                      {
-                        label: t("results_xlsx"),
-                        onClick: async (r) => {
-                          await getUserResults(
-                            r as FormatedParticipantsType,
-                            "xlsx"
-                          );
-                        },
-                      },
-                      {
-                        label: t("results_json"),
-                        onClick: async (r) => {
-                          await getUserResults(
-                            r as FormatedParticipantsType,
-                            "json"
-                          );
-                        },
-                      },
-                      {
-                        label: t("remove"),
-                        onClick: async (r) => {
-                          const ok = await confirm({
-                            title: t("participant_remove_confirmation"),
-                            message: t(
-                              "participant_remove_confirmation_data_lost_message"
-                            ),
-                          });
-                          if (ok) {
-                            await removeParticipantFromExperiment(`${r.id}`);
-                          }
-                        },
-                      },
-                    ];
-                  } else {
-                    return [
-                      {
-                        label: t("remove"),
-                        onClick: async (r) => {
-                          const ok = await confirm({
-                            title: t("participant_remove_confirmation"),
-                            message: "",
-                          });
-                          if (ok) {
-                            await removeParticipantFromExperiment(`${r.id}`);
-                          }
-                        },
-                      },
-                    ];
-                  }
-                }}
+          <div className="mx-6">
+            <div className="border-t border-indigo-200 my-4" />
+            <div>
+              <SectionHeader
+                title={t("Participants")}
+                actionLabel={t("add_participant")}
+                onAction={() => setIsModalOpen(true)}
               />
+            </div>
+            {fecthingParticipants ? (
+              <div>{t("loading")}</div>
             ) : (
-              <div className="flex h-full w-full">
-                <p className="text-gray-500">{t("no_participants_found")}</p>
-              </div>
+              <>
+                {rows?.length > 0 ? (
+                  <ParticipantTable
+                    headers={[
+                      { key: "name", label: t("name") },
+                      { key: "age", label: t("age") },
+                      { key: "gender", label: t("gender") },
+                      { key: "nativeLanguage", label: t("language") },
+                    ]}
+                    rows={rows}
+                    pagination={true}
+                    actions={(row) => {
+                      if (row.completedAt) {
+                        return [
+                          {
+                            label: t("results_xlsx"),
+                            onClick: async (r) => {
+                              await getUserResults(
+                                r as FormatedParticipantsType,
+                                "xlsx"
+                              );
+                            },
+                          },
+                          {
+                            label: t("results_json"),
+                            onClick: async (r) => {
+                              await getUserResults(
+                                r as FormatedParticipantsType,
+                                "json"
+                              );
+                            },
+                          },
+                          {
+                            label: t("remove"),
+                            onClick: async (r) => {
+                              const ok = await confirm({
+                                title: t("participant_remove_confirmation"),
+                                message: t(
+                                  "participant_remove_confirmation_data_lost_message"
+                                ),
+                              });
+                              if (ok) {
+                                await removeParticipantFromExperiment(
+                                  `${r.id}`
+                                );
+                              }
+                            },
+                          },
+                        ];
+                      } else {
+                        return [
+                          {
+                            label: t("remove"),
+                            onClick: async (r) => {
+                              const ok = await confirm({
+                                title: t("participant_remove_confirmation"),
+                                message: "",
+                              });
+                              if (ok) {
+                                await removeParticipantFromExperiment(
+                                  `${r.id}`
+                                );
+                              }
+                            },
+                          },
+                        ];
+                      }
+                    }}
+                  />
+                ) : (
+                  <div className="flex h-full w-full">
+                    <p className="text-gray-500">
+                      {t("no_participants_found")}
+                    </p>
+                  </div>
+                )}
+              </>
             )}
-          </>
-        )}
+          </div>
+        </div>
+
+        <div className="w-full gap-[1px] flex">
+          <button
+            type="button"
+            className="bg-blue-500 flex-1 text-white px-4 py-2 hover:bg-blue-600 transition cursor-pointer"
+            onClick={() => {
+              NProgress.start();
+              router.push(`/experiments/${experimentId}/participants`);
+            }}
+          >
+            {t("manage_participants")}
+          </button>
+
+          <button
+            type="button"
+            className="bg-blue-500 flex-1 text-white px-4 py-2 hover:bg-blue-600 transition cursor-pointer"
+            onClick={() => {
+              NProgress.start();
+              router.push(`/experiments/${experimentId}/scientists`);
+            }}
+          >
+            {t("manage_scientists")}
+          </button>
+        </div>
       </div>
       <ParticipantModal
         isOpen={isModalOpen}

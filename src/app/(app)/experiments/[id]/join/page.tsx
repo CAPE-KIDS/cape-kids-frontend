@@ -64,12 +64,12 @@ const ExperimentParticipantJoin = () => {
     );
 
     if (response.error) {
-      toast.error(t("failed_joining_experiment"));
+      toast.error(t(response.message));
       setAuthorized(false);
       return;
     }
 
-    toast.success(t("sucess_joining_experiment"));
+    toast.success(t(response.message || "successfully_joined_experiment"));
     setAuthorized(true);
     return;
   };

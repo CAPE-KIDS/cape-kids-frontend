@@ -195,25 +195,25 @@ const CreateExperiments = () => {
             {/* Allow extra participants */}
             <div className="flex items-center space-x-2">
               <input
-                type="checkbox"
+                type="hidden"
                 {...register("allowToJoinAfterFull")}
                 className="accent-blue-500"
                 id="allowToJoinAfterFull"
               />
-              <label
+              {/* <label
                 className="text-sm cursor-pointer"
                 htmlFor="allowToJoinAfterFull"
               >
                 {tC("allow_entry_after_reaching_target")}
-              </label>
+              </label> */}
             </div>
           </div>
 
           {/* Divider */}
-          <div className="border-t border-indigo-200 my-4 mx-8" />
+          {/* <div className="border-t border-indigo-200 my-4 mx-8" /> */}
 
           {/* Scientists */}
-          <div className="px-8 space-y-4 mb-8">
+          {/* <div className="px-8 space-y-4 mb-8">
             <SectionHeader
               title={tC("scientists")}
               actionLabel={tC("add_scientist")}
@@ -248,7 +248,7 @@ const CreateExperiments = () => {
                 },
               ]}
             />
-          </div>
+          </div> */}
         </div>
 
         {/* Submit */}

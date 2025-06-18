@@ -23,8 +23,15 @@ export const API = {
   GET_EXPERIMENT_PARTICIPANTS: (experimentId: string) =>
     `${API_URL}/experiments/${experimentId}/participants`,
   JOIN_EXPERIMENT: `${API_URL}/experiment-participants/join`,
+  // Experiment Scientists
+  GET_SCIENTISTS: `${API_URL}/users/scientists`,
+  GET_EXPERIMENT_SCIENTISTS: (experimentId: string) =>
+    `${API_URL}/experiments/${experimentId}/scientists`,
   REMOVE_PARTICIPANT_FROM_EXPERIMENT: (experimentId: string, userId: string) =>
     `${API_URL}/experiment-participants/${experimentId}/${userId}`,
+  ADD_EXPERIMENT_SCIENTIST: `${API_URL}/experiment-scientists`,
+  REMOVE_SCIENTIST_FROM_EXPERIMENT: (experimentId: string, userId: string) =>
+    `${API_URL}/experiment-scientists/${experimentId}/${userId}`,
 
   // Experiment Results
   SAVE_RESULTS: `${API_URL}/experiment-results`,

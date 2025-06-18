@@ -90,7 +90,7 @@ const Experiments = () => {
             </div>
           ) : (
             <div className="p-6">
-              <p className="text-gray-500">No experiments found</p>
+              <p className="text-gray-500">{tE("no_experiments")}</p>
               <Link
                 className="cursor-pointer font-semibold text-blue-500 mt-4 block"
                 href={"/experiments/create"}

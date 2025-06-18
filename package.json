@@ -20,7 +20,6 @@
     "@mui/material": "^7.1.1",
     "@xstate/react": "^5.0.5",
     "@xyflow/react": "^12.5.3",
-    "canvas": "^3.0.0-rc3",
     "capekids-shared": "git+https://github.com/CAPE-KIDS/capekids-shared.git",
     "file-saver": "^2.0.5",
     "hotkeys-js": "^3.13.9",
