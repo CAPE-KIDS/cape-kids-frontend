@@ -38,6 +38,7 @@ const CreateExperiments = () => {
       allowToJoinAfterFull: true,
       accessCode: "",
       participantTarget: 0,
+      status: "active",
     },
   });
 
