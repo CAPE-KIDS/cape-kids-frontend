@@ -34,6 +34,7 @@ const ExperimentScientists = () => {
   const { getScientists, removeScientist, formatScientistsInExperiment } =
     useScientistsStore();
   const { authState } = useAuthStore();
+  const [fetched, setFetched] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rows, setRows] = useState<FormatedScientistsType[] | []>([]);
@@ -90,6 +91,8 @@ const ExperimentScientists = () => {
       return;
     }
 
+    if (fetched) return;
+    setFetched(true);
     fetchScientists();
     fetchExperimentScientists();
 

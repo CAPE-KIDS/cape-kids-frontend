@@ -121,7 +121,7 @@ const ParticipantModal = ({
                 if (response.error) {
                   toast.error(t(response.message));
                 } else {
-                  toast.success(t("participant_added_to_experiment"));
+                  toast.success(t(response.message));
                   await fetchExperimentParticipants();
                 }
               }}
@@ -130,7 +130,7 @@ const ParticipantModal = ({
                 if (response.error) {
                   toast.error(t("paticipant_not_in_experiment"));
                 } else {
-                  toast.success(t("participant_removed_from_experiment"));
+                  toast.success(t(response.message));
                   await fetchExperimentParticipants();
                 }
               }}

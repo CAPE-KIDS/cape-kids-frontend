@@ -146,7 +146,7 @@
   "participant_added_to_experiment": "Participant added to experiment",
   "participant_already_in_experiment": "Participant already in experiment",
   "participant_not_in_experiment": "Participant is not in the experiment",
-  "participant_removed_from_experiment": "Participant removed from experiment",
+  "participant_removed_successfully": "Participant removed from experiment",
   "error_removing_participant": "Error removing participant from experiment",
   "experiment_participants_title": "Experiment Participants",
   "experiment_participants_subtitle": "Manage participants in your experiment",
