@@ -17,6 +17,7 @@ import {
 import { confirm } from "@/components/confirm/confirm";
 import { useTranslation } from "react-i18next";
 import ScientistTable from "@/components/tables/ScientistTable";
+import NProgress from "nprogress";
 
 const ExperimentScientists = () => {
   const { t } = useTranslation("common");
@@ -40,9 +41,19 @@ const ExperimentScientists = () => {
   const router = useRouter();
 
   const fetchExperiment = async () => {
-    const experiment = await getExperimentById(experimentId);
-    if (experiment) {
-      setSelectedExperiment(experiment.data);
+    const response = await getExperimentById(experimentId);
+    if (response) {
+      const isAllowed = response.data.experiment.scientists.some(
+        (s: { user: { id: string } }) => s.user.id === authState.user?.id
+      );
+
+      if (!isAllowed) {
+        NProgress.start();
+        toast.error(t("not_allowed_to_edit_experiment"));
+        router.push("/experiments");
+        return;
+      }
+      setSelectedExperiment(response.data);
     }
   };
 
