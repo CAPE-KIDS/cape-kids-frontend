@@ -267,5 +267,7 @@
   "scientist_already_in_experiment": "Scientist already in experiment",
   "YES": "YES",
   "NO": "NO",
-  "not_allowed_to_edit_experiment": "You're not allowed to edit this experiment"
+  "not_allowed_to_edit_experiment": "You're not allowed to edit this experiment",
+  "optional_step": "Optional Step",
+  "tooltip_optional_step": "When enabled, this step will be hidden from the normal timeline flow. It will not be executed automatically, only if it is explicitly triggered using a \"Go to Step\" action"
 }

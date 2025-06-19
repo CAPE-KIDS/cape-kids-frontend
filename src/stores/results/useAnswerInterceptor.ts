@@ -61,10 +61,15 @@ export const useAnswerInterceptor = () => {
           return;
         }
 
-        if (config.level.onWrongAnswer === "goToStep") {
-          const targetStepId = config.level?.goToStepId
-            ? config.level?.goToStepId
-            : steps.filter((s) => s?.step_id === step?.step_id)[0].id;
+        if (
+          config.level.onWrongAnswer === "goToStep" &&
+          config.level?.goToStepId
+        ) {
+          const targetStepId = steps.filter(
+            (s) => s?.step_id === config.level?.goToStepId
+          )[0].id;
+
+          console.log("targetStepId", targetStepId);
 
           if (targetStepId) {
             const duration =
@@ -72,7 +77,7 @@ export const useAnswerInterceptor = () => {
             setShowTryAgain(duration);
 
             setTimeout(() => {
-              TriggerActionsRegistry.repeat.execute({
+              TriggerActionsRegistry.goToStep.execute({
                 activeStepId,
                 steps,
                 setActiveStepId,
@@ -119,6 +124,7 @@ export const useAnswerInterceptor = () => {
           config.level.repeatAmount &&
           wrongCount < config.level.repeatAmount - 1
         ) {
+          const goToStep = config.level.goToStepId;
           const targetStepId = steps.filter(
             (s) => s?.step_id === step?.step_id
           )[0].id;
@@ -132,7 +138,7 @@ export const useAnswerInterceptor = () => {
               activeStepId,
               steps,
               setActiveStepId,
-              targetStepId,
+              targetStepId: goToStep || targetStepId,
             });
             setIsLastCorrect(null);
             setIsUpdating(false);

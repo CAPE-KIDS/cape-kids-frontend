@@ -211,6 +211,7 @@ const createSaveStep = (): TimelineStep => {
   const saveStep = {
     id: crypto.randomUUID(),
     type: "custom_block",
+    isSaveStep: true,
     metadata: {
       positionX: 0,
       positionY: 0,
@@ -236,6 +237,7 @@ const createFeedback = (parentId: string, delay: number): TimelineStep => {
   const feedbackStep = {
     id: crypto.randomUUID(),
     type: "custom_block",
+    isFeedbackStep: true,
     metadata: {
       positionX: 0,
       positionY: 0,

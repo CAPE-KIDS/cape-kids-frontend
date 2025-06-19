@@ -17,21 +17,20 @@ interface LevelConfigModalProps {
   setShowLevelModal: (show: boolean) => void;
   config: StimuliBlockConfig;
   setConfig: (data: Partial<StimuliBlockConfig>) => void;
+  handleChange: <K extends keyof StimuliBlockConfig>(
+    field: K,
+    value: StimuliBlockConfig[K]
+  ) => void;
 }
 
 const LevelConfigModal = ({
   setShowLevelModal,
   setConfig,
   config,
+  handleChange,
 }: LevelConfigModalProps) => {
   const { t } = useTranslation("common");
   const { steps } = useTimelineStore();
-  const handleChange = <K extends keyof StimuliBlockConfig>(
-    field: K,
-    value: StimuliBlockConfig[K]
-  ) => {
-    setConfig({ [field]: value });
-  };
 
   const options = Object.values(TriggerActionsRegistry).map((action) => ({
     value: action.type,
@@ -58,8 +57,9 @@ const LevelConfigModal = ({
                 handleChange("level", {
                   level: e.target.value,
                   repeatAmount: config.level?.repeatAmount || 1,
-                  onWrongAnswer: config.level?.onWrongAnswer || "continue",
+                  onWrongAnswer: config.level?.onWrongAnswer || "goToNextStep",
                   repeatOnWrong: config.level?.repeatOnWrong || false,
+                  goToStepId: config.level?.goToStepId || "",
                 })
               }
               className="w-full border rounded px-2 py-1 mt-1 flex-1"
@@ -79,16 +79,20 @@ const LevelConfigModal = ({
                 if (!config.level?.repeatOnWrong) {
                   handleChange("level", {
                     level: config.level?.level || "",
-                    onWrongAnswer: config.level?.onWrongAnswer || "continue",
+                    onWrongAnswer:
+                      config.level?.onWrongAnswer || "goToNextStep",
                     repeatOnWrong: true,
                     repeatAmount: config.level?.repeatAmount || 1,
+                    goToStepId: config.level?.goToStepId || "",
                   });
                 } else {
                   handleChange("level", {
                     level: config.level?.level || "",
-                    onWrongAnswer: config.level?.onWrongAnswer || "continue",
+                    onWrongAnswer:
+                      config.level?.onWrongAnswer || "goToNextStep",
                     repeatOnWrong: false,
                     repeatAmount: config.level?.repeatAmount || 1,
+                    goToStepId: config.level?.goToStepId || "",
                   });
                 }
               }}
@@ -106,8 +110,10 @@ const LevelConfigModal = ({
                   handleChange("level", {
                     level: config.level?.level || "",
                     repeatAmount: Number(e.target.value),
-                    onWrongAnswer: config.level?.onWrongAnswer || "continue",
+                    onWrongAnswer:
+                      config.level?.onWrongAnswer || "goToNextStep",
                     repeatOnWrong: true,
+                    goToStepId: config.level?.goToStepId || "",
                   });
                 }}
                 className="w-full border rounded px-2 py-1 mt-1 flex-1"
@@ -135,6 +141,7 @@ const LevelConfigModal = ({
                 repeatAmount: config.level?.repeatAmount || 1,
                 onWrongAnswer: value as WrongAnswerOptions,
                 repeatOnWrong: config.level?.repeatOnWrong || true,
+                goToStepId: config.level?.goToStepId || "",
               });
             }}
             config={{

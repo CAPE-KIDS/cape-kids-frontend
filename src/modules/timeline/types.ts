@@ -56,6 +56,7 @@ export interface StimuliBlockConfig {
   isPractice: boolean;
   isLevel?: boolean;
   level?: LevelConfig;
+  optional_step?: boolean;
 }
 
 export interface StimulusStepConfig {

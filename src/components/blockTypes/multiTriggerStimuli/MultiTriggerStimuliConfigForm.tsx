@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 const MultiTriggerStimuliConfigForm = () => {
   const { t } = useTranslation("common");
-  const { open, config, setConfig, updateStimulusStepsConfigField } =
+  const { open, config, setConfig, steps, updateStimulusStepsConfigField } =
     useMultiTriggerStimuliModal();
 
   const [showLevelModal, setShowLevelModal] = useState(false);
@@ -22,6 +22,7 @@ const MultiTriggerStimuliConfigForm = () => {
     field: K,
     value: StimuliBlockConfig[K]
   ) => {
+    console.log("steps", steps);
     setConfig({ [field]: value });
     updateStimulusStepsConfigField(field, value);
   };
@@ -32,7 +33,7 @@ const MultiTriggerStimuliConfigForm = () => {
 
   return (
     <div className="flex w-full gap-x-16 gap-y-4 border-b border-gray-300 pb-4 flex-wrap">
-      <div className="max-w-full lg:max-w-[45%] flex flex-col gap-2">
+      <div className="max-w-full lg:max-w-[43.5%] flex flex-col gap-2">
         <label className="flex items-center justify-between gap-4">
           <div className="flex max-w-[215px] w-full">
             {t("number_of_trials")}
@@ -156,6 +157,7 @@ const MultiTriggerStimuliConfigForm = () => {
                 setShowLevelModal={setShowLevelModal}
                 config={config}
                 setConfig={setConfig}
+                handleChange={handleChange}
               />
             )}
           </div>
@@ -238,6 +240,17 @@ const MultiTriggerStimuliConfigForm = () => {
           <Toggle
             checked={config.randomize}
             onChange={(value) => handleChange("randomize", value)}
+          />
+        </label>
+
+        <label className="flex items-center gap-4">
+          <div className="max-w-[210px] w-full">
+            {t("optional_step")}
+            <Tooltip>{t("tooltip_optional_step")}</Tooltip>
+          </div>
+          <Toggle
+            checked={config.optional_step || false}
+            onChange={(value) => handleChange("optional_step", value)}
           />
         </label>
       </div>

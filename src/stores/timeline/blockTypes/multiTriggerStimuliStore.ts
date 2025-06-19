@@ -1,6 +1,7 @@
 // stores/timeline/blockTypes/useStimuliModal.ts
 import { MediaBlock } from "@/modules/media/types";
-import { StimuliBlockConfig, TimelineStep } from "@/modules/timeline/types";
+import { StimuliBlockConfig } from "@/modules/timeline/types";
+import { TimelineStep } from "@shared/timeline";
 import { create } from "zustand";
 
 interface OverrideConfig {
@@ -59,6 +60,7 @@ export const useMultiTriggerStimuliModal =
         repeatAmount: 1,
         onWrongAnswer: "goToNextStep",
       },
+      optional_step: false,
     },
     steps: [],
     openModal: () => set({ open: true }),
@@ -155,8 +157,10 @@ export const useMultiTriggerStimuliModal =
     ) {
       const { steps } = get();
 
+      if (!steps || steps.length === 0) return;
+
       const updatedSteps = steps.map((step) => {
-        if (step.type === "multi_trigger_stimuli" && step.metadata?.config) {
+        if (step?.type === "multi_trigger_stimuli" && step?.metadata?.config) {
           return {
             ...step,
             metadata: {
@@ -204,6 +208,7 @@ export const useMultiTriggerStimuliModal =
           feedbackDuration: null,
           randomize: false,
           advanceOnWrong: true,
+          optional_step: false,
         },
         steps: [],
       })),

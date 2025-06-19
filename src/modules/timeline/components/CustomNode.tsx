@@ -19,7 +19,9 @@ const CustomNode = ({ data }: { data: any }) => {
       {/* Quick action button (3 dots) */}
       <div className="absolute top-3 right-1 text-white cursor-pointer">
         <button
-          onClick={() => openSidebar(data.stepData)}
+          onClick={() => {
+            openSidebar(data.stepData);
+          }}
           className="text-white cursor-pointer"
         >
           <MoreVertical size={16} />

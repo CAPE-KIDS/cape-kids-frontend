@@ -209,7 +209,7 @@ export function TimelineStepOrder({
     <div className="bg-[#e6ecff] rounded-xl space-y-4">
       <h2 className="text-lg font-semibold mb-2">{tC("timeline_order")}</h2>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 max-h-[400px] overflow-auto">
         {items.map((step) => (
           <SortableStep
             key={step.id}
@@ -258,11 +258,11 @@ function SortableStep({
   return (
     <div
       ref={setNodeRef}
-      className="px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 truncate"
+      className="px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 truncate h-[40px]"
       style={style}
     >
       <Grip className="w-4 h-4" />
-      <span className="truncate">
+      <span className="truncate flex-1">
         {step.metadata.title || (
           <em className="text-gray-400">{tC("untitled_step")}</em>
         )}

@@ -51,11 +51,13 @@ const MultiTriggerStimuliEditorModal = () => {
     overrideInterStimulusInterval: false,
     interStimulusInterval: config.interStimulusInterval || 1000,
     isLevel: config.isLevel || false,
+    optional_step: config.optional_step || false,
     level: config.level || {
       level: "1",
       repeatOnWrong: false,
       repeatAmount: 1,
       onWrongAnswer: "goToNextStep",
+      goToStepId: "",
     },
   });
 
@@ -72,6 +74,7 @@ const MultiTriggerStimuliEditorModal = () => {
         displayRate: stepConfig?.displayRate ?? 1,
         overrideStimulusDuration: stepConfig?.overrideStimulusDuration ?? false,
         isPractice: stepConfig?.isPractice ?? false,
+        optional_step: stepConfig?.optional_step ?? false,
         stimulusDuration:
           stepConfig?.stimulusDuration ?? config.stimulusDuration,
         overrideInterStimulusInterval:
@@ -84,6 +87,7 @@ const MultiTriggerStimuliEditorModal = () => {
           repeatOnWrong: false,
           repeatAmount: 1,
           onWrongAnswer: "goToNextStep",
+          goToStepId: "",
         },
       });
     }
@@ -100,6 +104,7 @@ const MultiTriggerStimuliEditorModal = () => {
       isPractice: config.isPractice || false,
       stimulusDuration: config.stimulusDuration || 2000,
       overrideInterStimulusInterval: false,
+      optional_step: config.optional_step || false,
       interStimulusInterval: config.interStimulusInterval || 1000,
       isLevel: config.isLevel || false,
       level: config.level || {
@@ -107,6 +112,7 @@ const MultiTriggerStimuliEditorModal = () => {
         repeatOnWrong: false,
         repeatAmount: 1,
         onWrongAnswer: "goToNextStep",
+        goToStepId: "",
       },
     });
   };
