@@ -258,7 +258,7 @@ function SortableStep({
   return (
     <div
       ref={setNodeRef}
-      className="px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 truncate h-[40px]"
+      className="px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 truncate min-h-[40px]"
       style={style}
     >
       <Grip className="w-4 h-4" />

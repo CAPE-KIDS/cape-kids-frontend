@@ -61,6 +61,18 @@ export const useAnswerInterceptor = () => {
           return;
         }
 
+        if (config.level.onWrongAnswer === "stop") {
+          resetWrongCount();
+          setTimeout(() => {
+            TriggerActionsRegistry.stop.execute({
+              activeStepId,
+              steps,
+              setActiveStepId,
+            });
+            setIsUpdating(false);
+          }, 100);
+        }
+
         if (
           config.level.onWrongAnswer === "goToStep" &&
           config.level?.goToStepId
