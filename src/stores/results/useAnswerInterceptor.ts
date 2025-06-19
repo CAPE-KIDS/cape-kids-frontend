@@ -71,6 +71,7 @@ export const useAnswerInterceptor = () => {
             });
             setIsUpdating(false);
           }, 100);
+          return;
         }
 
         if (
@@ -80,8 +81,6 @@ export const useAnswerInterceptor = () => {
           const targetStepId = steps.filter(
             (s) => s?.step_id === config.level?.goToStepId
           )[0].id;
-
-          console.log("targetStepId", targetStepId);
 
           if (targetStepId) {
             const duration =
