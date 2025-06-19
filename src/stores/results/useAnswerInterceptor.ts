@@ -63,6 +63,28 @@ export const useAnswerInterceptor = () => {
 
         if (config.level.onWrongAnswer === "stop") {
           resetWrongCount();
+
+          const startIndex = _.findIndex(steps, { id: activeStepId });
+          const nextTask = _.find(
+            steps.slice(startIndex + 1) as any,
+            (s) => s.groupingId && s.groupingId !== step?.groupingId
+          );
+
+          if (nextTask) {
+            setTimeout(() => {
+              TriggerActionsRegistry.goToStep.execute({
+                activeStepId,
+                steps,
+                setActiveStepId,
+                targetStepId: nextTask.id,
+              });
+              setIsUpdating(false);
+              setIsLastCorrect(null);
+              resetWrongCount();
+            }, 100);
+
+            return;
+          }
           setTimeout(() => {
             TriggerActionsRegistry.stop.execute({
               activeStepId,

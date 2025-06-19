@@ -31,7 +31,6 @@ export const preloadImagesFromTimeline = async (
     }
   }
 
-  console.log("Preloading images:", Array.from(imageUrls));
   await Promise.all(
     Array.from(imageUrls).map(
       (src) =>
@@ -50,7 +49,8 @@ export const preloadImagesFromTimeline = async (
 
 export const compileTimeline = async (
   steps: TimelineStep[],
-  isSubTimeline: boolean = false
+  isSubTimeline: boolean = false,
+  groupingId: string = ""
 ): Promise<TimelineStep[]> => {
   steps.sort((a, b) => {
     if (a.orderIndex && b.orderIndex) {
@@ -59,6 +59,7 @@ export const compileTimeline = async (
     return 0;
   });
 
+  console.log("raw steps", steps);
   const compiled = [] as TimelineStep[];
 
   for (const step of steps) {
@@ -79,7 +80,8 @@ export const compileTimeline = async (
 
       const compiledSubSteps = await compileTimeline(
         response.data.timeline.steps,
-        true
+        true,
+        step.id
       );
       compiled.push(...compiledSubSteps);
       continue;
@@ -96,7 +98,7 @@ export const compileTimeline = async (
           : groupSteps;
 
         for (const childSteps of formattedSteps || []) {
-          const newStep: TimelineStep = {
+          const newStep: any = {
             ...step,
             id: crypto.randomUUID(),
             orderIndex: compiled.length + 1,
@@ -110,6 +112,7 @@ export const compileTimeline = async (
               },
             },
             step_id: step?.id,
+            groupingId: groupingId,
           };
 
           const parsedStep = handleStimuliDurationConfig(newStep);
@@ -150,6 +153,7 @@ export const compileTimeline = async (
         ...handleStimuliDurationConfig(step),
         orderIndex: compiled.length + 1,
         step_id: step?.id,
+        groupingId: groupingId,
       };
 
       compiled.push(parsedStep);
