@@ -269,5 +269,13 @@
   "NO": "NO",
   "not_allowed_to_edit_experiment": "You're not allowed to edit this experiment",
   "optional_step": "Optional Step",
-  "tooltip_optional_step": "When enabled, this step will be hidden from the normal timeline flow. It will not be executed automatically, only if it is explicitly triggered using a \"Go to Step\" action"
+  "tooltip_optional_step": "When enabled, this step will be hidden from the normal timeline flow. It will not be executed automatically, only if it is explicitly triggered using a \"Go to Step\" action",
+  "participant_removed_from_experiment": "Participant removed from experiment",
+  "participant_retrieved_successfully": "Participant retrieved successfully",
+  "error_retrieving_participant": "Error retrieving participant",
+  "participant_updated_successfully": "Participant updated successfully",
+  "scientist_added_successfully": "Scientist added successfully",
+  "scientist_already_exists": "Scientist already exists in this experiment",
+  "scientist_removed_successfully": "Scientist removed successfully",
+  "scientist_not_found_in_experiment": "Scientist not found in this experiment"
 }

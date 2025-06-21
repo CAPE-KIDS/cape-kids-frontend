@@ -270,5 +270,15 @@
   "scientist_already_in_experiment": "Cientista já está no experimento",
   "YES": "SIM",
   "NO": "NÃO",
-  "not_allowed_to_edit_experiment": "Você não tem permissão para editar este experimento"
+  "not_allowed_to_edit_experiment": "Você não tem permissão para editar este experimento",
+  "optional_step": "Step Opcional",
+  "tooltip_optional_step": "Quando ativado, este step será ocultado do fluxo normal da timeline. Ele não será executado automaticamente, apenas se for explicitamente acionado usando uma ação \"Ir para o Step\"",
+  "participant_removed_from_experiment": "Participante removido do experimento",
+  "participant_retrieved_successfully": "Participante recuperado com sucesso",
+  "error_retrieving_participant": "Erro ao recuperar participante",
+  "participant_updated_successfully": "Participante atualizado com sucesso",
+  "scientist_added_successfully": "Cientista adicionado com sucesso",
+  "scientist_already_exists": "Cientista já existe neste experimento",
+  "scientist_removed_successfully": " Cientista removido com sucesso",
+  "scientist_not_found_in_experiment": "Cientista não encontrado neste experimento"
 }
