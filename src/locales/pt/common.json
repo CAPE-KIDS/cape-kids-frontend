@@ -280,5 +280,9 @@
   "scientist_added_successfully": "Cientista adicionado com sucesso",
   "scientist_already_exists": "Cientista já existe neste experimento",
   "scientist_removed_successfully": " Cientista removido com sucesso",
-  "scientist_not_found_in_experiment": "Cientista não encontrado neste experimento"
+  "scientist_not_found_in_experiment": "Cientista não encontrado neste experimento",
+  "email_already_in_use": "Email já está em uso",
+  "user_registered_successfully": "Usuário registrado com sucesso",
+  "invalid_credentials": "Credenciais inválidas",
+  "login_successful": "Login bem-sucedido"
 }

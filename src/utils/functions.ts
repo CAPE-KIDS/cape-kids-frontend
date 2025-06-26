@@ -334,28 +334,68 @@ export function normalizeKeyCombo(e: KeyboardEvent): string | null {
 }
 
 export function exportResultsToExcel(
-  results: any[],
+  results: any,
   user: FormatedParticipantsType
 ) {
+  const formatedResults = results.formatted as any[];
   const formatedName = user.name.replace(/\s+/g, "_").toLowerCase();
-  const data = results.map((r) => ({
-    Name: user.name,
-    Age: user.age,
-    Email: r.participant.email,
-    "Start Time": r.startedAt,
-    "End Time": r.completedAt,
-    "Response time (ms)":
-      new Date(r.completedAt).getTime() - new Date(r.startedAt).getTime(),
-    "Step Title": r.timelineStep?.metadata?.title || "",
-    "Step Type": r.metadata.stepType,
-    "Step Order": r.timelineStep?.orderIndex ?? "",
-    Interactions: (r.metadata.interactions || [])
-      .map(
-        (i) => `${i.type} ${i.key ? `(${i.key})` : `(targetId: ${i.target})`} `
-      )
-      .join("; "),
-    "Is Correct?": r.metadata.isCorrect,
-  }));
+  const data = [] as any[];
+
+  formatedResults.forEach((r) => {
+    if (r.task) {
+      const withTitle = r.steps.map((step: any) => {
+        return {
+          Name: user.name,
+          Age: user.age,
+          Email: step.participant.email,
+          Task: r.task,
+          "Step ID": step.id,
+          "Start Time": step.startedAt,
+          "End Time": step.completedAt,
+          "Response time (ms)":
+            new Date(step.completedAt).getTime() -
+            new Date(step.startedAt).getTime(),
+
+          "Step Title": step.metadata?.title || "",
+          "Step Type": step.metadata?.stepType,
+          "Step Order": step.orderIndex || "",
+          Interactions: (step.metadata?.interactions || [])
+            .map(
+              (i) =>
+                `${i.type} ${i.key ? `(${i.key})` : `(targetId: ${i.target})`} `
+            )
+            .join("; "),
+          "Is Correct?": step.metadata?.isCorrect,
+        };
+      });
+      data.push(...withTitle);
+      return;
+    }
+
+    const withoutTitle = {
+      Name: user.name,
+      Age: user.age,
+      Email: r.participant.email,
+      Task: "",
+      "Step ID": r.id,
+      "Start Time": r.startedAt,
+      "End Time": r.completedAt,
+      "Response time (ms)":
+        new Date(r.completedAt).getTime() - new Date(r.startedAt).getTime(),
+      "Step Title": r.timelineStep?.metadata?.title || "",
+      "Step Type": r.metadata.stepType,
+      "Step Order": r.timelineStep?.orderIndex ?? "",
+      Interactions: (r.metadata.interactions || [])
+        .map(
+          (i) =>
+            `${i.type} ${i.key ? `(${i.key})` : `(targetId: ${i.target})`} `
+        )
+        .join("; "),
+      "Is Correct?": r.metadata.isCorrect,
+    };
+
+    data.push(withoutTitle);
+  });
 
   const worksheet = XLSX.utils.json_to_sheet(data);
   const workbook = XLSX.utils.book_new();
