@@ -365,7 +365,7 @@ export function exportResultsToExcel(
                 `${i.type} ${i.key ? `(${i.key})` : `(targetId: ${i.target})`} `
             )
             .join("; "),
-          "Is Correct?": step.metadata?.isCorrect,
+          "Is Correct?": step.metadata?.isCorrect || false,
         };
       });
       data.push(...withTitle);
@@ -391,7 +391,7 @@ export function exportResultsToExcel(
             `${i.type} ${i.key ? `(${i.key})` : `(targetId: ${i.target})`} `
         )
         .join("; "),
-      "Is Correct?": r.metadata.isCorrect,
+      "Is Correct?": r.metadata?.isCorrect || false,
     };
 
     data.push(withoutTitle);
